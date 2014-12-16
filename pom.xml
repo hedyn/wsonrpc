@@ -1,0 +1,113 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.apexes.wsonrpc</groupId>
+	<artifactId>wsonrpc</artifactId>
+	<version>1.0.0</version>
+	
+	<properties>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		
+		<!-- json2 -->
+		<version.com.fasterxml.jackson.core>2.4.2</version.com.fasterxml.jackson.core>
+		<version.com.fasterxml.jackson.module-jaxb-annotations>2.4.2</version.com.fasterxml.jackson.module-jaxb-annotations>
+		
+		<!-- jsonrpc4j -->
+		<version.com.github.briandilley.jsonrpc4j>1.1</version.com.github.briandilley.jsonrpc4j>
+
+		<!-- portlet: for jsonrpc4j -->
+		<version.javax.portlet>2.0</version.javax.portlet>
+		
+		<!-- servlet -->
+		<version.javax.servlet>3.0.1</version.javax.servlet>
+		
+		<!-- tyruns -->
+		<version.org.glassfish.tyrus>1.9</version.org.glassfish.tyrus>
+	</properties>
+	
+	<dependencies>
+	
+		<!-- jackson 2 -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${version.com.fasterxml.jackson.core}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-annotations</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${version.com.fasterxml.jackson.core}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-jaxb-annotations</artifactId>
+			<version>${version.com.fasterxml.jackson.module-jaxb-annotations}</version>
+		</dependency>
+		
+		<!-- jsonrpc4j -->
+		<dependency>
+			<groupId>com.github.briandilley.jsonrpc4j</groupId>
+			<artifactId>jsonrpc4j</artifactId>
+			<version>${version.com.github.briandilley.jsonrpc4j}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-annotations</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<!-- portlet -->
+		<dependency>
+			<groupId>javax.portlet</groupId>
+			<artifactId>portlet-api</artifactId>
+			<version>${version.javax.portlet}</version>
+		</dependency>
+		
+		<!-- servlet -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>${version.javax.servlet}</version>
+		</dependency>
+		
+		<!-- tyruns-client -->
+		<dependency>
+    		<groupId>org.glassfish.tyrus.bundles</groupId>
+    		<artifactId>tyrus-standalone-client-jdk</artifactId>
+    		<version>${version.org.glassfish.tyrus}</version>
+    		<scope>provided</scope>
+		</dependency>
+		
+		<!-- tyruns-server -->
+		<dependency>
+    		<groupId>org.glassfish.tyrus</groupId>
+    		<artifactId>tyrus-server</artifactId>
+    		<version>1.8.3</version>
+    		<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.glassfish.tyrus</groupId>
+    		<artifactId>tyrus-container-grizzly-server</artifactId>
+    		<version>1.8.3</version>
+    		<scope>provided</scope>
+		</dependency>
+		
+	</dependencies>
+</project>
