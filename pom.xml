@@ -31,24 +31,13 @@
 		<!-- jackson 2 -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
+			<artifactId>jackson-core</artifactId>
 			<version>${version.com.fasterxml.jackson.core}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-annotations</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
+			<artifactId>jackson-databind</artifactId>
 			<version>${version.com.fasterxml.jackson.core}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.module</groupId>
-			<artifactId>jackson-module-jaxb-annotations</artifactId>
-			<version>${version.com.fasterxml.jackson.module-jaxb-annotations}</version>
 		</dependency>
 		
 		<!-- jsonrpc4j -->
