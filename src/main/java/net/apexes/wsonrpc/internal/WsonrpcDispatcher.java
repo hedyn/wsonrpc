@@ -78,8 +78,7 @@ class WsonrpcDispatcher implements Caller {
     @Override
     public void notify(Session session, String serviceName, String methodName, Object argument)
             throws Exception {
-        String id = UUID.randomUUID().toString().replace("-", "");
-        invoke(session, serviceName, methodName, argument, id);
+        invoke(session, serviceName, methodName, argument, null);
     }
 
     @Override
