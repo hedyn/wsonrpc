@@ -2,14 +2,25 @@ package net.apexes.wsonrpc.demo.server;
 
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.WsonrpcServer;
-import net.apexes.wsonrpc.demo.api.UserService;
+import net.apexes.wsonrpc.demo.api.CallClientService;
+import net.apexes.wsonrpc.demo.api.LoginService;
+import net.apexes.wsonrpc.demo.api.User;
 
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class ServerUserServiceImpl implements UserService {
+public class LoginServiceImpl implements LoginService {
+
+    @Override
+    public User login(String username, String password) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setLevel(10);
+        return user;
+    }
 
     public String login1(String username, String password) {
         System.out.println("login1(" + username + ", " + password + ")");
@@ -39,8 +50,8 @@ public class ServerUserServiceImpl implements UserService {
     private void callClient(final String username, final String password) {
         WsonrpcRemote remote = WsonrpcServer.Manager.getRemote();
         if (remote != null) {
-            UserService userSrv = WsonrpcRemote.Executor.createProxy(remote, UserService.class, "user");
-            System.out.println(userSrv.login1(username, password));
+            CallClientService callClientSrv = WsonrpcRemote.Executor.createProxy(remote, CallClientService.class, "callClientService");
+            System.out.println(callClientSrv.callClient("the username is " + username));
         }
     }
 }

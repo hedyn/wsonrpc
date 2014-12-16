@@ -20,7 +20,7 @@ public class WsonrpcService extends WsonrpcServerEndpoint implements ExceptionPr
     public WsonrpcService() {
         super(WsonrpcConfig.Builder.create(Executors.newCachedThreadPool()));
         this.setExceptionProcessor(this);
-        this.addService("user", new ServerUserServiceImpl());
+        this.addService("loginService", new LoginServiceImpl());
     }
 
     @Override

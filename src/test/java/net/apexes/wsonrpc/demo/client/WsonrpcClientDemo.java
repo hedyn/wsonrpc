@@ -12,7 +12,8 @@ import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcClient;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
-import net.apexes.wsonrpc.demo.api.UserService;
+import net.apexes.wsonrpc.demo.api.LoginService;
+import net.apexes.wsonrpc.demo.api.User;
 
 /**
  * 
@@ -28,7 +29,7 @@ public class WsonrpcClientDemo {
         WsonrpcConfig config = WsonrpcConfig.Builder.create(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc");
         WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
-        client.addService("user", new ClientUserServiceImpl());
+        client.addService("callClientService", new CallClientServiceImpl());
         client.setExceptionProcessor(new ExceptionProcessor() {
 
             @Override
@@ -41,17 +42,17 @@ public class WsonrpcClientDemo {
         });
         client.connect();
 
-        UserService srv = WsonrpcRemote.Executor.createProxy(client, UserService.class, "user");
-        String user = srv.login2("admin", "admin");
-        System.out.println("sync login: " + user);
+        LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
+        User user = srv.login("admin", "admin");
+        System.out.println("login: " + user);
 
-        Future<String> future = client.asyncInvoke("user", "login1", new Object[] { "async", "async" },
+        Future<String> future = client.asyncInvoke("loginService", "login1", new Object[] { "async", "async" },
                 String.class);
         System.out.println("async login: " + future.get(3, TimeUnit.SECONDS));
 
         Future<String> future4 = null;
         try {
-            future4 = client.asyncInvoke("user", "login4", new Object[] { "async", "async" }, String.class);
+            future4 = client.asyncInvoke("loginService", "login4", new Object[] { "async", "async" }, String.class);
             System.out.println("async login: " + future4.get(3, TimeUnit.SECONDS));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -79,7 +80,7 @@ public class WsonrpcClientDemo {
             public void run() {
                 for (int i = 0; i < 10; i++) {
                     System.out.println("login1 : " + i);
-                    UserService srv = WsonrpcRemote.Executor.createProxy(client, UserService.class, "user");
+                    LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
                     String user = srv.login1("login1_" + i, "");
                     System.out.println("login1 result: " + user);
                 }
@@ -97,7 +98,7 @@ public class WsonrpcClientDemo {
             public void run() {
                 for (int i = 0; i < 10; i++) {
                     System.out.println("login2 : " + i);
-                    UserService srv = WsonrpcRemote.Executor.createProxy(client, UserService.class, "user");
+                    LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
                     String user = srv.login2("login2_" + i, "");
                     System.out.println("login2 result: " + user);
                 }
@@ -115,7 +116,7 @@ public class WsonrpcClientDemo {
             public void run() {
                 for (int i = 0; i < 10; i++) {
                     System.out.println("login3 : " + i);
-                    UserService srv = WsonrpcRemote.Executor.createProxy(client, UserService.class, "user");
+                    LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
                     String user = srv.login3("login3_" + i, "");
                     System.out.println("login3 result: " + user);
                 }
