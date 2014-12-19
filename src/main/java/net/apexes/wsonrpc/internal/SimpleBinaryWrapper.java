@@ -17,14 +17,14 @@ import net.apexes.wsonrpc.BinaryWrapper;
  */
 public class SimpleBinaryWrapper implements BinaryWrapper {
 
-	@Override
-	public InputStream wrap(InputStream ips) throws Exception {
-		return ips;
-	}
+    @Override
+    public InputStream wrap(InputStream ips) throws Exception {
+        return ips;
+    }
 
-	@Override
-	public OutputStream wrap(OutputStream ops) throws Exception {
-		return ops;
-	}
+    @Override
+    public OutputStream wrap(OutputStream ops) throws Exception {
+        return ops;
+    }
 
 }

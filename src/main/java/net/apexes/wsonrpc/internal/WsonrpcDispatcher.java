@@ -16,7 +16,6 @@ import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.RpcHandler;
 import net.apexes.wsonrpc.RpcHandler.JsonMessage;
 import net.apexes.wsonrpc.WsonrpcConfig;
-//import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * 
@@ -48,7 +47,7 @@ class WsonrpcDispatcher implements Caller {
     }
 
     public void addService(String name, Object service) {
-    	rpcHandler.addService(name, service);
+        rpcHandler.addService(name, service);
     }
 
     @Override
@@ -88,18 +87,18 @@ class WsonrpcDispatcher implements Caller {
         InputStream ips = binaryProcessor.wrap(new ByteArrayInputStream(buffer.array()));
         JsonMessage jsonMessage = rpcHandler.toJsonMessage(ips);
         if (jsonMessage.isRequest()) {
-        	doHandleRequest(session, jsonMessage.getValue());
-        } else if (jsonMessage.getId() != null){
-        	WosonrpcFuture<Object> future = WsonrpcContext.Futures.out(jsonMessage.getId());
-			if (future != null) {
-				Type returnType = future.returnType;
-				CallbackImpl callback = new CallbackImpl(future);
-				rpcHandler.handleResponse(jsonMessage.getValue(), returnType, callback);
-				callback.destroy();
-	        }
+            doHandleRequest(session, jsonMessage.getValue());
+        } else if (jsonMessage.getId() != null) {
+            WosonrpcFuture<Object> future = WsonrpcContext.Futures.out(jsonMessage.getId());
+            if (future != null) {
+                Type returnType = future.returnType;
+                CallbackImpl callback = new CallbackImpl(future);
+                rpcHandler.handleResponse(jsonMessage.getValue(), returnType, callback);
+                callback.destroy();
+            }
         }
     }
-    
+
     private void doHandleRequest(final Session session, final Object value) {
         execService.execute(new Runnable() {
 
@@ -111,7 +110,7 @@ class WsonrpcDispatcher implements Caller {
                     rpcHandler.handleRequest(value, binaryProcessor.wrap(ops));
                     session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
                 } catch (Exception ex) {
-                	if (exceptionProcessor != null) {
+                    if (exceptionProcessor != null) {
                         exceptionProcessor.onError(ex, value);
                     }
                 } finally {
@@ -121,37 +120,37 @@ class WsonrpcDispatcher implements Caller {
 
         });
     }
-    
+
     /**
      * 
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
     private static class CallbackImpl implements RpcHandler.Callback {
-    	
-    	private WosonrpcFuture<Object> future;
-    	
-    	private CallbackImpl(WosonrpcFuture<Object> future) {
-    		this.future = future;
-    	}
-    	
-		@Override
-		public void result(Object value) {
-			if (future != null) {
-				future.set(value);
-	        }
-		}
 
-		@Override
-		public void error(Throwable throwable) {
-			if (future != null) {
-	        	future.setException(throwable);
-	        }
-		}
+        private WosonrpcFuture<Object> future;
 
-		void destroy() {
-			future = null;
-		}
-    	
+        private CallbackImpl(WosonrpcFuture<Object> future) {
+            this.future = future;
+        }
+
+        @Override
+        public void result(Object value) {
+            if (future != null) {
+                future.set(value);
+            }
+        }
+
+        @Override
+        public void error(Throwable throwable) {
+            if (future != null) {
+                future.setException(throwable);
+            }
+        }
+
+        void destroy() {
+            future = null;
+        }
+
     }
 }
