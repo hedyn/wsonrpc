@@ -26,7 +26,7 @@ public class WsonrpcClientDemo {
 
     public static void main(String[] args) throws Exception {
         ExecutorService execService = Executors.newCachedThreadPool();
-        WsonrpcConfig config = WsonrpcConfig.Builder.create(execService);
+        WsonrpcConfig config = WsonrpcConfig.Builder.create().build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc");
         WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
         client.addService("callClientService", new CallClientServiceImpl());
@@ -79,12 +79,11 @@ public class WsonrpcClientDemo {
             @Override
             public void run() {
                 for (int i = 0; i < 10; i++) {
-                    System.out.println("login1 : " + i);
                     LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
-                    String user = srv.login1("login1_" + i, "");
+                    String user = srv.login1("login1_" + i, "123456");
                     System.out.println("login1 result: " + user);
                 }
-                System.err.println("login1 OVER!");
+                System.out.println("login1 OVER!");
                 downLatch.countDown();
             }
         };
@@ -97,12 +96,11 @@ public class WsonrpcClientDemo {
             @Override
             public void run() {
                 for (int i = 0; i < 10; i++) {
-                    System.out.println("login2 : " + i);
                     LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
-                    String user = srv.login2("login2_" + i, "");
+                    String user = srv.login2("login2_" + i, "123456");
                     System.out.println("login2 result: " + user);
                 }
-                System.err.println("login2 OVER!");
+                System.out.println("login2 OVER!");
                 downLatch.countDown();
             }
         };
@@ -115,12 +113,11 @@ public class WsonrpcClientDemo {
             @Override
             public void run() {
                 for (int i = 0; i < 10; i++) {
-                    System.out.println("login3 : " + i);
                     LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
-                    String user = srv.login3("login3_" + i, "");
+                    String user = srv.login3("login3_" + i, "123456");
                     System.out.println("login3 result: " + user);
                 }
-                System.err.println("login3 OVER!");
+                System.out.println("login3 OVER!");
                 downLatch.countDown();
             }
         };

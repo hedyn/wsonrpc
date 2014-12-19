@@ -19,8 +19,6 @@ import net.apexes.wsonrpc.WebsocketConnector;
 import net.apexes.wsonrpc.WsonrpcClient;
 import net.apexes.wsonrpc.WsonrpcConfig;
 
-import com.googlecode.jsonrpc4j.ExceptionResolver;
-
 /**
  * 
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
@@ -41,9 +39,9 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
         this.dispatcher = new WsonrpcDispatcher(config);
     }
 
-    public void setExceptionResolver(ExceptionResolver exceptionResolver) {
-        dispatcher.setExceptionResolver(exceptionResolver);
-    }
+//    public void setExceptionResolver(ExceptionResolver exceptionResolver) {
+//        dispatcher.setExceptionResolver(exceptionResolver);
+//    }
 
     @Override
     public void setExceptionProcessor(ExceptionProcessor processor) {
@@ -94,9 +92,8 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
     @OnMessage
     public void onMessage(Session session, ByteBuffer buffer) {
         try {
-            dispatcher.handle(session, buffer);
+            dispatcher.handleMessage(session, buffer);
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
             onError(session, throwable);
         }
     }

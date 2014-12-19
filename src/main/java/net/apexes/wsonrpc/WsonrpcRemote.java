@@ -6,8 +6,6 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.concurrent.Future;
 
-import com.googlecode.jsonrpc4j.ReflectionUtil;
-
 /**
  * 
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
@@ -78,9 +76,8 @@ public interface WsonrpcRemote {
                     if (method.getDeclaringClass() == Object.class) {
                         return proxyObjectMethods(method, proxy, args);
                     }
-                    Object arguments = ReflectionUtil.parseArguments(method, args, false);
                     Type returnType = method.getGenericReturnType();
-                    return remote.invoke(serviceName, method.getName(), arguments, returnType);
+                    return remote.invoke(serviceName, method.getName(), args, returnType, timeout);
                 }
             };
             return (T) Proxy.newProxyInstance(classLoader, new Class<?>[] { serviceClass }, handler);

@@ -13,20 +13,10 @@ import javax.websocket.Session;
 
 import net.apexes.wsonrpc.BinaryWrapper;
 import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.RpcHandler;
+import net.apexes.wsonrpc.RpcHandler.JsonMessage;
 import net.apexes.wsonrpc.WsonrpcConfig;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.googlecode.jsonrpc4j.DefaultExceptionResolver;
-import com.googlecode.jsonrpc4j.ExceptionResolver;
-import com.googlecode.jsonrpc4j.JsonRpcClient;
-import com.googlecode.jsonrpc4j.JsonRpcClientException;
-import com.googlecode.jsonrpc4j.JsonRpcMultiServer;
-import com.googlecode.jsonrpc4j.NoCloseInputStream;
+//import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * 
@@ -36,26 +26,17 @@ import com.googlecode.jsonrpc4j.NoCloseInputStream;
 class WsonrpcDispatcher implements Caller {
 
     private final ExecutorService execService;
-    private final ObjectMapper mapper;
     private final BinaryWrapper binaryProcessor;
     private final long timeout;
-    private final JsonRpcClient jsonRpcClient;
-    private final JsonRpcMultiServer jsonRpcServer;
+    private final RpcHandler rpcHandler;
 
-    private ExceptionResolver exceptionResolver = DefaultExceptionResolver.INSTANCE;
     private ExceptionProcessor exceptionProcessor;
 
     public WsonrpcDispatcher(WsonrpcConfig config) {
         this.execService = config.getExecutorService();
-        this.mapper = config.getObjectMapper();
         this.binaryProcessor = config.getBinaryWrapper();
         this.timeout = config.getTimeout();
-        jsonRpcClient = new JsonRpcClient(mapper);
-        jsonRpcServer = new JsonRpcMultiServer(mapper);
-    }
-
-    public void setExceptionResolver(ExceptionResolver exceptionResolver) {
-        this.exceptionResolver = exceptionResolver;
+        this.rpcHandler = config.getRpcHandler();
     }
 
     public void setExceptionProcessor(ExceptionProcessor processor) {
@@ -66,8 +47,8 @@ class WsonrpcDispatcher implements Caller {
         return exceptionProcessor;
     }
 
-    public void addService(String name, Object handler) {
-        jsonRpcServer.addService(name, handler);
+    public void addService(String name, Object service) {
+    	rpcHandler.addService(name, service);
     }
 
     @Override
@@ -99,74 +80,27 @@ class WsonrpcDispatcher implements Caller {
     private void invoke(Session session, String serviceName, String methodName, Object argument, String id)
             throws Exception {
         ByteArrayOutputStream ops = new ByteArrayOutputStream();
-        jsonRpcClient.invoke(serviceName + "." + methodName, argument, binaryProcessor.wrap(ops), id);
+        rpcHandler.invoke(id, serviceName + "." + methodName, argument, binaryProcessor.wrap(ops));
         session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
     }
 
-    public void handle(Session session, ByteBuffer buffer) throws Exception {
+    public void handleMessage(Session session, ByteBuffer buffer) throws Exception {
         InputStream ips = binaryProcessor.wrap(new ByteArrayInputStream(buffer.array()));
-        JsonNode data = mapper.readTree(new NoCloseInputStream(ips));
-
-        // bail on invalid response
-        if (!data.isObject()) {
-            throw new JsonRpcClientException(0, "Invalid WSON-RPC data", data);
-        }
-        ObjectNode jsonObject = ObjectNode.class.cast(data);
-
-        if (jsonObject.has("method")) {
-            response(session, jsonObject);
-        } else {
-            accept(jsonObject);
-        }
-    }
-
-    private void accept(ObjectNode jsonObject) throws Exception {
-        JsonNode idNode = jsonObject.get("id");
-        if (idNode == null || !idNode.isTextual()) {
-            return;
-        }
-        String id = idNode.textValue();
-        WosonrpcFuture<Object> future = WsonrpcContext.Futures.out(id);
-        if (future == null) {
-            return;
-        }
-
-        // detect errors
-        JsonNode exceptionNode = jsonObject.get("error");
-        if (exceptionNode != null && !exceptionNode.isNull()) {
-            // resolve and throw the exception
-            Throwable throwable;
-            if (exceptionResolver == null) {
-                throwable = DefaultExceptionResolver.INSTANCE.resolveException(jsonObject);
-            } else {
-                throwable = exceptionResolver.resolveException(jsonObject);
-            }
-            future.setException(throwable);
-        }
-
-        // convert it to a return object
-        JsonNode resultNode = jsonObject.get("result");
-        if (resultNode != null && !resultNode.isNull()) {
-            Type returnType = future.returnType;
-            if (returnType == null) {
-                return;
-            }
-            JsonParser returnJsonParser = mapper.treeAsTokens(resultNode);
-            JavaType returnJavaType = TypeFactory.defaultInstance().constructType(returnType);
-            Object value = mapper.readValue(returnJsonParser, returnJavaType);
-            future.set(value);
-        } else {
-            Throwable throwable;
-            if (exceptionResolver == null) {
-                throwable = DefaultExceptionResolver.INSTANCE.resolveException(jsonObject);
-            } else {
-                throwable = exceptionResolver.resolveException(jsonObject);
-            }
-            future.setException(throwable);
+        JsonMessage jsonMessage = rpcHandler.toJsonMessage(ips);
+        if (jsonMessage.isRequest()) {
+        	doHandleRequest(session, jsonMessage.getValue());
+        } else if (jsonMessage.getId() != null){
+        	WosonrpcFuture<Object> future = WsonrpcContext.Futures.out(jsonMessage.getId());
+			if (future != null) {
+				Type returnType = future.returnType;
+				CallbackImpl callback = new CallbackImpl(future);
+				rpcHandler.handleResponse(jsonMessage.getValue(), returnType, callback);
+				callback.destroy();
+	        }
         }
     }
-
-    private void response(final Session session, final ObjectNode jsonObject) {
+    
+    private void doHandleRequest(final Session session, final Object value) {
         execService.execute(new Runnable() {
 
             @Override
@@ -174,11 +108,11 @@ class WsonrpcDispatcher implements Caller {
                 WsonrpcContext.Sessions.begin(session);
                 try {
                     ByteArrayOutputStream ops = new ByteArrayOutputStream();
-                    jsonRpcServer.handleNode(jsonObject, binaryProcessor.wrap(ops));
+                    rpcHandler.handleRequest(value, binaryProcessor.wrap(ops));
                     session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
                 } catch (Exception ex) {
-                    if (exceptionProcessor != null) {
-                        exceptionProcessor.onError(ex, jsonObject);
+                	if (exceptionProcessor != null) {
+                        exceptionProcessor.onError(ex, value);
                     }
                 } finally {
                     WsonrpcContext.Sessions.end();
@@ -187,5 +121,37 @@ class WsonrpcDispatcher implements Caller {
 
         });
     }
+    
+    /**
+     * 
+     * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
+     *
+     */
+    private static class CallbackImpl implements RpcHandler.Callback {
+    	
+    	private WosonrpcFuture<Object> future;
+    	
+    	private CallbackImpl(WosonrpcFuture<Object> future) {
+    		this.future = future;
+    	}
+    	
+		@Override
+		public void result(Object value) {
+			if (future != null) {
+				future.set(value);
+	        }
+		}
 
+		@Override
+		public void error(Throwable throwable) {
+			if (future != null) {
+	        	future.setException(throwable);
+	        }
+		}
+
+		void destroy() {
+			future = null;
+		}
+    	
+    }
 }

@@ -2,9 +2,8 @@ package net.apexes.wsonrpc;
 
 import java.util.concurrent.ExecutorService;
 
-import net.apexes.wsonrpc.internal.SimpleWsonrpcConfig;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import net.apexes.wsonrpc.internal.JacksonRpcHandler;
+import net.apexes.wsonrpc.internal.SimpleBinaryWrapper;
 
 /**
  * 
@@ -14,8 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public interface WsonrpcConfig {
 
     ExecutorService getExecutorService();
-
-    ObjectMapper getObjectMapper();
+    
+    RpcHandler getRpcHandler();
 
     BinaryWrapper getBinaryWrapper();
 
@@ -32,21 +31,65 @@ public interface WsonrpcConfig {
      *
      */
     public static class Builder {
-
-        public static WsonrpcConfig create(ExecutorService execService) {
-            return create(execService, new ObjectMapper());
+    
+        public static Builder create() {
+            return new Builder();
+        }
+        
+        private RpcHandler rpcHandler;
+        private BinaryWrapper binaryWrapper;
+        private long timeout;
+        
+        public WsonrpcConfig build(ExecutorService execService) {
+        	if (binaryWrapper == null) {
+        		binaryWrapper = new SimpleBinaryWrapper();
+        	}
+        	if (rpcHandler == null) {
+        		rpcHandler = new JacksonRpcHandler();
+        	}
+        	return new SimpleWsonrpcConfig(execService, rpcHandler, binaryWrapper, timeout);
         }
 
-        public static WsonrpcConfig create(ExecutorService execService, long timeout) {
-            return create(execService, new ObjectMapper(), timeout);
+    }
+    
+    /**
+     * 
+     * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
+     *
+     */
+    static class SimpleWsonrpcConfig implements WsonrpcConfig {
+
+        private final ExecutorService execService;
+        private final RpcHandler rpcHandler;
+        private final BinaryWrapper binaryWrapper;
+        private final long timeout;
+
+        public SimpleWsonrpcConfig(ExecutorService execService, RpcHandler rpcHandler, 
+        		BinaryWrapper binaryWrapper, long timeout) {
+            this.execService = execService;
+            this.rpcHandler = rpcHandler;
+            this.binaryWrapper = binaryWrapper;
+            this.timeout = timeout;
         }
 
-        public static WsonrpcConfig create(ExecutorService execService, ObjectMapper mapper) {
-            return create(execService, mapper, 0);
+        @Override
+        public ExecutorService getExecutorService() {
+            return execService;
         }
 
-        public static WsonrpcConfig create(ExecutorService execService, ObjectMapper mapper, long timeout) {
-            return new SimpleWsonrpcConfig(execService, mapper, timeout);
+    	@Override
+    	public RpcHandler getRpcHandler() {
+    		return rpcHandler;
+    	}
+
+        @Override
+        public BinaryWrapper getBinaryWrapper() {
+            return binaryWrapper;
+        }
+
+        @Override
+        public long getTimeout() {
+            return timeout;
         }
 
     }

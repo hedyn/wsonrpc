@@ -11,7 +11,7 @@ public class CallClientServiceImpl implements CallClientService {
     
     @Override
     public String callClient(String msg) {
-        return "client result: " + msg;
+        return "Client result: " + msg;
     }
 
 }

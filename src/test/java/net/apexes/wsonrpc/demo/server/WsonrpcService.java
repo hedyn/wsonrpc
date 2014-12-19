@@ -18,7 +18,7 @@ import net.apexes.wsonrpc.internal.WsonrpcServerEndpoint;
 public class WsonrpcService extends WsonrpcServerEndpoint implements ExceptionProcessor {
 
     public WsonrpcService() {
-        super(WsonrpcConfig.Builder.create(Executors.newCachedThreadPool()));
+        super(WsonrpcConfig.Builder.create().build(Executors.newCachedThreadPool()));
         this.setExceptionProcessor(this);
         this.addService("loginService", new LoginServiceImpl());
     }

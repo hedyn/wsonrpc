@@ -25,17 +25,17 @@ public class LoginServiceImpl implements LoginService {
     public String login1(String username, String password) {
         System.out.println("login1(" + username + ", " + password + ")");
         callClient(username, password);
-        return "Server: 1:" + username;
+        return "[" + username + "] call #login1 succeed!";
     }
 
     public String login2(String username, String password) {
         System.out.println("login2(" + username + ", " + password + ")");
-        return "Server: 2:" + username;
+        return "[" + username + "] call #login2 succeed!";
     }
 
     public String login3(String username, String password) {
         System.out.println("login3(" + username + ", " + password + ")");
-        return "Server: 3:" + username;
+        return "[" + username + "] call #login3 succeed!";
     }
 
     public String login4(String username, String password) {
@@ -44,14 +44,14 @@ public class LoginServiceImpl implements LoginService {
             Thread.sleep(6000);
         } catch (InterruptedException e) {
         }
-        return "Server: 4:" + username;
+        return "[" + username + "] call #login4 succeed!";
     }
 
     private void callClient(final String username, final String password) {
         WsonrpcRemote remote = WsonrpcServer.Manager.getRemote();
         if (remote != null) {
             CallClientService callClientSrv = WsonrpcRemote.Executor.createProxy(remote, CallClientService.class, "callClientService");
-            System.out.println(callClientSrv.callClient("the username is " + username));
+            System.out.println(callClientSrv.callClient("The username is " + username));
         }
     }
 }

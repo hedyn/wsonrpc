@@ -44,9 +44,9 @@ public abstract class WsonrpcServerEndpoint {
     }
 
     @OnMessage
-    public void handle(final Session session, final ByteBuffer buffer) {
+    public void onMessage(final Session session, final ByteBuffer buffer) {
         try {
-            dispatcher.handle(session, buffer);
+            dispatcher.handleMessage(session, buffer);
         } catch (Exception ex) {
             if (dispatcher.getExceptionProcessor() != null) {
                 dispatcher.getExceptionProcessor().onError(ex);
