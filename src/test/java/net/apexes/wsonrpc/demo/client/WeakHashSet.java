@@ -1,4 +1,4 @@
-package net.apexes.wsonrpc.util;
+package net.apexes.wsonrpc.demo.client;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
