@@ -32,98 +32,91 @@ import com.googlecode.jsonrpc4j.NoCloseInputStream;
  */
 public class JacksonRpcHandler implements RpcHandler {
 
-	private final ObjectMapper objectMapper;
-	private final JsonRpcClient jsonRpcClient;
-	private final JsonRpcMultiServer jsonRpcServer;
+    private final ObjectMapper objectMapper;
+    private final JsonRpcClient jsonRpcClient;
+    private final JsonRpcMultiServer jsonRpcServer;
 
-	private ExceptionResolver exceptionResolver = DefaultExceptionResolver.INSTANCE;
+    private ExceptionResolver exceptionResolver = DefaultExceptionResolver.INSTANCE;
 
-	public JacksonRpcHandler() {
-		this(new ObjectMapper());
-	}
+    public JacksonRpcHandler() {
+        this(new ObjectMapper());
+    }
 
-	public JacksonRpcHandler(ObjectMapper objectMapper) {
-		this.objectMapper = objectMapper;
-		jsonRpcClient = new JsonRpcClient(objectMapper);
-		jsonRpcServer = new JsonRpcMultiServer(objectMapper);
-	}
+    public JacksonRpcHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+        jsonRpcClient = new JsonRpcClient(objectMapper);
+        jsonRpcServer = new JsonRpcMultiServer(objectMapper);
+    }
 
-	public void setExceptionResolver(ExceptionResolver exceptionResolver) {
-		this.exceptionResolver = exceptionResolver;
-	}
+    public void setExceptionResolver(ExceptionResolver exceptionResolver) {
+        this.exceptionResolver = exceptionResolver;
+    }
 
-	@Override
-	public void addService(String name, Object service) {
-		jsonRpcServer.addService(name, service);
-	}
+    @Override
+    public void addService(String name, Object service) {
+        jsonRpcServer.addService(name, service);
+    }
 
-	@Override
-	public void invoke(String id, String methodName, Object argument,
-			OutputStream ops) throws IOException {
-		jsonRpcClient.invoke(methodName, argument, ops, id);
-	}
+    @Override
+    public void invoke(String id, String methodName, Object argument, OutputStream ops) throws IOException {
+        jsonRpcClient.invoke(methodName, argument, ops, id);
+    }
 
-	@Override
-	public JsonMessage toJsonMessage(InputStream ips) throws Exception {
-		JsonNode data = objectMapper.readTree(new NoCloseInputStream(ips));
-		if (!data.isObject()) {
-			throw new JsonRpcClientException(0, "Invalid WSON-RPC data", data);
-		}
-		ObjectNode jsonObject = ObjectNode.class.cast(data);
-		JsonNode idNode = jsonObject.get("id");
-		if (idNode == null || !idNode.isTextual()) {
-			return null;
-		}
-		String id = idNode.textValue();
-		if (jsonObject.has("method")) {
-			return JsonMessage.createRequest(id, jsonObject);
-		} else {
-			return JsonMessage.createResponse(id, jsonObject);
-		}
-	}
+    @Override
+    public JsonMessage toJsonMessage(InputStream ips) throws Exception {
+        JsonNode data = objectMapper.readTree(new NoCloseInputStream(ips));
+        if (!data.isObject()) {
+            throw new JsonRpcClientException(0, "Invalid WSON-RPC data", data);
+        }
+        ObjectNode jsonObject = ObjectNode.class.cast(data);
+        JsonNode idNode = jsonObject.get("id");
+        if (idNode == null || !idNode.isTextual()) {
+            return null;
+        }
+        String id = idNode.textValue();
+        if (jsonObject.has("method")) {
+            return JsonMessage.createRequest(id, jsonObject);
+        } else {
+            return JsonMessage.createResponse(id, jsonObject);
+        }
+    }
 
-	@Override
-	public void handleRequest(Object value, OutputStream ops)
-			throws IOException {
-		jsonRpcServer.handleNode((ObjectNode) value, ops);
-	}
+    @Override
+    public void handleRequest(Object value, OutputStream ops) throws IOException {
+        jsonRpcServer.handleNode((ObjectNode) value, ops);
+    }
 
-	@Override
-	public void handleResponse(Object value, Type returnType, Callback callback)
-			throws IOException {
-		ObjectNode jsonObject = (ObjectNode) value;
-		JsonNode exceptionNode = jsonObject.get("error");
-		if (exceptionNode != null && !exceptionNode.isNull()) {
-			// resolve and throw the exception
-			Throwable throwable;
-			if (exceptionResolver == null) {
-				throwable = DefaultExceptionResolver.INSTANCE
-						.resolveException(jsonObject);
-			} else {
-				throwable = exceptionResolver.resolveException(jsonObject);
-			}
-			callback.error(throwable);
-		}
+    @Override
+    public void handleResponse(Object value, Type returnType, Callback callback) throws IOException {
+        ObjectNode jsonObject = (ObjectNode) value;
+        JsonNode exceptionNode = jsonObject.get("error");
+        if (exceptionNode != null && !exceptionNode.isNull()) {
+            // resolve and throw the exception
+            Throwable throwable;
+            if (exceptionResolver == null) {
+                throwable = DefaultExceptionResolver.INSTANCE.resolveException(jsonObject);
+            } else {
+                throwable = exceptionResolver.resolveException(jsonObject);
+            }
+            callback.error(throwable);
+        }
 
-		// convert it to a return object
-		JsonNode resultNode = jsonObject.get("result");
-		if (resultNode != null && !resultNode.isNull()) {
-			JsonParser returnJsonParser = objectMapper.treeAsTokens(resultNode);
-			JavaType returnJavaType = TypeFactory.defaultInstance()
-					.constructType(returnType);
-			Object resultObject = objectMapper.readValue(returnJsonParser,
-					returnJavaType);
-			callback.result(resultObject);
-		} else {
-			Throwable throwable;
-			if (exceptionResolver == null) {
-				throwable = DefaultExceptionResolver.INSTANCE
-						.resolveException(jsonObject);
-			} else {
-				throwable = exceptionResolver.resolveException(jsonObject);
-			}
-			callback.error(throwable);
-		}
-	}
+        // convert it to a return object
+        JsonNode resultNode = jsonObject.get("result");
+        if (resultNode != null && !resultNode.isNull()) {
+            JsonParser returnJsonParser = objectMapper.treeAsTokens(resultNode);
+            JavaType returnJavaType = TypeFactory.defaultInstance().constructType(returnType);
+            Object resultObject = objectMapper.readValue(returnJsonParser, returnJavaType);
+            callback.result(resultObject);
+        } else {
+            Throwable throwable;
+            if (exceptionResolver == null) {
+                throwable = DefaultExceptionResolver.INSTANCE.resolveException(jsonObject);
+            } else {
+                throwable = exceptionResolver.resolveException(jsonObject);
+            }
+            callback.error(throwable);
+        }
+    }
 
 }
