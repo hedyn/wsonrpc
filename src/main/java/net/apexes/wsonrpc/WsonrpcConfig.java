@@ -49,6 +49,21 @@ public interface WsonrpcConfig {
         	}
         	return new SimpleWsonrpcConfig(execService, rpcHandler, binaryWrapper, timeout);
         }
+        
+        public Builder rpcHandler(RpcHandler rpcHandler) {
+            this.rpcHandler = rpcHandler;
+            return this;
+        }
+        
+        public Builder binaryWrapper(BinaryWrapper binaryWrapper) {
+            this.binaryWrapper = binaryWrapper;
+            return this;
+        }
+        
+        public Builder timeout(long timeout) {
+            this.timeout = timeout;
+            return this;
+        }
 
     }
     
