@@ -26,8 +26,8 @@ class WsonrpcDispatcher implements Caller {
 
     private final ExecutorService execService;
     private final BinaryWrapper binaryProcessor;
-    private final long timeout;
     private final RpcHandler rpcHandler;
+    private final long timeout;
 
     private ExceptionProcessor exceptionProcessor;
 
@@ -93,8 +93,11 @@ class WsonrpcDispatcher implements Caller {
             if (future != null) {
                 Type returnType = future.returnType;
                 CallbackImpl callback = new CallbackImpl(future);
-                rpcHandler.handleResponse(jsonMessage.getValue(), returnType, callback);
-                callback.destroy();
+                try {
+                    rpcHandler.handleResponse(jsonMessage.getValue(), returnType, callback);
+                } finally {
+                    callback.destroy();
+                }
             }
         }
     }
