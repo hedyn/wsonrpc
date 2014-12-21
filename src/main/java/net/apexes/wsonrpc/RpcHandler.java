@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014, Apexes Network Technology. All rights reserved.
+ * Copyright (C) 2014, Apexes.net. All rights reserved.
  * 
  *        http://www.apexes.net
  * 

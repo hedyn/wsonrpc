@@ -1,8 +1,8 @@
 /**
- * Copyright © 2013-2014, Ratepo.com. All Rights Reserved.
- *
- * Reproduction by any means, or disclosure to parties who are not 
- * employees of Ratepo is forbidden unless authorized.
+ * Copyright (C) 2014, Apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
  */
 package net.apexes.wsonrpc.demo.api;
 
