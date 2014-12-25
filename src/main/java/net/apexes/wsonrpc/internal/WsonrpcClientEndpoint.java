@@ -45,10 +45,6 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
         this.dispatcher = new WsonrpcDispatcher(config);
     }
 
-//    public void setExceptionResolver(ExceptionResolver exceptionResolver) {
-//        dispatcher.setExceptionResolver(exceptionResolver);
-//    }
-
     @Override
     public void setExceptionProcessor(ExceptionProcessor processor) {
         dispatcher.setExceptionProcessor(processor);
