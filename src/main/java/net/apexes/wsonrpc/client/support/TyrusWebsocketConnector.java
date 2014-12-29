@@ -4,7 +4,7 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.support;
+package net.apexes.wsonrpc.client.support;
 
 import java.net.URI;
 

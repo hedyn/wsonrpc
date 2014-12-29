@@ -24,6 +24,10 @@
 
 		<!-- tyruns -->
 		<version.org.glassfish.tyrus>1.9</version.org.glassfish.tyrus>
+		
+		<!-- plugin -->
+		<version.maven-compiler-plugin>3.1</version.maven-compiler-plugin>
+        <version.maven-jar-plugin>2.4</version.maven-jar-plugin>
 	</properties>
 
 	<dependencies>
@@ -102,4 +106,62 @@
 		</dependency>
 
 	</dependencies>
+	
+	<build>
+
+        <plugins>
+	       <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${version.maven-jar-plugin}</version>
+                <configuration>
+                    <finalName>wsonrpc-${project.version}</finalName>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>false</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>false</addDefaultSpecificationEntries>
+                        </manifest>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                </configuration>
+                <executions>
+                    <!-- client -->
+                    <execution>
+                        <id>wsonrpc-client</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>wsonrpc-client-${project.version}</finalName>
+                            <archive>
+                                <addMavenDescriptor>false</addMavenDescriptor>
+                            </archive>
+                            <excludes>
+                                <exclude>**/service/**</exclude>            
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- service -->
+                    <execution>
+                        <id>wsonrpc-service</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>wsonrpc-service-${project.version}</finalName>
+                            <archive>
+                                <addMavenDescriptor>false</addMavenDescriptor>
+                            </archive>
+                            <excludes>
+                                <exclude>**/client/**</exclude>            
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+        </plugins>
+    </build>
 </project>

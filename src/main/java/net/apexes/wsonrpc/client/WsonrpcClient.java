@@ -11,7 +11,7 @@ import java.net.URI;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
-import net.apexes.wsonrpc.support.TyrusWebsocketConnector;
+import net.apexes.wsonrpc.client.support.TyrusWebsocketConnector;
 
 /**
  * 
