@@ -85,14 +85,14 @@ public class WsonrpcDispatcher implements Caller {
     private void invoke(Session session, String serviceName, String methodName, Object argument, String id)
             throws Exception {
         ByteArrayOutputStream ops = new ByteArrayOutputStream();
-        rpcHandler.call(id, serviceName + "." + methodName, argument, binaryProcessor.wrap(ops));
+        rpcHandler.invoke(id, serviceName + "." + methodName, argument, binaryProcessor.wrap(ops));
         session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
     }
 
     public void handleMessage(Session session, ByteBuffer buffer) throws Exception {
         InputStream ips = binaryProcessor.wrap(new ByteArrayInputStream(buffer.array()));
         RpcMessage rpcMessage = rpcHandler.readRpcMessage(ips);
-        if (rpcMessage.isRequest()) {
+        if (rpcMessage.isInvoked()) {
             doHandleRequest(session, rpcMessage.getValue());
         } else if (rpcMessage.getId() != null) {
             WosonrpcFuture<Object> future = WsonrpcContext.Futures.out(rpcMessage.getId());
@@ -116,7 +116,7 @@ public class WsonrpcDispatcher implements Caller {
                 WsonrpcContext.Sessions.begin(session);
                 try {
                     ByteArrayOutputStream ops = new ByteArrayOutputStream();
-                    rpcHandler.handleCall(value, binaryProcessor.wrap(ops));
+                    rpcHandler.handleInvoke(value, binaryProcessor.wrap(ops));
                     session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
                 } catch (Exception ex) {
                     if (exceptionProcessor != null) {

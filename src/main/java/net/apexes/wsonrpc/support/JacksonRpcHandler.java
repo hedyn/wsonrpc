@@ -58,7 +58,7 @@ public class JacksonRpcHandler implements RpcHandler {
     }
 
     @Override
-    public void call(String id, String methodName, Object argument, OutputStream ops) throws IOException {
+    public void invoke(String id, String methodName, Object argument, OutputStream ops) throws IOException {
         jsonRpcClient.invoke(methodName, argument, ops, id);
     }
 
@@ -75,14 +75,14 @@ public class JacksonRpcHandler implements RpcHandler {
         }
         String id = idNode.textValue();
         if (jsonObject.has("method")) {
-            return RpcMessage.createCallMessage(id, jsonObject);
+            return RpcMessage.createInvokeMessage(id, jsonObject);
         } else {
             return RpcMessage.createResultMessage(id, jsonObject);
         }
     }
 
     @Override
-    public void handleCall(Object value, OutputStream ops) throws IOException {
+    public void handleInvoke(Object value, OutputStream ops) throws IOException {
         jsonRpcServer.handleNode((ObjectNode) value, ops);
     }
 

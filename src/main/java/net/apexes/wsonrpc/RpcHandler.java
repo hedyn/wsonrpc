@@ -27,7 +27,7 @@ public interface RpcHandler {
      * @param ops
      * @throws Exception
      */
-    void call(String id, String methodName, Object argument, OutputStream ops) throws Exception;
+    void invoke(String id, String methodName, Object argument, OutputStream ops) throws Exception;
 
     /**
      * 从输入流中读取一个RpcMessage
@@ -43,7 +43,7 @@ public interface RpcHandler {
      * @param ops 用于回复的输出流
      * @throws Exception
      */
-    void handleCall(Object value, OutputStream ops) throws Exception;
+    void handleInvoke(Object value, OutputStream ops) throws Exception;
 
     /**
      * 处理远端的RPC回复
@@ -65,12 +65,12 @@ public interface RpcHandler {
 
         private final Object value;
 
-        private final boolean request;
+        private final boolean invoked;
 
-        private RpcMessage(String id, Object value, boolean request) {
+        private RpcMessage(String id, Object value, boolean invoked) {
             this.id = id;
             this.value = value;
-            this.request = request;
+            this.invoked = invoked;
         }
 
         /**
@@ -88,13 +88,13 @@ public interface RpcHandler {
         }
 
         /**
-         * @return the request
+         * @return the invoked
          */
-        public boolean isRequest() {
-            return request;
+        public boolean isInvoked() {
+            return invoked;
         }
 
-        public static RpcMessage createCallMessage(String id, Object value) {
+        public static RpcMessage createInvokeMessage(String id, Object value) {
             return new RpcMessage(id, value, true);
         }
 
