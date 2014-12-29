@@ -19,16 +19,12 @@ import net.apexes.wsonrpc.WsonrpcRemote;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-class WsonrpcEndpoint implements WsonrpcRemote {
+public class WsonrpcEndpoint implements WsonrpcRemote {
 
     private Session session;
     private Caller caller;
 
     protected WsonrpcEndpoint() {
-    }
-
-    WsonrpcEndpoint(Session session, Caller caller) {
-        online(session, caller);
     }
 
     protected final void online(Session session, Caller caller) {

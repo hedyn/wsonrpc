@@ -13,7 +13,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
-import net.apexes.wsonrpc.internal.WsonrpcServerEndpoint;
+import net.apexes.wsonrpc.service.WsonrpcServiceEndpoint;
 
 /**
  * 
@@ -21,7 +21,7 @@ import net.apexes.wsonrpc.internal.WsonrpcServerEndpoint;
  *
  */
 @ServerEndpoint("/wsonrpc")
-public class WsonrpcService extends WsonrpcServerEndpoint implements ExceptionProcessor {
+public class WsonrpcService extends WsonrpcServiceEndpoint implements ExceptionProcessor {
 
     public WsonrpcService() {
         super(WsonrpcConfig.Builder.create().build(Executors.newCachedThreadPool()));

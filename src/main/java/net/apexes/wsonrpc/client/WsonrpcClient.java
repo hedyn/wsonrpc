@@ -4,12 +4,14 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc;
+package net.apexes.wsonrpc.client;
 
 import java.net.URI;
 
-import net.apexes.wsonrpc.internal.TyrusWebsocketConnector;
-import net.apexes.wsonrpc.internal.WsonrpcClientEndpoint;
+import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.support.TyrusWebsocketConnector;
 
 /**
  * 

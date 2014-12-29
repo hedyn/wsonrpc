@@ -15,9 +15,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
-import net.apexes.wsonrpc.WsonrpcClient;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
 

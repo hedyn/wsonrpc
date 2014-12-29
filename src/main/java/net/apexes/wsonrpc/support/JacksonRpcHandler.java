@@ -4,7 +4,7 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.internal;
+package net.apexes.wsonrpc.support;
 
 import java.io.IOException;
 import java.io.InputStream;

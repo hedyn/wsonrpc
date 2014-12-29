@@ -7,10 +7,10 @@
 package net.apexes.wsonrpc.demo.server;
 
 import net.apexes.wsonrpc.WsonrpcRemote;
-import net.apexes.wsonrpc.WsonrpcServer;
 import net.apexes.wsonrpc.demo.api.CallClientService;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
+import net.apexes.wsonrpc.service.WsonrpcService;
 
 /**
  * 
@@ -54,7 +54,7 @@ public class LoginServiceImpl implements LoginService {
     }
 
     private void callClient(final String username, final String password) {
-        WsonrpcRemote remote = WsonrpcServer.Manager.getRemote();
+        WsonrpcRemote remote = WsonrpcService.Manager.getRemote();
         if (remote != null) {
             CallClientService callClientSrv = WsonrpcRemote.Executor.createProxy(remote, CallClientService.class, "callClientService");
             System.out.println(callClientSrv.callClient("The username is " + username));

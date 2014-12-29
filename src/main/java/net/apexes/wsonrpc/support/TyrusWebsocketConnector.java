@@ -4,11 +4,11 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.internal;
+package net.apexes.wsonrpc.support;
 
 import java.net.URI;
 
-import net.apexes.wsonrpc.WebsocketConnector;
+import net.apexes.wsonrpc.client.WebsocketConnector;
 
 import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.container.jdk.client.JdkClientContainer;

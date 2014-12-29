@@ -6,10 +6,11 @@
  */
 package net.apexes.wsonrpc;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 
-import net.apexes.wsonrpc.internal.JacksonRpcHandler;
-import net.apexes.wsonrpc.internal.SimpleBinaryWrapper;
+import net.apexes.wsonrpc.support.JacksonRpcHandler;
 
 /**
  * 
@@ -48,7 +49,17 @@ public interface WsonrpcConfig {
         
         public WsonrpcConfig build(ExecutorService execService) {
         	if (binaryWrapper == null) {
-        		binaryWrapper = new SimpleBinaryWrapper();
+        		binaryWrapper = new BinaryWrapper() {
+        		    @Override
+                    public InputStream wrap(InputStream ips) throws Exception {
+                        return ips;
+                    }
+
+                    @Override
+                    public OutputStream wrap(OutputStream ops) throws Exception {
+                        return ops;
+                    }
+        		};
         	}
         	if (rpcHandler == null) {
         		rpcHandler = new JacksonRpcHandler();

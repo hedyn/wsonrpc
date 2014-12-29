@@ -28,7 +28,7 @@ import net.apexes.wsonrpc.WsonrpcConfig;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-class WsonrpcDispatcher implements Caller {
+public class WsonrpcDispatcher implements Caller {
 
     private final ExecutorService execService;
     private final BinaryWrapper binaryProcessor;

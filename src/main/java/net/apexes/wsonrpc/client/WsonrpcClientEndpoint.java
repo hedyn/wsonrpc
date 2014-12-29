@@ -4,7 +4,7 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.internal;
+package net.apexes.wsonrpc.client;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -19,11 +19,10 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
-import net.apexes.wsonrpc.ClientStatusListener;
 import net.apexes.wsonrpc.ExceptionProcessor;
-import net.apexes.wsonrpc.WebsocketConnector;
-import net.apexes.wsonrpc.WsonrpcClient;
 import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
+import net.apexes.wsonrpc.internal.WsonrpcEndpoint;
 
 /**
  * 

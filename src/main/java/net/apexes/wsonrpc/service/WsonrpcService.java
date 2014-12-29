@@ -4,20 +4,20 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc;
+package net.apexes.wsonrpc.service;
 
 import java.util.Collection;
 
 import javax.websocket.Session;
 
-import net.apexes.wsonrpc.internal.WsonrpcContext;
+import net.apexes.wsonrpc.WsonrpcRemote;
 
 /**
  * 
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public interface WsonrpcServer {
+public interface WsonrpcService {
 
     /**
      * 返回当前线程的Session
@@ -48,21 +48,21 @@ public interface WsonrpcServer {
      */
     public static final class Manager {
 
-        private static WsonrpcServer instance = new WsonrpcServer() {
+        private static WsonrpcService instance = new WsonrpcService() {
 
             @Override
             public Session getSession() {
-                return WsonrpcContext.Sessions.get();
+                return WsonrpcServiceContext.Sessions.get();
             }
 
             @Override
             public Collection<WsonrpcRemote> getRemotes() {
-                return WsonrpcContext.Remotes.getRemotes();
+                return WsonrpcServiceContext.Remotes.getRemotes();
             }
 
             @Override
             public WsonrpcRemote getRemote(String sessionId) {
-                return WsonrpcContext.Remotes.getRemote(sessionId);
+                return WsonrpcServiceContext.Remotes.getRemote(sessionId);
             }
 
         };

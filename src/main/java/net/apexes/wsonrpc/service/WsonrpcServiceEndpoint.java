@@ -4,7 +4,7 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.internal;
+package net.apexes.wsonrpc.service;
 
 import java.nio.ByteBuffer;
 
@@ -16,21 +16,22 @@ import javax.websocket.Session;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
 
 /**
  * 
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public abstract class WsonrpcServerEndpoint {
+public abstract class WsonrpcServiceEndpoint {
 
     private final WsonrpcDispatcher dispatcher;
 
-    protected WsonrpcServerEndpoint(WsonrpcConfig config) {
+    protected WsonrpcServiceEndpoint(WsonrpcConfig config) {
         dispatcher = new WsonrpcDispatcher(config);
     }
 
-    public WsonrpcServerEndpoint addService(String name, Object handler) {
+    public WsonrpcServiceEndpoint addService(String name, Object handler) {
         dispatcher.addService(name, handler);
         return this;
     }
@@ -41,12 +42,12 @@ public abstract class WsonrpcServerEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
-        WsonrpcContext.Remotes.addRemote(session, dispatcher);
+        WsonrpcServiceContext.Remotes.addRemote(session, dispatcher);
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        WsonrpcContext.Remotes.removeRemote(session);
+        WsonrpcServiceContext.Remotes.removeRemote(session);
     }
 
     @OnMessage

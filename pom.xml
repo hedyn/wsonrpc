@@ -4,30 +4,56 @@
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
 	<version>1.0.0</version>
-	
+
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		
+
 		<!-- json2 -->
 		<version.com.fasterxml.jackson.core>2.4.2</version.com.fasterxml.jackson.core>
 		<version.com.fasterxml.jackson.module-jaxb-annotations>2.4.2</version.com.fasterxml.jackson.module-jaxb-annotations>
-		
+
 		<!-- jsonrpc4j -->
 		<version.com.github.briandilley.jsonrpc4j>1.1</version.com.github.briandilley.jsonrpc4j>
 
 		<!-- portlet: for jsonrpc4j -->
 		<version.javax.portlet>2.0</version.javax.portlet>
-		
+
 		<!-- servlet -->
 		<version.javax.servlet>3.0.1</version.javax.servlet>
-		
+
 		<!-- tyruns -->
 		<version.org.glassfish.tyrus>1.9</version.org.glassfish.tyrus>
 	</properties>
-	
+
 	<dependencies>
-	
+
+        <!-- Client -->
+		<!-- tyruns-client -->
+		<dependency>
+			<groupId>org.glassfish.tyrus.bundles</groupId>
+			<artifactId>tyrus-standalone-client-jdk</artifactId>
+			<version>${version.org.glassfish.tyrus}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Server -->
+		<!-- tyruns-server -->
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-server</artifactId>
+            <version>1.8.3</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-container-grizzly-server</artifactId>
+            <version>1.8.3</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Support -->
 		<!-- jackson 2 -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -39,7 +65,7 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>${version.com.fasterxml.jackson.core}</version>
 		</dependency>
-		
+
 		<!-- jsonrpc4j -->
 		<dependency>
 			<groupId>com.github.briandilley.jsonrpc4j</groupId>
@@ -60,43 +86,20 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- portlet -->
 		<dependency>
 			<groupId>javax.portlet</groupId>
 			<artifactId>portlet-api</artifactId>
 			<version>${version.javax.portlet}</version>
 		</dependency>
-		
+
 		<!-- servlet -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>${version.javax.servlet}</version>
 		</dependency>
-		
-		<!-- tyruns-client -->
-		<dependency>
-    		<groupId>org.glassfish.tyrus.bundles</groupId>
-    		<artifactId>tyrus-standalone-client-jdk</artifactId>
-    		<version>${version.org.glassfish.tyrus}</version>
-    		<scope>provided</scope>
-		</dependency>
-		
-		<!-- tyruns-server -->
-		<dependency>
-    		<groupId>org.glassfish.tyrus</groupId>
-    		<artifactId>tyrus-server</artifactId>
-    		<version>1.8.3</version>
-    		<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-    		<groupId>org.glassfish.tyrus</groupId>
-    		<artifactId>tyrus-container-grizzly-server</artifactId>
-    		<version>1.8.3</version>
-    		<scope>provided</scope>
-		</dependency>
-		
+
 	</dependencies>
 </project>

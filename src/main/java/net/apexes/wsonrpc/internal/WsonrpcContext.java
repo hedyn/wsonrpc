@@ -9,13 +9,10 @@ package net.apexes.wsonrpc.internal;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.websocket.Session;
-
-import net.apexes.wsonrpc.WsonrpcRemote;
 
 /**
  * 
@@ -42,33 +39,6 @@ public interface WsonrpcContext {
 
         public static Session get() {
             return sessions.get();
-        }
-
-    }
-
-    /**
-     * 
-     * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
-     *
-     */
-    public static class Remotes {
-
-        private static final Map<String, WsonrpcRemote> remotes = new ConcurrentHashMap<>();
-
-        static void addRemote(Session session, Caller requester) {
-            remotes.put(session.getId(), new WsonrpcEndpoint(session, requester));
-        }
-
-        static void removeRemote(Session session) {
-            remotes.remove(session.getId());
-        }
-
-        public static WsonrpcRemote getRemote(String sessionId) {
-            return remotes.get(sessionId);
-        }
-
-        public static Collection<WsonrpcRemote> getRemotes() {
-            return remotes.values();
         }
 
     }
