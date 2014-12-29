@@ -58,12 +58,12 @@ public class JacksonRpcHandler implements RpcHandler {
     }
 
     @Override
-    public void invoke(String id, String methodName, Object argument, OutputStream ops) throws IOException {
+    public void call(String id, String methodName, Object argument, OutputStream ops) throws IOException {
         jsonRpcClient.invoke(methodName, argument, ops, id);
     }
 
     @Override
-    public JsonMessage toJsonMessage(InputStream ips) throws Exception {
+    public RpcMessage readRpcMessage(InputStream ips) throws Exception {
         JsonNode data = objectMapper.readTree(new NoCloseInputStream(ips));
         if (!data.isObject()) {
             throw new JsonRpcClientException(0, "Invalid WSON-RPC data", data);
@@ -75,19 +75,19 @@ public class JacksonRpcHandler implements RpcHandler {
         }
         String id = idNode.textValue();
         if (jsonObject.has("method")) {
-            return JsonMessage.createRequest(id, jsonObject);
+            return RpcMessage.createCallMessage(id, jsonObject);
         } else {
-            return JsonMessage.createResponse(id, jsonObject);
+            return RpcMessage.createResultMessage(id, jsonObject);
         }
     }
 
     @Override
-    public void handleRequest(Object value, OutputStream ops) throws IOException {
+    public void handleCall(Object value, OutputStream ops) throws IOException {
         jsonRpcServer.handleNode((ObjectNode) value, ops);
     }
 
     @Override
-    public void handleResponse(Object value, Type returnType, Callback callback) throws IOException {
+    public void handleResult(Object value, Type returnType, Callback callback) throws IOException {
         ObjectNode jsonObject = (ObjectNode) value;
         JsonNode exceptionNode = jsonObject.get("error");
         if (exceptionNode != null && !exceptionNode.isNull()) {

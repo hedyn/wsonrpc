@@ -15,7 +15,7 @@ import java.io.OutputStream;
  *
  */
 public interface BinaryWrapper {
-
+    
     InputStream wrap(InputStream ips) throws Exception;
 
     OutputStream wrap(OutputStream ops) throws Exception;

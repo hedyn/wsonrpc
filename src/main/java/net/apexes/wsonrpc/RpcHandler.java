@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 
 /**
+ * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
@@ -18,20 +19,47 @@ public interface RpcHandler {
 
     void addService(String name, Object service);
 
-    void invoke(String id, String methodName, Object argument, OutputStream ops) throws Exception;
+    /**
+     * 向远端发送一个RPC调用
+     * @param id
+     * @param methodName
+     * @param argument
+     * @param ops
+     * @throws Exception
+     */
+    void call(String id, String methodName, Object argument, OutputStream ops) throws Exception;
 
-    JsonMessage toJsonMessage(InputStream ips) throws Exception;
+    /**
+     * 从输入流中读取一个RpcMessage
+     * @param ips
+     * @return
+     * @throws Exception
+     */
+    RpcMessage readRpcMessage(InputStream ips) throws Exception;
 
-    void handleRequest(Object value, OutputStream ops) throws Exception;
+    /**
+     * 处理远端的RPC调用并将回复写到输出流中
+     * @param value 远端调用传来的对象，即 JsonMessage.getValue()
+     * @param ops 用于回复的输出流
+     * @throws Exception
+     */
+    void handleCall(Object value, OutputStream ops) throws Exception;
 
-    void handleResponse(Object value, Type returnType, Callback callback) throws Exception;
+    /**
+     * 处理远端的RPC回复
+     * @param value 远端回复的对象，即 JsonMessage.getValue()
+     * @param returnType 返回的对象类型
+     * @param callback
+     * @throws Exception
+     */
+    void handleResult(Object value, Type returnType, Callback callback) throws Exception;
 
     /**
      * 
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    public static class JsonMessage {
+    public static class RpcMessage {
 
         private final String id;
 
@@ -39,7 +67,7 @@ public interface RpcHandler {
 
         private final boolean request;
 
-        private JsonMessage(String id, Object value, boolean request) {
+        private RpcMessage(String id, Object value, boolean request) {
             this.id = id;
             this.value = value;
             this.request = request;
@@ -66,12 +94,12 @@ public interface RpcHandler {
             return request;
         }
 
-        public static JsonMessage createRequest(String id, Object value) {
-            return new JsonMessage(id, value, true);
+        public static RpcMessage createCallMessage(String id, Object value) {
+            return new RpcMessage(id, value, true);
         }
 
-        public static JsonMessage createResponse(String id, Object value) {
-            return new JsonMessage(id, value, false);
+        public static RpcMessage createResultMessage(String id, Object value) {
+            return new RpcMessage(id, value, false);
         }
     }
 

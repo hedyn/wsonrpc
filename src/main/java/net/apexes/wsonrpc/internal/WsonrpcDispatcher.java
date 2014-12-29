@@ -20,7 +20,7 @@ import javax.websocket.Session;
 import net.apexes.wsonrpc.BinaryWrapper;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.RpcHandler;
-import net.apexes.wsonrpc.RpcHandler.JsonMessage;
+import net.apexes.wsonrpc.RpcHandler.RpcMessage;
 import net.apexes.wsonrpc.WsonrpcConfig;
 
 /**
@@ -85,22 +85,22 @@ public class WsonrpcDispatcher implements Caller {
     private void invoke(Session session, String serviceName, String methodName, Object argument, String id)
             throws Exception {
         ByteArrayOutputStream ops = new ByteArrayOutputStream();
-        rpcHandler.invoke(id, serviceName + "." + methodName, argument, binaryProcessor.wrap(ops));
+        rpcHandler.call(id, serviceName + "." + methodName, argument, binaryProcessor.wrap(ops));
         session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
     }
 
     public void handleMessage(Session session, ByteBuffer buffer) throws Exception {
         InputStream ips = binaryProcessor.wrap(new ByteArrayInputStream(buffer.array()));
-        JsonMessage jsonMessage = rpcHandler.toJsonMessage(ips);
-        if (jsonMessage.isRequest()) {
-            doHandleRequest(session, jsonMessage.getValue());
-        } else if (jsonMessage.getId() != null) {
-            WosonrpcFuture<Object> future = WsonrpcContext.Futures.out(jsonMessage.getId());
+        RpcMessage rpcMessage = rpcHandler.readRpcMessage(ips);
+        if (rpcMessage.isRequest()) {
+            doHandleRequest(session, rpcMessage.getValue());
+        } else if (rpcMessage.getId() != null) {
+            WosonrpcFuture<Object> future = WsonrpcContext.Futures.out(rpcMessage.getId());
             if (future != null) {
                 Type returnType = future.returnType;
                 CallbackImpl callback = new CallbackImpl(future);
                 try {
-                    rpcHandler.handleResponse(jsonMessage.getValue(), returnType, callback);
+                    rpcHandler.handleResult(rpcMessage.getValue(), returnType, callback);
                 } finally {
                     callback.destroy();
                 }
@@ -116,7 +116,7 @@ public class WsonrpcDispatcher implements Caller {
                 WsonrpcContext.Sessions.begin(session);
                 try {
                     ByteArrayOutputStream ops = new ByteArrayOutputStream();
-                    rpcHandler.handleRequest(value, binaryProcessor.wrap(ops));
+                    rpcHandler.handleCall(value, binaryProcessor.wrap(ops));
                     session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
                 } catch (Exception ex) {
                     if (exceptionProcessor != null) {
