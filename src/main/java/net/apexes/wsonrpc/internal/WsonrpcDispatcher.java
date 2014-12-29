@@ -70,7 +70,7 @@ class WsonrpcDispatcher implements Caller {
     @Override
     public Future<Object> request(Session session, String serviceName, String methodName, Object argument,
             Type returnType) throws Exception {
-        String id = UUID.randomUUID().toString().replace("-", "");
+        String id = UUID.randomUUID().toString();
         WosonrpcFuture<Object> future = new WosonrpcFuture<>(id, returnType);
         WsonrpcContext.Futures.put(future);
         try {
