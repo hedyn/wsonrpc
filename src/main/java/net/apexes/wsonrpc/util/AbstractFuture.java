@@ -8,9 +8,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 /**
+ * From Google Guava project.
  * 
- * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
- *
  * @param <V>
  * @see com.google.common.util.concurrent.AbstractFuture
  */
