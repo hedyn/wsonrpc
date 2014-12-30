@@ -22,7 +22,7 @@
 		<!-- servlet -->
 		<version.javax.servlet>3.0.1</version.javax.servlet>
 
-		<!-- tyruns -->
+		<!-- tyrus -->
 		<version.org.glassfish.tyrus>1.9</version.org.glassfish.tyrus>
 		
 		<!-- plugin -->
@@ -33,7 +33,7 @@
 	<dependencies>
 
         <!-- Client -->
-		<!-- tyruns-client -->
+		<!-- tyrus-client -->
 		<dependency>
 			<groupId>org.glassfish.tyrus.bundles</groupId>
 			<artifactId>tyrus-standalone-client-jdk</artifactId>
@@ -42,7 +42,7 @@
 		</dependency>
 		
 		<!-- Server -->
-		<!-- tyruns-server -->
+		<!-- tyrus-server -->
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-server</artifactId>
