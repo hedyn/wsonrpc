@@ -46,14 +46,14 @@
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-server</artifactId>
-            <version>1.8.3</version>
+            <version>${version.org.glassfish.tyrus}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.glassfish.tyrus</groupId>
             <artifactId>tyrus-container-grizzly-server</artifactId>
-            <version>1.8.3</version>
+            <version>${version.org.glassfish.tyrus}</version>
             <scope>provided</scope>
         </dependency>
 
