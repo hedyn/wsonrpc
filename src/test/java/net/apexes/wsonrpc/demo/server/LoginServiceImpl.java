@@ -29,23 +29,23 @@ public class LoginServiceImpl implements LoginService {
     }
 
     public String login1(String username, String password) {
-        System.out.println("login1(" + username + ", " + password + ")");
+//        System.out.println("login1(" + username + ", " + password + ")");
         callClient(username, password);
         return "[" + username + "] call #login1 succeed!";
     }
 
     public String login2(String username, String password) {
-        System.out.println("login2(" + username + ", " + password + ")");
+//        System.out.println("login2(" + username + ", " + password + ")");
         return "[" + username + "] call #login2 succeed!";
     }
 
     public String login3(String username, String password) {
-        System.out.println("login3(" + username + ", " + password + ")");
+//        System.out.println("login3(" + username + ", " + password + ")");
         return "[" + username + "] call #login3 succeed!";
     }
 
     public String login4(String username, String password) {
-        System.out.println("login4(" + username + ", " + password + ")");
+//        System.out.println("login4(" + username + ", " + password + ")");
         try {
             Thread.sleep(6000);
         } catch (InterruptedException e) {
@@ -57,7 +57,8 @@ public class LoginServiceImpl implements LoginService {
         WsonrpcRemote remote = WsonrpcService.Manager.getRemote();
         if (remote != null) {
             CallClientService callClientSrv = WsonrpcRemote.Executor.createProxy(remote, CallClientService.class, "callClientService");
-            System.out.println(callClientSrv.callClient("The username is " + username));
+            String result = callClientSrv.callClient("The username is " + username);
+//            System.out.println(result);
         }
     }
 }

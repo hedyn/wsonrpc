@@ -8,6 +8,8 @@ package net.apexes.wsonrpc.demo.server;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.glassfish.tyrus.server.Server;
 
@@ -23,7 +25,9 @@ public class WsonrpcServerDemo {
     }
 
     public static void runServer() {
-        Server server = new Server("localhost", 8080, null, null, WsonrpcService.class);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("org.glassfish.tyrus.maxSessionsPerRemoteAddr", 10000);
+        Server server = new Server("localhost", 8080, null, properties, WsonrpcService.class);
         try {
             server.start();
 

@@ -15,11 +15,14 @@ import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.service.WsonrpcServiceEndpoint;
 
+import org.glassfish.tyrus.core.MaxSessions;
+
 /**
  * 
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
+@MaxSessions(10000)
 @ServerEndpoint("/wsonrpc")
 public class WsonrpcService extends WsonrpcServiceEndpoint implements ExceptionProcessor {
 
