@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014, Apexes.net. All rights reserved.
  * 
  *        http://www.apexes.net
@@ -32,16 +32,16 @@ public class WeakHashSet<E> implements Set<E> {
     }
 
     public WeakHashSet(Collection<? extends E> c) {
-        values = new HashSet<>(Math.max((int) (c.size() / .75f) + 1, 16));
+        values = new HashSet<WeakElement<E>>(Math.max((int) (c.size() / .75f) + 1, 16));
         addAll(c);
     }
 
     public WeakHashSet(int initialCapacity, float loadFactor) {
-        values = new HashSet<>(initialCapacity, loadFactor);
+        values = new HashSet<WeakElement<E>>(initialCapacity, loadFactor);
     }
 
     public WeakHashSet(int initialCapacity) {
-        values = new HashSet<>(initialCapacity);
+        values = new HashSet<WeakElement<E>>(initialCapacity);
     }
 
     public E get(Object o) {

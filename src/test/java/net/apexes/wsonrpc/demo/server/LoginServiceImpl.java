@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014, Apexes.net. All rights reserved.
  * 
  *        http://www.apexes.net
@@ -17,6 +17,7 @@ import net.apexes.wsonrpc.service.WsonrpcService;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
+@SuppressWarnings("unused")
 public class LoginServiceImpl implements LoginService {
 
     @Override

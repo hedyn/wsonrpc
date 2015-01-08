@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014, Apexes.net. All rights reserved.
  * 
  *        http://www.apexes.net
@@ -28,11 +28,12 @@ import net.apexes.wsonrpc.demo.api.User;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
+@SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    private static final int CLIENT_COUNT = 1000;
-    private static final int THREAD_COUNT = 10;
-    private static final int LOOP_COUNT = 100;
+    static final int CLIENT_COUNT = 1000;
+    static final int THREAD_COUNT = 10;
+    static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;
     private static ExecutorService execService = Executors.newCachedThreadPool();
     
@@ -132,7 +133,7 @@ public class WsonrpcClientDemo {
         
     private static AtomicInteger threadCounter = new AtomicInteger(0);
     
-    private static void testLogin1(final int clientIndex, final WsonrpcClient client,
+    static void testLogin1(final int clientIndex, final WsonrpcClient client,
             final CountDownLatch latch) throws Exception {
         Runnable runnable = new Runnable() {
 
@@ -157,10 +158,10 @@ public class WsonrpcClientDemo {
         execService.execute(runnable);
     }
 
-    private static void testLogin2(final int clientIndex, final WsonrpcClient client,
+    static void testLogin2(final int clientIndex, final WsonrpcClient client,
             final CountDownLatch latch) throws Exception {
         Runnable runnable = new Runnable() {
-
+            
             @Override
             public void run() {
                 System.out.println("@" + clientIndex + "#" + threadCounter.incrementAndGet());
@@ -182,7 +183,7 @@ public class WsonrpcClientDemo {
         execService.execute(runnable);
     }
 
-    private static void testLogin3(final int clientIndex, final WsonrpcClient client,
+    static void testLogin3(final int clientIndex, final WsonrpcClient client,
             final CountDownLatch latch) throws Exception {
         Runnable runnable = new Runnable() {
 
