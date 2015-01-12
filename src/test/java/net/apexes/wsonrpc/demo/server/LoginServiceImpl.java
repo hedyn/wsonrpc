@@ -6,6 +6,8 @@
  */
 package net.apexes.wsonrpc.demo.server;
 
+import java.util.Arrays;
+
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.demo.api.CallClientService;
 import net.apexes.wsonrpc.demo.api.LoginService;
@@ -26,6 +28,13 @@ public class LoginServiceImpl implements LoginService {
         user.setUsername(username);
         user.setPassword(password);
         user.setLevel(10);
+        return user;
+    }
+    
+    @Override
+    public User login(User user) {
+        callClient(user);
+        user.setLevel(user.getLevel()==null?10:12);
         return user;
     }
 
@@ -60,6 +69,15 @@ public class LoginServiceImpl implements LoginService {
             CallClientService callClientSrv = WsonrpcRemote.Executor.createProxy(remote, CallClientService.class, "callClientService");
             String result = callClientSrv.callClient("The username is " + username);
 //            System.out.println(result);
+        }
+    }
+    
+    private void callClient(final User user) {
+        WsonrpcRemote remote = WsonrpcService.Manager.getRemote();
+        if (remote != null) {
+            CallClientService callClientSrv = WsonrpcRemote.Executor.createProxy(remote, CallClientService.class, "callClientService");
+            String[] results = callClientSrv.callClient(user);
+//            System.out.println(Arrays.toString(results));
         }
     }
 }

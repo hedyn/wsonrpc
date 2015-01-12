@@ -14,6 +14,8 @@ package net.apexes.wsonrpc.demo.api;
 public interface LoginService {
     
     User login(String username, String password);
+    
+    User login(User user);
 
     String login1(String username, String password);
 

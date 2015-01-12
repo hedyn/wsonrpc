@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 
-import net.apexes.wsonrpc.support.JacksonRpcHandler;
+import net.apexes.wsonrpc.support.JacksonJsonHandler;
 
 /**
  * 
@@ -21,7 +21,7 @@ public interface WsonrpcConfig {
 
     ExecutorService getExecutorService();
     
-    RpcHandler getRpcHandler();
+    JsonHandler getJsonHandler();
 
     BinaryWrapper getBinaryWrapper();
 
@@ -43,7 +43,7 @@ public interface WsonrpcConfig {
             return new Builder();
         }
         
-        private RpcHandler rpcHandler;
+        private JsonHandler jsonHandler;
         private BinaryWrapper binaryWrapper;
         private long timeout;
         
@@ -61,14 +61,14 @@ public interface WsonrpcConfig {
                     }
         		};
         	}
-        	if (rpcHandler == null) {
-        		rpcHandler = new JacksonRpcHandler();
+        	if (jsonHandler == null) {
+        	    jsonHandler = new JacksonJsonHandler();
         	}
-        	return new SimpleWsonrpcConfig(execService, rpcHandler, binaryWrapper, timeout);
+        	return new SimpleWsonrpcConfig(execService, jsonHandler, binaryWrapper, timeout);
         }
         
-        public Builder rpcHandler(RpcHandler rpcHandler) {
-            this.rpcHandler = rpcHandler;
+        public Builder jsonHandler(JsonHandler jsonHandler) {
+            this.jsonHandler = jsonHandler;
             return this;
         }
         
@@ -92,14 +92,14 @@ public interface WsonrpcConfig {
     static class SimpleWsonrpcConfig implements WsonrpcConfig {
 
         private final ExecutorService execService;
-        private final RpcHandler rpcHandler;
+        private final JsonHandler jsonHandler;
         private final BinaryWrapper binaryWrapper;
         private final long timeout;
 
-        public SimpleWsonrpcConfig(ExecutorService execService, RpcHandler rpcHandler, 
+        public SimpleWsonrpcConfig(ExecutorService execService, JsonHandler jsonHandler, 
         		BinaryWrapper binaryWrapper, long timeout) {
             this.execService = execService;
-            this.rpcHandler = rpcHandler;
+            this.jsonHandler = jsonHandler;
             this.binaryWrapper = binaryWrapper;
             this.timeout = timeout;
         }
@@ -110,8 +110,8 @@ public interface WsonrpcConfig {
         }
 
     	@Override
-    	public RpcHandler getRpcHandler() {
-    		return rpcHandler;
+    	public JsonHandler getJsonHandler() {
+    		return jsonHandler;
     	}
 
         @Override

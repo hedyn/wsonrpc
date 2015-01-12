@@ -82,8 +82,16 @@ public interface WsonrpcRemote {
                     if (method.getDeclaringClass() == Object.class) {
                         return proxyObjectMethods(method, proxy, args);
                     }
+                    Object argument = null;
+                    if (args != null) {
+                        if (args.length == 1) {
+                            argument = args[0];
+                        } else {
+                            argument = args;
+                        }
+                    }
                     Type returnType = method.getGenericReturnType();
-                    return remote.invoke(serviceName, method.getName(), args, returnType, timeout);
+                    return remote.invoke(serviceName, method.getName(), argument, returnType, timeout);
                 }
             };
             return (T) Proxy.newProxyInstance(classLoader, new Class<?>[] { serviceClass }, handler);

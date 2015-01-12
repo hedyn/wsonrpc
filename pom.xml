@@ -9,25 +9,20 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 
+        <!-- tyrus -->
+        <version.org.glassfish.tyrus>1.9</version.org.glassfish.tyrus>
+
 		<!-- json2 -->
 		<version.com.fasterxml.jackson.core>2.4.2</version.com.fasterxml.jackson.core>
 		<version.com.fasterxml.jackson.module-jaxb-annotations>2.4.2</version.com.fasterxml.jackson.module-jaxb-annotations>
 
-		<!-- jsonrpc4j -->
-		<version.com.github.briandilley.jsonrpc4j>1.1</version.com.github.briandilley.jsonrpc4j>
-
-		<!-- portlet: for jsonrpc4j -->
-		<version.javax.portlet>2.0</version.javax.portlet>
-
-		<!-- servlet -->
-		<version.javax.servlet>3.0.1</version.javax.servlet>
-
-		<!-- tyrus -->
-		<version.org.glassfish.tyrus>1.9</version.org.glassfish.tyrus>
+		<!-- gson -->
+        <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
 		
 		<!-- plugin -->
 		<version.maven-compiler-plugin>3.1</version.maven-compiler-plugin>
         <version.maven-jar-plugin>2.4</version.maven-jar-plugin>
+        <version.maven-source-plugin>2.2.1</version.maven-source-plugin>
 	</properties>
 
 	<dependencies>
@@ -70,40 +65,12 @@
 			<version>${version.com.fasterxml.jackson.core}</version>
 		</dependency>
 
-		<!-- jsonrpc4j -->
-		<dependency>
-			<groupId>com.github.briandilley.jsonrpc4j</groupId>
-			<artifactId>jsonrpc4j</artifactId>
-			<version>${version.com.github.briandilley.jsonrpc4j}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-databind</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-annotations</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<!-- portlet -->
-		<dependency>
-			<groupId>javax.portlet</groupId>
-			<artifactId>portlet-api</artifactId>
-			<version>${version.javax.portlet}</version>
-		</dependency>
-
-		<!-- servlet -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>${version.javax.servlet}</version>
-		</dependency>
+		<!-- gson -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${version.com.google.code.gson}</version>
+        </dependency>
 
 	</dependencies>
 	
@@ -116,6 +83,9 @@
                 <version>${version.maven-jar-plugin}</version>
                 <configuration>
                     <finalName>wsonrpc-${project.version}</finalName>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>UTF-8</encoding>
                     <archive>
                         <manifest>
                             <addDefaultImplementationEntries>false</addDefaultImplementationEntries>
@@ -147,6 +117,55 @@
                         <id>wsonrpc-service</id>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>wsonrpc-service-${project.version}</finalName>
+                            <archive>
+                                <addMavenDescriptor>false</addMavenDescriptor>
+                            </archive>
+                            <excludes>
+                                <exclude>**/client/**</exclude>            
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${version.maven-source-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                    <!-- client -->
+                    <execution>
+                        <id>wsonrpc-client</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>wsonrpc-client-${project.version}</finalName>
+                            <archive>
+                                <addMavenDescriptor>false</addMavenDescriptor>
+                            </archive>
+                            <excludes>
+                                <exclude>**/service/**</exclude>            
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- service -->
+                    <execution>
+                        <id>wsonrpc-service</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
                         </goals>
                         <phase>package</phase>
                         <configuration>

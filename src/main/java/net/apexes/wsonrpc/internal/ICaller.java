@@ -16,7 +16,7 @@ import javax.websocket.Session;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public interface Caller {
+public interface ICaller {
 
     long getTimeout();
 

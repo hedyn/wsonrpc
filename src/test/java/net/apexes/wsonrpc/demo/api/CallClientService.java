@@ -13,5 +13,7 @@ package net.apexes.wsonrpc.demo.api;
 public interface CallClientService {
     
     String callClient(String msg);
+    
+    String[] callClient(User user);
 
 }

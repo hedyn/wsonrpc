@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.websocket.Session;
 
 import net.apexes.wsonrpc.WsonrpcRemote;
-import net.apexes.wsonrpc.internal.Caller;
+import net.apexes.wsonrpc.internal.ICaller;
 import net.apexes.wsonrpc.internal.WsonrpcContext;
 import net.apexes.wsonrpc.internal.WsonrpcEndpoint;
 
@@ -33,7 +33,7 @@ public interface WsonrpcServiceContext extends WsonrpcContext {
 
         private static final Map<String, WsonrpcRemote> remotes = new ConcurrentHashMap<>();
 
-        static void addRemote(Session session, Caller caller) {
+        static void addRemote(Session session, ICaller caller) {
             remotes.put(session.getId(), new WsonrpcServiceEndpointProxy(session, caller));
         }
 
@@ -57,7 +57,7 @@ public interface WsonrpcServiceContext extends WsonrpcContext {
      */
     static class WsonrpcServiceEndpointProxy extends WsonrpcEndpoint {
         
-        WsonrpcServiceEndpointProxy(Session session, Caller caller) {
+        WsonrpcServiceEndpointProxy(Session session, ICaller caller) {
             online(session, caller);
         }
 

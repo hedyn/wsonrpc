@@ -22,6 +22,7 @@ import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
+import net.apexes.wsonrpc.support.GsonJsonHandler;
 
 /**
  * 
@@ -31,7 +32,7 @@ import net.apexes.wsonrpc.demo.api.User;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 1000;
+    static final int CLIENT_COUNT = 100;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;
@@ -55,7 +56,8 @@ public class WsonrpcClientDemo {
     
     private static void testClient(int clientIndex) throws Exception {
         //System.out.println("@" + clientIndex + " ...");
-        WsonrpcConfig config = WsonrpcConfig.Builder.create().build(execService);
+        WsonrpcConfig config = WsonrpcConfig.Builder.create()
+                .jsonHandler(new GsonJsonHandler()).build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc");
         WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
         client.addService("callClientService", new CallClientServiceImpl());
@@ -73,7 +75,10 @@ public class WsonrpcClientDemo {
 
         LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
         User user = srv.login("admin", "admin");
-        System.out.println("@" + clientIndex + ": login: " + user);
+        System.out.println("@" + clientIndex + ": login(String,String): " + user);
+        
+        user = srv.login(user);
+        System.out.println("@" + clientIndex + ": login(User): " + user);
         
 //        CountDownLatch threadDownLatch = new CountDownLatch(THREAD_COUNT);
 //        for (int i = 0; i < THREAD_COUNT; i++) {

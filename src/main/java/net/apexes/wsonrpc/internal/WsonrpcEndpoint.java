@@ -22,12 +22,12 @@ import net.apexes.wsonrpc.WsonrpcRemote;
 public class WsonrpcEndpoint implements WsonrpcRemote {
 
     private Session session;
-    private Caller caller;
+    private ICaller caller;
 
     protected WsonrpcEndpoint() {
     }
 
-    protected final void online(Session session, Caller caller) {
+    protected final void online(Session session, ICaller caller) {
         this.session = session;
         this.caller = caller;
     }
