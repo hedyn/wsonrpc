@@ -10,9 +10,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.websocket.Session;
-
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.WsonrpcSession;
 import net.apexes.wsonrpc.internal.ICaller;
 import net.apexes.wsonrpc.internal.WsonrpcContext;
 import net.apexes.wsonrpc.internal.WsonrpcEndpoint;
@@ -31,21 +30,29 @@ public interface WsonrpcServiceContext extends WsonrpcContext {
      */
     public static class Remotes {
 
-        private static final Map<String, WsonrpcRemote> remotes = new ConcurrentHashMap<>();
+        private static final Map<String, WsonrpcServiceEndpointProxy> remotes = new ConcurrentHashMap<>();
 
-        static void addRemote(Session session, ICaller caller) {
+        static void addRemote(WsonrpcSession session, ICaller caller) {
             remotes.put(session.getId(), new WsonrpcServiceEndpointProxy(session, caller));
         }
-
-        static void removeRemote(Session session) {
-            remotes.remove(session.getId());
+        
+        static void removeRemote(String sessionId) {
+            remotes.remove(sessionId);
         }
 
+        static WsonrpcSession getSession(String sessionId) {
+            WsonrpcServiceEndpointProxy endpoint = remotes.get(sessionId);
+            if (endpoint == null) {
+                return null;
+            }
+            return endpoint.getSession();
+        }
+        
         public static WsonrpcRemote getRemote(String sessionId) {
             return remotes.get(sessionId);
         }
 
-        public static Collection<WsonrpcRemote> getRemotes() {
+        public static Collection<? extends WsonrpcRemote> getRemotes() {
             return remotes.values();
         }
     }
@@ -57,8 +64,13 @@ public interface WsonrpcServiceContext extends WsonrpcContext {
      */
     static class WsonrpcServiceEndpointProxy extends WsonrpcEndpoint {
         
-        WsonrpcServiceEndpointProxy(Session session, ICaller caller) {
+        WsonrpcServiceEndpointProxy(WsonrpcSession session, ICaller caller) {
             online(session, caller);
+        }
+        
+        @Override
+        public WsonrpcSession getSession() {
+            return super.getSession();
         }
 
     }

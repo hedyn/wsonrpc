@@ -13,8 +13,8 @@ package net.apexes.wsonrpc.client;
  */
 public interface ClientStatusListener {
 
-    void onOpen();
+    void onOpen(WsonrpcClient client);
 
-    void onClose();
+    void onClose(WsonrpcClient client);
 
 }

@@ -9,7 +9,7 @@ package net.apexes.wsonrpc.internal;
 import java.lang.reflect.Type;
 import java.util.concurrent.Future;
 
-import javax.websocket.Session;
+import net.apexes.wsonrpc.WsonrpcSession;
 
 /**
  * 
@@ -20,9 +20,10 @@ public interface ICaller {
 
     long getTimeout();
 
-    void notify(Session session, String serviceName, String methodName, Object argument) throws Exception;
+    void notify(WsonrpcSession session, String serviceName, String methodName, Object argument) 
+            throws Exception;
 
-    Future<Object> request(Session session, String serviceName, String methodName, Object argument,
+    Future<Object> request(WsonrpcSession session, String serviceName, String methodName, Object argument,
             Type returnType) throws Exception;
 
 }

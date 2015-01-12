@@ -26,10 +26,6 @@ public interface JsonHandler {
     JsonRpcMessage read(InputStream ips) throws IOException, WsonException;
     
     void write(JsonRpcMessage message, OutputStream ops) throws IOException, WsonException;
-//    
-//    int getParamCount(Object params);
-//
-//    Object[] convertParams(Object params, Class<?>... clazzes) throws Exception;
     
     MethodAndArgs findMethod(Set<Method> methods, Object params);
     

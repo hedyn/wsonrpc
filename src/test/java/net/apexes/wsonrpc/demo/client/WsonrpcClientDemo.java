@@ -32,7 +32,7 @@ import net.apexes.wsonrpc.support.GsonJsonHandler;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 100;
+    static final int CLIENT_COUNT = 1;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;

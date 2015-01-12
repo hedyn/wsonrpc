@@ -11,6 +11,7 @@ import java.net.URI;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.WsonrpcSession;
 import net.apexes.wsonrpc.client.support.TyrusWebsocketConnector;
 
 /**
@@ -29,6 +30,14 @@ public interface WsonrpcClient extends WsonrpcRemote {
     void addStatusListener(ClientStatusListener listener);
 
     void removeStatusListener(ClientStatusListener listener);
+    
+    void onOpen(WsonrpcSession session);
+
+    void onMessage(byte[] bytes);
+
+    void onError(Throwable throwable);
+
+    void onClose(int code, String reason);
 
     /**
      * 

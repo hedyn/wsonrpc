@@ -16,6 +16,8 @@ import javax.websocket.Session;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.WsonrpcSession;
+import net.apexes.wsonrpc.internal.WebSocketWsonrpcSession;
 import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
 
 /**
@@ -42,18 +44,19 @@ public abstract class WsonrpcServiceEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
-        WsonrpcServiceContext.Remotes.addRemote(session, dispatcher);
+        WsonrpcServiceContext.Remotes.addRemote(new WebSocketWsonrpcSession(session), dispatcher);
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        WsonrpcServiceContext.Remotes.removeRemote(session);
+        WsonrpcServiceContext.Remotes.removeRemote(session.getId());
     }
 
     @OnMessage
     public void onMessage(final Session session, final ByteBuffer buffer) {
         try {
-            dispatcher.handleMessage(session, buffer);
+            WsonrpcSession wsonrpcSession = WsonrpcServiceContext.Remotes.getSession(session.getId());
+            dispatcher.handleMessage(wsonrpcSession, buffer.array());
         } catch (Exception ex) {
             if (dispatcher.getExceptionProcessor() != null) {
                 dispatcher.getExceptionProcessor().onError(ex);

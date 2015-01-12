@@ -7,20 +7,12 @@
 package net.apexes.wsonrpc.client;
 
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.websocket.ClientEndpoint;
-import javax.websocket.CloseReason;
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.WsonrpcSession;
 import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
 import net.apexes.wsonrpc.internal.WsonrpcEndpoint;
 
@@ -29,14 +21,14 @@ import net.apexes.wsonrpc.internal.WsonrpcEndpoint;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-@ClientEndpoint
+
 public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcClient {
 
     private final WebsocketConnector connector;
     private final URI uri;
     private final WsonrpcDispatcher dispatcher;
     private final List<ClientStatusListener> statusListenerList;
-
+    
     public WsonrpcClientEndpoint(URI uri, WsonrpcConfig config, WebsocketConnector connector) {
         this.uri = uri;
         this.connector = connector;
@@ -74,41 +66,42 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
 
     private synchronized void fireOpen() {
         for (ClientStatusListener listener : statusListenerList) {
-            listener.onOpen();
+            listener.onOpen(this);
         }
     }
 
     private synchronized void fireClose() {
         for (ClientStatusListener listener : statusListenerList) {
-            listener.onClose();
+            listener.onClose(this);
         }
     }
 
-    @OnOpen
-    public void onOpen(Session session) {
+    @Override
+    public void onOpen(WsonrpcSession session) {
         online(session, dispatcher);
         fireOpen();
     }
 
-    @OnMessage
-    public void onMessage(Session session, ByteBuffer buffer) {
+    @Override
+    public void onMessage(byte[] bytes) {
         try {
-            dispatcher.handleMessage(session, buffer);
+            dispatcher.handleMessage(getSession(), bytes);
         } catch (Throwable throwable) {
-            onError(session, throwable);
+            onError(throwable);
         }
     }
 
-    @OnError
-    public void onError(Session session, Throwable throwable) {
+    @Override
+    public void onError(Throwable throwable) {
         if (dispatcher.getExceptionProcessor() != null) {
             dispatcher.getExceptionProcessor().onError(throwable);
         }
     }
 
-    @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
+    @Override
+    public void onClose(int code, String reason) {
         fireClose();
+        offline();
     }
 
 }

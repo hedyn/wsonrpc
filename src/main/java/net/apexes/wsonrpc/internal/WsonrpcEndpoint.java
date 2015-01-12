@@ -10,9 +10,8 @@ import java.lang.reflect.Type;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.websocket.Session;
-
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.WsonrpcSession;
 
 /**
  * 
@@ -21,19 +20,28 @@ import net.apexes.wsonrpc.WsonrpcRemote;
  */
 public class WsonrpcEndpoint implements WsonrpcRemote {
 
-    private Session session;
+    private WsonrpcSession session;
     private ICaller caller;
 
     protected WsonrpcEndpoint() {
     }
 
-    protected final void online(Session session, ICaller caller) {
+    protected final void online(WsonrpcSession session, ICaller caller) {
         this.session = session;
         this.caller = caller;
+    }
+    
+    protected final void offline() {
+        this.session = null;
+        this.caller = null;
     }
 
     protected boolean isOnline() {
         return session != null && session.isOpen();
+    }
+    
+    protected WsonrpcSession getSession() {
+        return session;
     }
 
     @Override
@@ -48,6 +56,7 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
     public void close() throws Exception {
         if (session != null) {
             session.close();
+            session = null;
         }
     }
 

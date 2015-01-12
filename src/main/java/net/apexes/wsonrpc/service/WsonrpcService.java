@@ -8,9 +8,8 @@ package net.apexes.wsonrpc.service;
 
 import java.util.Collection;
 
-import javax.websocket.Session;
-
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.WsonrpcSession;
 
 /**
  * 
@@ -24,14 +23,14 @@ public interface WsonrpcService {
      * 
      * @return
      */
-    Session getSession();
+    WsonrpcSession getSession();
 
     /**
      * 返回所有客户端连接
      * 
      * @return
      */
-    Collection<WsonrpcRemote> getRemotes();
+    Collection<? extends WsonrpcRemote> getRemotes();
 
     /**
      * 返回指定ID的客户端连接
@@ -51,12 +50,12 @@ public interface WsonrpcService {
         private static WsonrpcService instance = new WsonrpcService() {
 
             @Override
-            public Session getSession() {
+            public WsonrpcSession getSession() {
                 return WsonrpcServiceContext.Sessions.get();
             }
 
             @Override
-            public Collection<WsonrpcRemote> getRemotes() {
+            public Collection<? extends WsonrpcRemote> getRemotes() {
                 return WsonrpcServiceContext.Remotes.getRemotes();
             }
 
@@ -67,7 +66,7 @@ public interface WsonrpcService {
 
         };
 
-        public static Session getSession() {
+        public static WsonrpcSession getSession() {
             return instance.getSession();
         }
 
@@ -75,12 +74,12 @@ public interface WsonrpcService {
             return instance.getRemote(sessionId);
         }
 
-        public static Collection<WsonrpcRemote> getRemotes() {
+        public static Collection<? extends WsonrpcRemote> getRemotes() {
             return instance.getRemotes();
         }
 
         public static WsonrpcRemote getRemote() {
-            Session session = instance.getSession();
+            WsonrpcSession session = instance.getSession();
             if (session != null) {
                 return instance.getRemote(session.getId());
             }

@@ -11,7 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,13 +20,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import javax.websocket.Session;
-
 import net.apexes.wsonrpc.BinaryWrapper;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.JsonHandler;
 import net.apexes.wsonrpc.JsonHandler.MethodAndArgs;
 import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.WsonrpcSession;
 import net.apexes.wsonrpc.message.JsonRpcError;
 import net.apexes.wsonrpc.message.JsonRpcInvocation;
 import net.apexes.wsonrpc.message.JsonRpcMessage;
@@ -77,38 +75,38 @@ public class WsonrpcDispatcher implements ICaller {
     }
     
     @Override
-    public void notify(Session session, String serviceName, String methodName, Object argument) 
+    public void notify(WsonrpcSession session, String serviceName, String methodName, Object argument) 
             throws Exception {
         String method = serviceName + "." + methodName;
         JsonRpcInvocation invocation = new JsonRpcNotification(method, argument);
-        invoke(session, invocation);
+        writeAndFlushMessage(session, invocation);
     }
 
     @Override
-    public Future<Object> request(Session session, String serviceName, String methodName, Object argument,
-            Type returnType) throws Exception {
+    public Future<Object> request(WsonrpcSession session, String serviceName, String methodName, 
+            Object argument, Type returnType) throws Exception {
         String id = ObjectId.get().toHexString();
         WosonrpcFuture<Object> future = new WosonrpcFuture<>(id, returnType);
         WsonrpcContext.Futures.put(future);
         try {
             String method = serviceName + "." + methodName;
             JsonRpcInvocation invocation = new JsonRpcRequest(id, method, argument);
-            invoke(session, invocation);
+            writeAndFlushMessage(session, invocation);
             return future;
         } catch (Exception ex) {
             WsonrpcContext.Futures.out(id);
             throw ex;
         }
     }
-
-    private void invoke(Session session, JsonRpcInvocation invocation) throws Exception {
+    
+    private void writeAndFlushMessage(WsonrpcSession session, JsonRpcMessage message) throws Exception {
         ByteArrayOutputStream ops = new ByteArrayOutputStream();
-        jsonHandler.write(invocation, binaryProcessor.wrap(ops));
-        session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
+        jsonHandler.write(message, binaryProcessor.wrap(ops));
+        session.sendBinary(ops.toByteArray());
     }
 
-    public void handleMessage(Session session, ByteBuffer buffer) throws Exception {
-        InputStream ips = binaryProcessor.wrap(new ByteArrayInputStream(buffer.array()));
+    public void handleMessage(WsonrpcSession session, byte[] bytes) throws Exception {
+        InputStream ips = binaryProcessor.wrap(new ByteArrayInputStream(bytes));
         JsonRpcMessage message = jsonHandler.read(ips);
         if (message != null) {
             switch (message.type()) {
@@ -136,15 +134,16 @@ public class WsonrpcDispatcher implements ICaller {
         }
     }
     
-    private void handleNotification(final Session session, final JsonRpcNotification notification) {
+    private void handleNotification(final WsonrpcSession session, final JsonRpcNotification notification) {
         handle(session, notification.getMethod(), notification.getParams(), null);
     }
     
-    private void handleRequest(final Session session, final JsonRpcRequest request) {
+    private void handleRequest(final WsonrpcSession session, final JsonRpcRequest request) {
         handle(session, request.getMethod(), request.getParams(), request.getId());
     }
     
-    private void handle(final Session session, final String serviceMethod, final Object params, final String id) {
+    private void handle(final WsonrpcSession session, final String serviceMethod, final Object params,
+            final String id) {
         execService.execute(new Runnable() {
 
             @Override
@@ -158,12 +157,12 @@ public class WsonrpcDispatcher implements ICaller {
                     
                     Set<Method> methods = findMethods(service.getClass(), methodName);
                     if (methods.isEmpty()) {
-                        writeAndFlushValue(session, new JsonRpcResponse(id, JsonRpcError.METHOD_NOT_FOUND));
+                        writeAndFlushMessage(session, new JsonRpcResponse(id, JsonRpcError.METHOD_NOT_FOUND));
                         return;
                     }
                     MethodAndArgs methodAndArgs = jsonHandler.findMethod(methods, params);
                     if (methodAndArgs == null) {
-                        writeAndFlushValue(session, new JsonRpcResponse(id, JsonRpcError.INVALID_PARAMS));
+                        writeAndFlushMessage(session, new JsonRpcResponse(id, JsonRpcError.INVALID_PARAMS));
                         return;
                     }
                     
@@ -175,17 +174,16 @@ public class WsonrpcDispatcher implements ICaller {
                         } else {
                             result = methodAndArgs.getMethod().invoke(service, args);
                         }
-                        
                     } catch (Throwable ex) {
                         ex.printStackTrace();
                         if (id != null) {
                             JsonRpcError error = new JsonRpcError(0, ex.getMessage());
-                            writeAndFlushValue(session, new JsonRpcResponse(id, error));
+                            writeAndFlushMessage(session, new JsonRpcResponse(id, error));
                             return;
                         }
                     }
                     if (id != null) {
-                        writeAndFlushValue(session, new JsonRpcResponse(id, result));
+                        writeAndFlushMessage(session, new JsonRpcResponse(id, result));
                     }
                 } catch (Exception ex) {
                     if (exceptionProcessor != null) {
@@ -197,12 +195,6 @@ public class WsonrpcDispatcher implements ICaller {
             }
 
         });
-    }
-    
-    private void writeAndFlushValue(Session session, JsonRpcResponse response) throws Exception {
-        ByteArrayOutputStream ops = new ByteArrayOutputStream();
-        jsonHandler.write(response, binaryProcessor.wrap(ops));
-        session.getBasicRemote().sendBinary(ByteBuffer.wrap(ops.toByteArray()));
     }
     
     private static Map<String, Set<Method>> methodCache = new HashMap<String, Set<Method>>();

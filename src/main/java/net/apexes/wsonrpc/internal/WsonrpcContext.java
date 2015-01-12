@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.websocket.Session;
+import net.apexes.wsonrpc.WsonrpcSession;
 
 /**
  * 
@@ -27,9 +27,9 @@ public interface WsonrpcContext {
      *
      */
     public static class Sessions {
-        private static final ThreadLocal<Session> sessions = new ThreadLocal<>();
+        private static final ThreadLocal<WsonrpcSession> sessions = new ThreadLocal<>();
 
-        static void begin(Session session) {
+        static void begin(WsonrpcSession session) {
             sessions.set(session);
         }
 
@@ -37,7 +37,7 @@ public interface WsonrpcContext {
             sessions.remove();
         }
 
-        public static Session get() {
+        public static WsonrpcSession get() {
             return sessions.get();
         }
 
