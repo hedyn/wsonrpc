@@ -26,6 +26,10 @@ import net.apexes.wsonrpc.support.GsonJsonHandler;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
+    /*
+     *  已知tyrus1.9的一个bug会引起：Exception in thread " tyrus-jdk-client-12" java.lang.NullPointerException，
+     *  已上报tyrus开发人员并修复，下一版的tyrus将不会有此问题
+     */
     static final int CLIENT_COUNT = 1000;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
