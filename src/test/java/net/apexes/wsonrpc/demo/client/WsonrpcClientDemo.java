@@ -1,9 +1,3 @@
-/*
- * Copyright (C) 2014, Apexes.net. All rights reserved.
- * 
- *        http://www.apexes.net
- * 
- */
 package net.apexes.wsonrpc.demo.client;
 
 import java.net.URI;
@@ -32,7 +26,7 @@ import net.apexes.wsonrpc.support.GsonJsonHandler;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 1;
+    static final int CLIENT_COUNT = 1000;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;

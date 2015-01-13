@@ -1,9 +1,3 @@
-/*
- * Copyright (C) 2015, Apexes.net. All rights reserved.
- * 
- *        http://www.apexes.net
- * 
- */
 package net.apexes.wsonrpc;
 
 

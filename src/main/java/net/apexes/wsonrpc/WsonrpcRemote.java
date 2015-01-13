@@ -1,9 +1,3 @@
-/*
- * Copyright (C) 2014, Apexes.net. All rights reserved.
- * 
- *        http://www.apexes.net
- * 
- */
 package net.apexes.wsonrpc;
 
 import java.lang.reflect.InvocationHandler;
