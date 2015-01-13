@@ -14,7 +14,7 @@ import net.apexes.wsonrpc.support.JacksonJsonHandler;
 public interface WsonrpcConfig {
 
     ExecutorService getExecutorService();
-    
+
     JsonHandler getJsonHandler();
 
     BinaryWrapper getBinaryWrapper();
@@ -32,19 +32,19 @@ public interface WsonrpcConfig {
      *
      */
     public static class Builder {
-    
+
         public static Builder create() {
             return new Builder();
         }
-        
+
         private JsonHandler jsonHandler;
         private BinaryWrapper binaryWrapper;
         private long timeout;
-        
+
         public WsonrpcConfig build(ExecutorService execService) {
-        	if (binaryWrapper == null) {
-        		binaryWrapper = new BinaryWrapper() {
-        		    @Override
+            if (binaryWrapper == null) {
+                binaryWrapper = new BinaryWrapper() {
+                    @Override
                     public InputStream wrap(InputStream ips) throws Exception {
                         return ips;
                     }
@@ -53,31 +53,31 @@ public interface WsonrpcConfig {
                     public OutputStream wrap(OutputStream ops) throws Exception {
                         return ops;
                     }
-        		};
-        	}
-        	if (jsonHandler == null) {
-        	    jsonHandler = new JacksonJsonHandler();
-        	}
-        	return new SimpleWsonrpcConfig(execService, jsonHandler, binaryWrapper, timeout);
+                };
+            }
+            if (jsonHandler == null) {
+                jsonHandler = new JacksonJsonHandler();
+            }
+            return new SimpleWsonrpcConfig(execService, jsonHandler, binaryWrapper, timeout);
         }
-        
+
         public Builder jsonHandler(JsonHandler jsonHandler) {
             this.jsonHandler = jsonHandler;
             return this;
         }
-        
+
         public Builder binaryWrapper(BinaryWrapper binaryWrapper) {
             this.binaryWrapper = binaryWrapper;
             return this;
         }
-        
+
         public Builder timeout(long timeout) {
             this.timeout = timeout;
             return this;
         }
 
     }
-    
+
     /**
      * 
      * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
@@ -90,8 +90,8 @@ public interface WsonrpcConfig {
         private final BinaryWrapper binaryWrapper;
         private final long timeout;
 
-        public SimpleWsonrpcConfig(ExecutorService execService, JsonHandler jsonHandler, 
-        		BinaryWrapper binaryWrapper, long timeout) {
+        public SimpleWsonrpcConfig(ExecutorService execService, JsonHandler jsonHandler,
+                BinaryWrapper binaryWrapper, long timeout) {
             this.execService = execService;
             this.jsonHandler = jsonHandler;
             this.binaryWrapper = binaryWrapper;
@@ -103,10 +103,10 @@ public interface WsonrpcConfig {
             return execService;
         }
 
-    	@Override
-    	public JsonHandler getJsonHandler() {
-    		return jsonHandler;
-    	}
+        @Override
+        public JsonHandler getJsonHandler() {
+            return jsonHandler;
+        }
 
         @Override
         public BinaryWrapper getBinaryWrapper() {

@@ -50,7 +50,7 @@ public interface WsonrpcContext {
 
         static void put(WosonrpcFuture<Object> future) {
             processQueue();
-            map.put(future.key(), new WeakElement(future, queue));
+            map.put(future.key, new WeakElement(future, queue));
         }
 
         static WosonrpcFuture<Object> out(String id) {
@@ -86,7 +86,7 @@ public interface WsonrpcContext {
 
         public WeakElement(WosonrpcFuture<Object> future, ReferenceQueue<WosonrpcFuture<Object>> queue) {
             super(future, queue);
-            this.key = future.key();
+            this.key = future.key;
         }
 
         @Override

@@ -30,7 +30,7 @@ public class WsonrpcClientDemo {
      *  已知tyrus1.9的一个bug会引起：Exception in thread " tyrus-jdk-client-12" java.lang.NullPointerException，
      *  已上报tyrus开发人员并修复，下一版的tyrus将不会有此问题
      */
-    static final int CLIENT_COUNT = 1000;
+    static final int CLIENT_COUNT = 1;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;
@@ -71,6 +71,7 @@ public class WsonrpcClientDemo {
         });
         client.connect();
 
+        // 同步调用
         LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
         User user = srv.login("admin", "admin");
         System.out.println("@" + clientIndex + ": login(String,String): " + user);
@@ -88,8 +89,9 @@ public class WsonrpcClientDemo {
 //        threadDownLatch.await(1200, TimeUnit.SECONDS);
 //        System.out.println("@" + clientIndex + "sleep end.==" + threadDownLatch.getCount());
         
-        Future<String> future = client.asyncInvoke("loginService", "login1",
-                new Object[] { "async", "async" }, String.class);
+        // 异步调用
+        Future<User> future = client.asyncInvoke("loginService", "login",
+                new Object[] { "async", "async" }, User.class);
         System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
         
 

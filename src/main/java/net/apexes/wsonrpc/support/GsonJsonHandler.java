@@ -159,7 +159,7 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
         @Override
         public JsonElement get(int index) {
             if (index >= size) {
-                throw new java.lang.IndexOutOfBoundsException("size is " + size + ", index is " + index);
+                throw new IndexOutOfBoundsException("size is " + size + ", index is " + index);
             }
             if (size == 1) {
                 return element;

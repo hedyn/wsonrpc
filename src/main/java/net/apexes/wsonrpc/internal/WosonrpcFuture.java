@@ -24,10 +24,6 @@ class WosonrpcFuture<V> extends AbstractFuture<V> {
         this.returnType = returnType;
     }
 
-    IKey key() {
-        return key;
-    }
-
     @Override
     public boolean set(V value) {
         return super.set(value);
@@ -62,7 +58,7 @@ class WosonrpcFuture<V> extends AbstractFuture<V> {
         if (other.key.id() == null) {
             return false;
         }
-        return key.id().equals(other.key().id());
+        return key.id().equals(other.key.id());
     }
 
     @Override
