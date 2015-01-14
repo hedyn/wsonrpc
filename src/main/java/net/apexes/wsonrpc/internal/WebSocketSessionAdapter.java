@@ -12,11 +12,11 @@ import net.apexes.wsonrpc.WsonrpcSession;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WebSocketWsonrpcSession implements WsonrpcSession {
+public class WebSocketSessionAdapter implements WsonrpcSession {
     
     private final Session session;
     
-    public WebSocketWsonrpcSession(Session session) {
+    public WebSocketSessionAdapter(Session session) {
         this.session = session;
     }
     

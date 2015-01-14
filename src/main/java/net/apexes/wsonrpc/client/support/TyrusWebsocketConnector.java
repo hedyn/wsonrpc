@@ -14,7 +14,7 @@ import javax.websocket.Session;
 
 import net.apexes.wsonrpc.client.WebsocketConnector;
 import net.apexes.wsonrpc.client.WsonrpcClient;
-import net.apexes.wsonrpc.internal.WebSocketWsonrpcSession;
+import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
 
 import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.container.jdk.client.JdkClientContainer;
@@ -53,7 +53,7 @@ public class TyrusWebsocketConnector implements WebsocketConnector {
         
         @OnOpen
         public void onOpen(Session session) {
-            client.onOpen(new WebSocketWsonrpcSession(session));
+            client.onOpen(new WebSocketSessionAdapter(session));
         }
 
         @OnMessage
