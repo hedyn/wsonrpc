@@ -19,7 +19,7 @@ public class WebSocketWsonrpcSession implements WsonrpcSession {
     public WebSocketWsonrpcSession(Session session) {
         this.session = session;
     }
-
+    
     @Override
     public String getId() {
         return session.getId();

@@ -13,7 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.client.ClientStatusListener;
 import net.apexes.wsonrpc.client.WsonrpcClient;
+import net.apexes.wsonrpc.client.support.SimpleWebsocketConnector;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
 import net.apexes.wsonrpc.support.GsonJsonHandler;
@@ -26,11 +28,7 @@ import net.apexes.wsonrpc.support.GsonJsonHandler;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    /*
-     *  已知tyrus1.9的一个bug会引起：Exception in thread " tyrus-jdk-client-12" java.lang.NullPointerException，
-     *  已上报tyrus开发人员并修复，下一版的tyrus将不会有此问题
-     */
-    static final int CLIENT_COUNT = 1;
+    static final int CLIENT_COUNT = 1000;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;
@@ -52,7 +50,7 @@ public class WsonrpcClientDemo {
         System.out.println("Over!");
     }
     
-    private static void testClient(int clientIndex) throws Exception {
+    private static void testClient(final int clientIndex) throws Exception {
         //System.out.println("@" + clientIndex + " ...");
         WsonrpcConfig config = WsonrpcConfig.Builder.create()
                 .jsonHandler(new GsonJsonHandler()).build(execService);
@@ -69,8 +67,26 @@ public class WsonrpcClientDemo {
                 throwable.printStackTrace();
             }
         });
-        client.connect();
+        client.setStatusListener(new ClientStatusListener() {
 
+            @Override
+            public void onOpen(WsonrpcClient client) {
+                try {
+                    testInvoke(client, clientIndex);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } finally {
+                    clientDownLatch.countDown();
+                }
+            }
+
+            @Override
+            public void onClose(WsonrpcClient client) {}
+        });
+        client.connect();
+    }
+    
+    private static void testInvoke(WsonrpcClient client, int clientIndex) throws Exception {
         // 同步调用
         LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
         User user = srv.login("admin", "admin");
@@ -128,8 +144,6 @@ public class WsonrpcClientDemo {
                 testClient(clientIndex);
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                clientDownLatch.countDown();
             }
         }
     }

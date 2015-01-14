@@ -1,8 +1,6 @@
 package net.apexes.wsonrpc.client;
 
 import java.net.URI;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
@@ -21,13 +19,17 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
     private final WebsocketConnector connector;
     private final URI uri;
     private final WsonrpcDispatcher dispatcher;
-    private final List<ClientStatusListener> statusListenerList;
+    private ClientStatusListener statusListener;
     
     public WsonrpcClientEndpoint(URI uri, WsonrpcConfig config, WebsocketConnector connector) {
         this.uri = uri;
         this.connector = connector;
-        this.statusListenerList = new CopyOnWriteArrayList<>();
         this.dispatcher = new WsonrpcDispatcher(config);
+    }
+
+    @Override
+    public void addService(String name, Object handler) {
+        dispatcher.addService(name, handler);
     }
 
     @Override
@@ -36,37 +38,19 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
     }
 
     @Override
-    public void addStatusListener(ClientStatusListener listener) {
-        statusListenerList.add(listener);
+    public ExceptionProcessor getExceptionProcessor() {
+        return dispatcher.getExceptionProcessor();
     }
 
     @Override
-    public void removeStatusListener(ClientStatusListener listener) {
-        statusListenerList.remove(listener);
+    public void setStatusListener(ClientStatusListener listener) {
+        this.statusListener = listener;
     }
 
     @Override
-    public WsonrpcClient addService(String name, Object handler) {
-        dispatcher.addService(name, handler);
-        return this;
-    }
-
-    @Override
-    public void connect() throws Exception {
+    public void connect() {
         if (!isOnline()) {
             connector.connectToServer(this, uri);
-        }
-    }
-
-    private synchronized void fireOpen() {
-        for (ClientStatusListener listener : statusListenerList) {
-            listener.onOpen(this);
-        }
-    }
-
-    private synchronized void fireClose() {
-        for (ClientStatusListener listener : statusListenerList) {
-            listener.onClose(this);
         }
     }
 
@@ -77,25 +61,48 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
     }
 
     @Override
-    public void onMessage(byte[] bytes) {
+    public void onMessage(byte[] data) {
         try {
-            dispatcher.handleMessage(getSession(), bytes);
+            dispatcher.handleMessage(getSession(), data);
         } catch (Throwable throwable) {
             onError(throwable);
         }
     }
 
     @Override
-    public void onError(Throwable throwable) {
+    public void onError(Throwable error) {
         if (dispatcher.getExceptionProcessor() != null) {
-            dispatcher.getExceptionProcessor().onError(throwable);
+            dispatcher.getExceptionProcessor().onError(error);
         }
     }
 
     @Override
     public void onClose(int code, String reason) {
-        fireClose();
         offline();
+        fireClose();
     }
 
+    private synchronized void fireOpen() {
+        if (statusListener != null) {
+            dispatcher.getExecutorService().execute(new Runnable() {
+
+                @Override
+                public void run() {
+                    statusListener.onOpen(WsonrpcClientEndpoint.this);
+                }
+            });
+        }
+    }
+
+    private synchronized void fireClose() {
+        if (statusListener != null) {
+            dispatcher.getExecutorService().execute(new Runnable() {
+
+                @Override
+                public void run() {
+                    statusListener.onClose(WsonrpcClientEndpoint.this);
+                }
+            });
+        }
+    }
 }

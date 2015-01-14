@@ -12,13 +12,13 @@
         <!-- tyrus -->
         <version.org.glassfish.tyrus>1.9</version.org.glassfish.tyrus>
 
-		<!-- json2 -->
+		<!-- jackson -->
 		<version.com.fasterxml.jackson.core>2.4.2</version.com.fasterxml.jackson.core>
 		<version.com.fasterxml.jackson.module-jaxb-annotations>2.4.2</version.com.fasterxml.jackson.module-jaxb-annotations>
 
 		<!-- gson -->
         <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
-		
+        
 		<!-- plugin -->
 		<version.maven-compiler-plugin>3.1</version.maven-compiler-plugin>
         <version.maven-jar-plugin>2.4</version.maven-jar-plugin>
@@ -53,7 +53,7 @@
         </dependency>
 
         <!-- Support -->
-		<!-- jackson 2 -->
+		<!-- jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
@@ -71,7 +71,7 @@
             <artifactId>gson</artifactId>
             <version>${version.com.google.code.gson}</version>
         </dependency>
-
+        
 	</dependencies>
 	
 	<build>

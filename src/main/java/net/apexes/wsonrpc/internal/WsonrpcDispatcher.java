@@ -50,6 +50,10 @@ public class WsonrpcDispatcher implements ICaller {
         this.jsonHandler = config.getJsonHandler();
         serviceFinder = new ConcurrentHashMap<>();
     }
+    
+    public ExecutorService getExecutorService() {
+        return execService;
+    }
 
     public void setExceptionProcessor(ExceptionProcessor processor) {
         this.exceptionProcessor = processor;

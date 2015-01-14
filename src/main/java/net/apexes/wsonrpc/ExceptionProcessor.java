@@ -7,6 +7,6 @@ package net.apexes.wsonrpc;
  */
 public interface ExceptionProcessor {
 
-    void onError(Throwable throwable, Object... params);
+    void onError(Throwable error, Object... params);
 
 }

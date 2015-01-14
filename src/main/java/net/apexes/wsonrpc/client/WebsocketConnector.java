@@ -9,6 +9,6 @@ import java.net.URI;
  */
 public interface WebsocketConnector {
 
-    void connectToServer(WsonrpcClient client, URI uri) throws Exception;
+    void connectToServer(WsonrpcClient client, URI uri);
 
 }
