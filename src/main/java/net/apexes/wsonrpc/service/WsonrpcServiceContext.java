@@ -27,12 +27,10 @@ public interface WsonrpcServiceContext extends WsonrpcContext {
         private static final Map<String, WsonrpcServiceEndpointProxy> remotes = new ConcurrentHashMap<>();
 
         static void addRemote(WsonrpcSession session, ICaller caller) {
-            System.out.println("add: " + session.getId());//XXX
             remotes.put(session.getId(), new WsonrpcServiceEndpointProxy(session, caller));
         }
         
         static void removeRemote(String sessionId) {
-            System.out.println("remove: " + sessionId);//XXX
             remotes.remove(sessionId);
         }
 

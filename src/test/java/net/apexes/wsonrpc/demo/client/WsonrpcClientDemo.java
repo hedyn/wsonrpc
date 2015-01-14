@@ -51,22 +51,13 @@ public class WsonrpcClientDemo {
     }
     
     private static void testClient(final int clientIndex) throws Exception {
-        //System.out.println("@" + clientIndex + " ...");
-        WsonrpcConfig config = WsonrpcConfig.Builder.create()
-                .jsonHandler(new GsonJsonHandler()).build(execService);
+        WsonrpcConfig config = WsonrpcConfig.Builder.create().build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc");
         WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
+        
+        // 供Server端调用的接口
         client.addService("callClientService", new CallClientServiceImpl());
-        client.setExceptionProcessor(new ExceptionProcessor() {
-
-            @Override
-            public void onError(Throwable throwable, Object... params) {
-                if (params != null) {
-                    System.err.println(Arrays.toString(params));
-                }
-                throwable.printStackTrace();
-            }
-        });
+        
         client.setStatusListener(new ClientStatusListener() {
 
             @Override
@@ -83,10 +74,16 @@ public class WsonrpcClientDemo {
             @Override
             public void onClose(WsonrpcClient client) {}
         });
+        
         client.connect();
     }
     
-    private static void testInvoke(WsonrpcClient client, int clientIndex) throws Exception {
+    static void testInvoke(WsonrpcClient client, int clientIndex) throws Exception {
+        // 异步调用
+        Future<User> future = client.asyncInvoke("loginService", "login",
+                new Object[] { "async", "async" }, User.class);
+        System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
+                
         // 同步调用
         LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
         User user = srv.login("admin", "admin");
@@ -105,12 +102,6 @@ public class WsonrpcClientDemo {
 //        threadDownLatch.await(1200, TimeUnit.SECONDS);
 //        System.out.println("@" + clientIndex + "sleep end.==" + threadDownLatch.getCount());
         
-        // 异步调用
-        Future<User> future = client.asyncInvoke("loginService", "login",
-                new Object[] { "async", "async" }, User.class);
-        System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
-        
-
 //        Future<String> future4 = null;
 //        try {
 //            future4 = client.asyncInvoke("loginService", "login4", new Object[] { "async", "async" }, String.class);
