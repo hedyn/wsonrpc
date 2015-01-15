@@ -58,96 +58,103 @@ public class WebSocketClient {
         return mListener;
     }
 
-    public void connect(Listener listener) {
+    public synchronized void connect(Listener listener) throws Exception {
         if (mThread != null && mThread.isAlive()) {
             return;
         }
 
         mListener = listener;
         disconnect = false;
+        
+        try {
+            String secret = createSecret();
 
-        mThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String secret = createSecret();
+            String scheme = mURI.getScheme();
+            String host = mURI.getHost();
+            
+            int port = (mURI.getPort() != -1) ? mURI.getPort()
+                    : (mURI.getScheme().equals("wss") ? 443 : 80);
 
-                    String scheme = mURI.getScheme();
-                    String host = mURI.getHost();
-                    
-                    int port = (mURI.getPort() != -1) ? mURI.getPort()
-                            : (mURI.getScheme().equals("wss") ? 443 : 80);
+            String path = isEmpty(mURI.getPath()) ? "/" : mURI.getPath();
+            if (!isEmpty(mURI.getQuery())) {
+                path += "?" + mURI.getQuery();
+            }
 
-                    String path = isEmpty(mURI.getPath()) ? "/" : mURI.getPath();
-                    if (!isEmpty(mURI.getQuery())) {
-                        path += "?" + mURI.getQuery();
+            String originScheme = scheme.equals("wss") ? "https" : "http";
+            URI origin = new URI(originScheme, "//" + host, null);
+
+            SocketFactory factory = scheme.equals("wss") ? getSSLSocketFactory()
+                    : SocketFactory.getDefault();
+            mSocket = factory.createSocket(host, port);
+
+            PrintWriter out = new PrintWriter(mSocket.getOutputStream());
+            out.print("GET " + path + " HTTP/1.1\r\n");
+            out.print("Upgrade: websocket\r\n");
+            out.print("Connection: Upgrade\r\n");
+            out.print("Host: " + host + "\r\n");
+            out.print("Origin: " + origin.toString() + "\r\n");
+            out.print("Sec-WebSocket-Key: " + secret + "\r\n");
+            out.print("Sec-WebSocket-Version: 13\r\n");
+            out.print("\r\n");
+            out.flush();
+
+            final HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(
+                    mSocket.getInputStream());
+
+            // Check HTTP response status line.
+            checkStatusLine(readLine(stream));
+
+            // Read HTTP response headers.
+            String line;
+            boolean validated = false;
+
+            while (!isEmpty(line = readLine(stream))) {
+                if (line.startsWith("Sec-WebSocket-Accept:")) {
+                    String expected = createSecretValidation(secret);
+                    String actual = line.replace("Sec-WebSocket-Accept:", "").trim();
+
+                    if (!expected.equals(actual)) {
+                        throw new ProtocolException("Bad Sec-WebSocket-Accept header value.");
                     }
 
-                    String originScheme = scheme.equals("wss") ? "https" : "http";
-                    URI origin = new URI(originScheme, "//" + host, null);
-
-                    SocketFactory factory = scheme.equals("wss") ? getSSLSocketFactory()
-                            : SocketFactory.getDefault();
-                    mSocket = factory.createSocket(host, port);
-
-                    PrintWriter out = new PrintWriter(mSocket.getOutputStream());
-                    out.print("GET " + path + " HTTP/1.1\r\n");
-                    out.print("Upgrade: websocket\r\n");
-                    out.print("Connection: Upgrade\r\n");
-                    out.print("Host: " + host + "\r\n");
-                    out.print("Origin: " + origin.toString() + "\r\n");
-                    out.print("Sec-WebSocket-Key: " + secret + "\r\n");
-                    out.print("Sec-WebSocket-Version: 13\r\n");
-                    out.print("\r\n");
-                    out.flush();
-
-                    HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(
-                            mSocket.getInputStream());
-
-                    // Check HTTP response status line.
-                    checkStatusLine(readLine(stream));
-
-                    // Read HTTP response headers.
-                    String line;
-                    boolean validated = false;
-
-                    while (!isEmpty(line = readLine(stream))) {
-                        if (line.startsWith("Sec-WebSocket-Accept:")) {
-                            String expected = createSecretValidation(secret);
-                            String actual = line.replace("Sec-WebSocket-Accept:", "").trim();
-
-                            if (!expected.equals(actual)) {
-                                throw new ProtocolException("Bad Sec-WebSocket-Accept header value.");
-                            }
-
-                            validated = true;
-                        }
-                    }
-
-                    if (!validated) {
-                        throw new ProtocolException("No Sec-WebSocket-Accept header.");
-                    }
-
-                    mListener.onConnect();
-
-                    // Now decode websocket frames.
-                    mParser.start(stream);
-
-                } catch (EOFException ex) {
-                    mListener.onDisconnect(0, "EOF");
-                } catch (SSLException ex) {
-                    // Connection reset by peer
-                    mListener.onDisconnect(0, "SSL");
-                } catch (Exception ex) {
-                    if (disconnect) {
-                        mListener.onDisconnect(0, "EOF");
-                    } else {
-                        mListener.onError(ex);
-                    }
+                    validated = true;
                 }
             }
-        });
-        mThread.start();
+
+            if (!validated) {
+                throw new ProtocolException("No Sec-WebSocket-Accept header.");
+            }
+
+
+            mThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // Now decode websocket frames.
+                    try {
+                        mParser.start(stream);
+                    } catch (IOException ex) {
+                        if (disconnect) {
+                            mListener.onDisconnect(0, "EOF");
+                        } else {
+                            mListener.onError(ex);
+                        }
+                    }
+                }
+            });
+            mThread.start();
+            mListener.onConnect();
+        } catch (EOFException ex) {
+            mListener.onDisconnect(0, "EOF");
+        } catch (SSLException ex) {
+            // Connection reset by peer
+            mListener.onDisconnect(0, "SSL");
+        } catch (Exception ex) {
+            if (disconnect) {
+                mListener.onDisconnect(0, "EOF");
+            } else {
+                throw ex;
+            }
+        }
     }
 
     public void disconnect() {

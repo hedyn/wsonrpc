@@ -1,7 +1,6 @@
 package net.apexes.wsonrpc.demo.client;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -13,12 +12,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
-import net.apexes.wsonrpc.client.ClientStatusListener;
 import net.apexes.wsonrpc.client.WsonrpcClient;
-import net.apexes.wsonrpc.client.support.SimpleWebsocketConnector;
+import net.apexes.wsonrpc.client.support.TyrusWebsocketConnector;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
-import net.apexes.wsonrpc.support.GsonJsonHandler;
 
 /**
  * 
@@ -28,7 +25,7 @@ import net.apexes.wsonrpc.support.GsonJsonHandler;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 1000;
+    static final int CLIENT_COUNT = 1;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;
@@ -41,7 +38,7 @@ public class WsonrpcClientDemo {
         }
         
         System.out.println("sleep....");
-        clientDownLatch.await(120, TimeUnit.SECONDS);
+        clientDownLatch.await(100, TimeUnit.SECONDS);
         System.out.println("sleep end.==" + clientDownLatch.getCount());
         
         Thread.sleep(1000);
@@ -57,25 +54,23 @@ public class WsonrpcClientDemo {
         
         // 供Server端调用的接口
         client.addService("callClientService", new CallClientServiceImpl());
-        
-        client.setStatusListener(new ClientStatusListener() {
+        client.setExceptionProcessor(new ExceptionProcessor() {
 
             @Override
-            public void onOpen(WsonrpcClient client) {
-                try {
-                    testInvoke(client, clientIndex);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                } finally {
-                    clientDownLatch.countDown();
-                }
+            public void onError(Throwable error, Object... params) {
+                error.printStackTrace();
             }
-
-            @Override
-            public void onClose(WsonrpcClient client) {}
         });
         
         client.connect();
+        
+        try {
+            testInvoke(client, clientIndex);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            clientDownLatch.countDown();
+        }
     }
     
     static void testInvoke(WsonrpcClient client, int clientIndex) throws Exception {

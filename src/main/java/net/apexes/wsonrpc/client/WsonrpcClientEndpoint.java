@@ -48,7 +48,7 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
     }
 
     @Override
-    public void connect() {
+    public void connect() throws Exception {
         if (!isOnline()) {
             connector.connectToServer(this, uri);
         }

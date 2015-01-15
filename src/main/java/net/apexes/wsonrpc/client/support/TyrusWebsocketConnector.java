@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
-import javax.websocket.DeploymentException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -27,14 +26,10 @@ import org.glassfish.tyrus.container.jdk.client.JdkClientContainer;
 public class TyrusWebsocketConnector implements WebsocketConnector {
 
     @Override
-    public void connectToServer(WsonrpcClient client, URI uri) {
+    public void connectToServer(WsonrpcClient client, URI uri) throws Exception {
         WebSocketEndpointAdapter endpoint = new WebSocketEndpointAdapter(client);
-        try {
-            ClientManager mgr = ClientManager.createClient(JdkClientContainer.class.getName());
-            mgr.asyncConnectToServer(endpoint, uri);
-        } catch (DeploymentException ex) {
-            client.getExceptionProcessor().onError(ex);
-        }
+        ClientManager mgr = ClientManager.createClient(JdkClientContainer.class.getName());
+        mgr.connectToServer(endpoint, uri);
     }
     
     /**

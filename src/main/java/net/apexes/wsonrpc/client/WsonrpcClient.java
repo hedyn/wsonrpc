@@ -24,9 +24,9 @@ public interface WsonrpcClient extends WsonrpcRemote {
     void setStatusListener(ClientStatusListener listener);
 
     /**
-     * 连接，此操作为异步的
+     * 连接服务端，在连接上之前调用此方法的线程都将阻塞
      */
-    void connect();
+    void connect() throws Exception;
     
     void onOpen(WsonrpcSession session);
 

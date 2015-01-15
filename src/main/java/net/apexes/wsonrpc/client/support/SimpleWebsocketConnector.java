@@ -23,7 +23,7 @@ import net.apexes.wsonrpc.client.support.websocket.WebSocketClient;
 public class SimpleWebsocketConnector implements WebsocketConnector {
 
     @Override
-    public void connectToServer(WsonrpcClient client, URI uri) {
+    public void connectToServer(WsonrpcClient client, URI uri) throws Exception {
         WebSocketClient wsClient = new WebSocketClient(uri);
         wsClient.connect(new WebSocketClientProxy(client, wsClient));
     }
