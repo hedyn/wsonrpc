@@ -72,6 +72,9 @@ public class WebSocketClient {
                 try {
                     String secret = createSecret();
 
+                    String scheme = mURI.getScheme();
+                    String host = mURI.getHost();
+                    
                     int port = (mURI.getPort() != -1) ? mURI.getPort()
                             : (mURI.getScheme().equals("wss") ? 443 : 80);
 
@@ -80,18 +83,18 @@ public class WebSocketClient {
                         path += "?" + mURI.getQuery();
                     }
 
-                    String originScheme = mURI.getScheme().equals("wss") ? "https" : "http";
-                    URI origin = new URI(originScheme, "//" + mURI.getHost(), null);
+                    String originScheme = scheme.equals("wss") ? "https" : "http";
+                    URI origin = new URI(originScheme, "//" + host, null);
 
-                    SocketFactory factory = mURI.getScheme().equals("wss") ? getSSLSocketFactory()
+                    SocketFactory factory = scheme.equals("wss") ? getSSLSocketFactory()
                             : SocketFactory.getDefault();
-                    mSocket = factory.createSocket(mURI.getHost(), port);
+                    mSocket = factory.createSocket(host, port);
 
                     PrintWriter out = new PrintWriter(mSocket.getOutputStream());
                     out.print("GET " + path + " HTTP/1.1\r\n");
                     out.print("Upgrade: websocket\r\n");
                     out.print("Connection: Upgrade\r\n");
-                    out.print("Host: " + mURI.getHost() + "\r\n");
+                    out.print("Host: " + host + "\r\n");
                     out.print("Origin: " + origin.toString() + "\r\n");
                     out.print("Sec-WebSocket-Key: " + secret + "\r\n");
                     out.print("Sec-WebSocket-Version: 13\r\n");
