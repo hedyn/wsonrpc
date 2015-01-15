@@ -28,10 +28,10 @@ public class WsonrpcService extends WsonrpcServiceEndpoint implements ExceptionP
     }
 
     @Override
-    public void onError(Throwable throwable, Object... params) {
+    public void onError(Throwable error, Object... params) {
         if (params != null) {
             System.err.println(Arrays.toString(params));
         }
-        throwable.printStackTrace();
+        error.printStackTrace();
     }
 }

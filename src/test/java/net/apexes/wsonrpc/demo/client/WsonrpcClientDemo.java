@@ -26,7 +26,7 @@ import net.apexes.wsonrpc.demo.api.User;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 1;
+    static final int CLIENT_COUNT = 1000;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;
