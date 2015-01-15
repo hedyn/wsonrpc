@@ -69,6 +69,7 @@ public class WsonrpcClientDemo {
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
+            client.close();
             clientDownLatch.countDown();
         }
     }
@@ -107,7 +108,6 @@ public class WsonrpcClientDemo {
 //            future4 = null;
 //        }
         
-        client.close();
         System.out.println("@" + clientIndex + ": over.");
     }
     

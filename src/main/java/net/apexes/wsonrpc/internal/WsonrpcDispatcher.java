@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -26,7 +27,6 @@ import net.apexes.wsonrpc.message.JsonRpcMessage;
 import net.apexes.wsonrpc.message.JsonRpcNotification;
 import net.apexes.wsonrpc.message.JsonRpcRequest;
 import net.apexes.wsonrpc.message.JsonRpcResponse;
-import net.apexes.wsonrpc.util.ObjectId;
 
 /**
  * 
@@ -83,7 +83,7 @@ public class WsonrpcDispatcher implements ICaller {
     @Override
     public Future<Object> request(WsonrpcSession session, String serviceName, String methodName, 
             Object argument, Type returnType) throws Exception {
-        String id = ObjectId.get().toHexString();
+        String id = UUID.randomUUID().toString();
         WosonrpcFuture<Object> future = new WosonrpcFuture<>(id, returnType);
         WsonrpcContext.Futures.put(future);
         try {
