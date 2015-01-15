@@ -50,7 +50,7 @@ public class WsonrpcClientDemo {
     private static void testClient(final int clientIndex) throws Exception {
         WsonrpcConfig config = WsonrpcConfig.Builder.create().build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc");
-        WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
+        WsonrpcClient client = WsonrpcClient.Builder.create(uri, config, new TyrusWebsocketConnector());
         
         // 供Server端调用的接口
         client.addService("callClientService", new CallClientServiceImpl());

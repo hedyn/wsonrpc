@@ -84,25 +84,13 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
 
     private synchronized void fireOpen() {
         if (statusListener != null) {
-            dispatcher.getExecutorService().execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    statusListener.onOpen(WsonrpcClientEndpoint.this);
-                }
-            });
+            statusListener.onOpen(WsonrpcClientEndpoint.this);
         }
     }
 
     private synchronized void fireClose() {
         if (statusListener != null) {
-            dispatcher.getExecutorService().execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    statusListener.onClose(WsonrpcClientEndpoint.this);
-                }
-            });
+            statusListener.onClose(WsonrpcClientEndpoint.this);
         }
     }
 }
