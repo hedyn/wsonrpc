@@ -43,17 +43,7 @@ public interface WsonrpcConfig {
 
         public WsonrpcConfig build(ExecutorService execService) {
             if (binaryWrapper == null) {
-                binaryWrapper = new BinaryWrapper() {
-                    @Override
-                    public InputStream wrap(InputStream ips) throws Exception {
-                        return ips;
-                    }
-
-                    @Override
-                    public OutputStream wrap(OutputStream ops) throws Exception {
-                        return ops;
-                    }
-                };
+                binaryWrapper = new NoopsBinaryWrapper();
             }
             if (jsonHandler == null) {
                 jsonHandler = new JacksonJsonHandler();
@@ -120,4 +110,23 @@ public interface WsonrpcConfig {
 
     }
 
+    /**
+     * 
+     * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
+     *
+     */
+    static class NoopsBinaryWrapper implements BinaryWrapper {
+
+        @Override
+        public InputStream wrap(InputStream ips) throws Exception {
+            return ips;
+        }
+
+        @Override
+        public OutputStream wrap(OutputStream ops) throws Exception {
+            return ops;
+        }
+        
+    }
+    
 }

@@ -43,33 +43,42 @@ public interface WsonrpcRemote {
      */
     public static class Executor {
 
-        public static <T> T createProxy(final WsonrpcRemote remote, final Class<T> serviceClass) {
-            return createProxy(remote, serviceClass, 0);
+        public static Executor create(WsonrpcRemote remote) {
+            return new Executor(remote);
         }
 
-        public static <T> T createProxy(final WsonrpcRemote remote, final Class<T> serviceClass,
-                final long timeout) {
-            return createProxy(remote, serviceClass, serviceClass.getSimpleName(), timeout);
+        private final WsonrpcRemote remote;
+        private String serviceName;
+        private ClassLoader classLoader;
+        private long timeout;
+
+        private Executor(WsonrpcRemote remote) {
+            this.remote = remote;
         }
 
-        public static <T> T createProxy(final WsonrpcRemote remote, final Class<T> serviceClass,
-                final String serviceName) {
-            return createProxy(remote, serviceClass, serviceClass.getClassLoader(), serviceName, 0);
+        public Executor serviceName(String serviceName) {
+            this.serviceName = serviceName;
+            return this;
         }
 
-        public static <T> T createProxy(final WsonrpcRemote remote, final Class<T> serviceClass,
-                final String serviceName, final long timeout) {
-            return createProxy(remote, serviceClass, serviceClass.getClassLoader(), serviceName, timeout);
+        public Executor classLoader(ClassLoader classLoader) {
+            this.classLoader = classLoader;
+            return this;
         }
 
-        public static <T> T createProxy(final WsonrpcRemote remote, final Class<T> serviceClass,
-                final ClassLoader classLoader, final String serviceName) {
-            return createProxy(remote, serviceClass, classLoader, serviceName, 0);
+        public Executor timeout(long timeout) {
+            this.timeout = timeout;
+            return this;
         }
 
         @SuppressWarnings("unchecked")
-        public static <T> T createProxy(final WsonrpcRemote remote, final Class<T> serviceClass,
-                final ClassLoader classLoader, final String serviceName, final long timeout) {
+        public <T> T getService(final Class<T> serviceClass) {
+            if (serviceName == null) {
+                serviceName = serviceClass.getSimpleName();
+            }
+            if (classLoader == null) {
+                classLoader = serviceClass.getClassLoader();
+            }
             InvocationHandler handler = new InvocationHandler() {
                 @Override
                 public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

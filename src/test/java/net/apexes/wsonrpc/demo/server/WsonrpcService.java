@@ -7,6 +7,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.service.WsonrpcServiceEndpoint;
 
 import org.glassfish.tyrus.core.MaxSessions;
@@ -23,7 +24,7 @@ public class WsonrpcService extends WsonrpcServiceEndpoint implements ExceptionP
     public WsonrpcService() {
         super(WsonrpcConfig.Builder.create().build(Executors.newCachedThreadPool()));
         this.setExceptionProcessor(this);
-        this.addService("loginService", new LoginServiceImpl());
+        this.addService(LoginService.class.getSimpleName(), new LoginServiceImpl());
     }
 
     @Override

@@ -148,10 +148,15 @@ public class WsonrpcDispatcher implements ICaller {
             public void run() {
                 WsonrpcContext.Sessions.begin(session);
                 try {
-                    int index = serviceMethod.indexOf(".");
+                    int index = serviceMethod.lastIndexOf(".");
                     String serviceName = serviceMethod.substring(0, index);
                     String methodName = serviceMethod.substring(index + 1);
+                    
                     Object service = serviceFinder.get(serviceName);
+                    if (service == null) {
+                        writeAndFlushMessage(session, new JsonRpcResponse(id, JsonRpcError.METHOD_NOT_FOUND));
+                        return;
+                    }
                     
                     Set<Method> methods = findMethods(service.getClass(), methodName);
                     if (methods.isEmpty()) {

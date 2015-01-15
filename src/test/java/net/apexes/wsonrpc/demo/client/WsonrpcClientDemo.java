@@ -14,6 +14,7 @@ import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.client.support.TyrusWebsocketConnector;
+import net.apexes.wsonrpc.demo.api.CallClientService;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
 
@@ -25,7 +26,7 @@ import net.apexes.wsonrpc.demo.api.User;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 1000;
+    static final int CLIENT_COUNT = 1;
     static final int THREAD_COUNT = 10;
     static final int LOOP_COUNT = 100;
     private static CountDownLatch clientDownLatch;
@@ -50,10 +51,10 @@ public class WsonrpcClientDemo {
     private static void testClient(final int clientIndex) throws Exception {
         WsonrpcConfig config = WsonrpcConfig.Builder.create().build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc");
-        WsonrpcClient client = WsonrpcClient.Builder.create(uri, config, new TyrusWebsocketConnector());
+        WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
         
         // 供Server端调用的接口
-        client.addService("callClientService", new CallClientServiceImpl());
+        client.addService(CallClientService.class.getSimpleName(), new CallClientServiceImpl());
         client.setExceptionProcessor(new ExceptionProcessor() {
 
             @Override
@@ -76,12 +77,12 @@ public class WsonrpcClientDemo {
     
     static void testInvoke(WsonrpcClient client, int clientIndex) throws Exception {
         // 异步调用
-        Future<User> future = client.asyncInvoke("loginService", "login",
+        Future<User> future = client.asyncInvoke(LoginService.class.getSimpleName(), "login",
                 new Object[] { "async", "async" }, User.class);
         System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
                 
         // 同步调用
-        LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
+        LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
         User user = srv.login("admin", "admin");
         System.out.println("@" + clientIndex + ": login(String,String): " + user);
         
@@ -152,7 +153,7 @@ public class WsonrpcClientDemo {
                         Thread.sleep(r);
                     } catch (InterruptedException e) {
                     }
-                    LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
+                    LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
                     String user = srv.login1("login1_" + i, "123456");
 //                    System.out.println("login1 result: " + user);
                 }
@@ -177,7 +178,7 @@ public class WsonrpcClientDemo {
                         Thread.sleep(r);
                     } catch (InterruptedException e) {
                     }
-                    LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
+                    LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
                     String user = srv.login2("login2_" + i, "123456");
 //                    System.out.println("login2 result: " + user);
                 }
@@ -202,7 +203,7 @@ public class WsonrpcClientDemo {
                         Thread.sleep(r);
                     } catch (InterruptedException e) {
                     }
-                    LoginService srv = WsonrpcRemote.Executor.createProxy(client, LoginService.class, "loginService");
+                    LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
                     String user = srv.login3("login3_" + i, "123456");
 //                    System.out.println("login3 result: " + user);
                 }

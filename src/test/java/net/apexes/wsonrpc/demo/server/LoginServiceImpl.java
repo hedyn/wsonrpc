@@ -60,8 +60,8 @@ public class LoginServiceImpl implements LoginService {
     private void callClient(final String username, final String password) {
         WsonrpcRemote remote = WsonrpcService.Manager.getRemote();
         if (remote != null) {
-            CallClientService callClientSrv = WsonrpcRemote.Executor.createProxy(remote, 
-                    CallClientService.class, "callClientService");
+            CallClientService callClientSrv = WsonrpcRemote.Executor.create(remote)
+                    .getService(CallClientService.class);
             String result = callClientSrv.callClient("The username is " + username);
             System.out.println(result);
         }
@@ -70,8 +70,8 @@ public class LoginServiceImpl implements LoginService {
     private void callClient(final User user) {
         WsonrpcRemote remote = WsonrpcService.Manager.getRemote();
         if (remote != null) {
-            CallClientService callClientSrv = WsonrpcRemote.Executor.createProxy(remote, 
-                    CallClientService.class, "callClientService");
+            CallClientService callClientSrv = WsonrpcRemote.Executor.create(remote)
+                    .getService(CallClientService.class);
             String[] results = callClientSrv.callClient(user);
             System.out.println(Arrays.toString(results));
         }
