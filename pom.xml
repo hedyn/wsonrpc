@@ -58,11 +58,13 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 			<version>${version.com.fasterxml.jackson.core}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>${version.com.fasterxml.jackson.core}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- gson -->
@@ -70,6 +72,7 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${version.com.google.code.gson}</version>
+			<scope>provided</scope>
         </dependency>
         
 	</dependencies>
@@ -129,6 +132,24 @@
                             </excludes>
                         </configuration>
                     </execution>
+                    <!-- all -->
+                    <execution>
+                        <id>wsonrpc-all</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>wsonrpc-${project.version}</finalName>
+                            <archive>
+                                <manifest>
+                                    <addDefaultImplementationEntries>false</addDefaultImplementationEntries>
+                                    <addDefaultSpecificationEntries>false</addDefaultSpecificationEntries>
+                                </manifest>
+                                <addMavenDescriptor>false</addMavenDescriptor>
+                            </archive>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             
@@ -176,6 +197,20 @@
                             <excludes>
                                 <exclude>**/client/**</exclude>            
                             </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- all -->
+                    <execution>
+                        <id>wsonrpc-all</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>wsonrpc-${project.version}</finalName>
+                            <archive>
+                                <addMavenDescriptor>false</addMavenDescriptor>
+                            </archive>
                         </configuration>
                     </execution>
                 </executions>
