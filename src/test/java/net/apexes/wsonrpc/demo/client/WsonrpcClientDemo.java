@@ -26,9 +26,9 @@ import net.apexes.wsonrpc.demo.api.User;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 1000;
-    static final int THREAD_COUNT = 10;
-    static final int LOOP_COUNT = 100;
+    static final int CLIENT_COUNT = 100;
+    static final int THREAD_COUNT = 50;
+    static final int LOOP_COUNT = 10;
     private static CountDownLatch clientDownLatch;
     private static ExecutorService execService = Executors.newCachedThreadPool();
     
@@ -39,7 +39,7 @@ public class WsonrpcClientDemo {
         }
         
         System.out.println("sleep....");
-        clientDownLatch.await(100, TimeUnit.SECONDS);
+        clientDownLatch.await(150, TimeUnit.SECONDS);
         System.out.println("sleep end.==" + clientDownLatch.getCount());
         
         Thread.sleep(1000);
@@ -77,9 +77,9 @@ public class WsonrpcClientDemo {
     
     static void testInvoke(WsonrpcClient client, int clientIndex) throws Exception {
         // 异步调用
-        Future<User> future = client.asyncInvoke(LoginService.class.getSimpleName(), "login",
-                new Object[] { "async", "async" }, User.class);
-        System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
+//        Future<User> future = client.asyncInvoke(LoginService.class.getSimpleName(), "login",
+//                new Object[] { "async", "async" }, User.class);
+//        System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
                 
         // 同步调用
         LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
@@ -87,17 +87,17 @@ public class WsonrpcClientDemo {
         System.out.println("@" + clientIndex + ": login(String,String): " + user);
         
         user = srv.login(user);
-        System.out.println("@" + clientIndex + ": login(User): " + user);
+//        System.out.println("@" + clientIndex + ": login(User): " + user);
         
-//        CountDownLatch threadDownLatch = new CountDownLatch(THREAD_COUNT);
-//        for (int i = 0; i < THREAD_COUNT; i++) {
-//            testLogin1(clientIndex, client, threadDownLatch);
-//            testLogin2(clientIndex, client, threadDownLatch);
-//            testLogin3(clientIndex, client, threadDownLatch);
-//        }
+        CountDownLatch threadDownLatch = new CountDownLatch(THREAD_COUNT * 3);
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            testLogin1(clientIndex, client, threadDownLatch);
+            testLogin2(clientIndex, client, threadDownLatch);
+            testLogin3(clientIndex, client, threadDownLatch);
+        }
 //        System.out.println("@" + clientIndex + "sleep....");
-//        threadDownLatch.await(1200, TimeUnit.SECONDS);
-//        System.out.println("@" + clientIndex + "sleep end.==" + threadDownLatch.getCount());
+        threadDownLatch.await(120, TimeUnit.SECONDS);
+        System.out.println("@" + clientIndex + ": sleep end.==" + threadDownLatch.getCount());
         
 //        Future<String> future4 = null;
 //        try {
@@ -109,7 +109,7 @@ public class WsonrpcClientDemo {
 //            future4 = null;
 //        }
         
-        System.out.println("@" + clientIndex + ": over.");
+//        System.out.println("@" + clientIndex + ": over.");
     }
     
     /**
@@ -135,7 +135,7 @@ public class WsonrpcClientDemo {
         }
     }
     
-    private static final int RANDOM = 500;
+    private static final int RANDOM = 100;
         
     private static AtomicInteger threadCounter = new AtomicInteger(0);
     
@@ -145,7 +145,7 @@ public class WsonrpcClientDemo {
 
             @Override
             public void run() {
-                System.out.println("@" + clientIndex + "#" + threadCounter.incrementAndGet());
+                System.out.println("@" + clientIndex + "#" + threadCounter.incrementAndGet() + " start...");
                 Random random = new Random();
                 for (int i = 0; i < LOOP_COUNT; i++) {
                     try {
@@ -170,7 +170,7 @@ public class WsonrpcClientDemo {
             
             @Override
             public void run() {
-                System.out.println("@" + clientIndex + "#" + threadCounter.incrementAndGet());
+                System.out.println("@" + clientIndex + "#" + threadCounter.incrementAndGet() + " start...");
                 Random random = new Random();
                 for (int i = 0; i < LOOP_COUNT; i++) {
                     try {
@@ -195,7 +195,7 @@ public class WsonrpcClientDemo {
 
             @Override
             public void run() {
-                System.out.println("@" + clientIndex + "#" + threadCounter.incrementAndGet());
+                System.out.println("@" + clientIndex + "#" + threadCounter.incrementAndGet() + " start...");
                 Random random = new Random();
                 for (int i = 0; i < LOOP_COUNT; i++) {
                     try {

@@ -63,7 +63,7 @@ public class LoginServiceImpl implements LoginService {
             CallClientService callClientSrv = WsonrpcRemote.Executor.create(remote)
                     .getService(CallClientService.class);
             String result = callClientSrv.callClient("The username is " + username);
-            System.out.println(result);
+//            System.out.println(result);
         }
     }
     
@@ -73,7 +73,7 @@ public class LoginServiceImpl implements LoginService {
             CallClientService callClientSrv = WsonrpcRemote.Executor.create(remote)
                     .getService(CallClientService.class);
             String[] results = callClientSrv.callClient(user);
-            System.out.println(Arrays.toString(results));
+//            System.out.println(Arrays.toString(results));
         }
     }
 }
