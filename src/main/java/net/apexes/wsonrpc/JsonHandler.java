@@ -33,7 +33,7 @@ public interface JsonHandler {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    public static class MethodAndArgs {
+    class MethodAndArgs {
         
         private final Method method;
         private final Object[] arguments;
