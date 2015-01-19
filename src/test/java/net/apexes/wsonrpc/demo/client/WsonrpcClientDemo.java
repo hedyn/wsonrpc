@@ -17,6 +17,8 @@ import net.apexes.wsonrpc.client.support.TyrusWebsocketConnector;
 import net.apexes.wsonrpc.demo.api.CallClientService;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
+import net.apexes.wsonrpc.internal.WsonrpcContext;
+import net.apexes.wsonrpc.service.WsonrpcService;
 
 /**
  * 

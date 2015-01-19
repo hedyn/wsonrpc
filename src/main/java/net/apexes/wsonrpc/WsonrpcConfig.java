@@ -31,7 +31,7 @@ public interface WsonrpcConfig {
      * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
      *
      */
-    public static class Builder {
+    final class Builder {
 
         public static Builder create() {
             return new Builder();
@@ -40,15 +40,38 @@ public interface WsonrpcConfig {
         private JsonHandler jsonHandler;
         private BinaryWrapper binaryWrapper;
         private long timeout;
+        
+        private Builder() {}
 
-        public WsonrpcConfig build(ExecutorService execService) {
+        public WsonrpcConfig build(final ExecutorService execService) {
             if (binaryWrapper == null) {
                 binaryWrapper = new NoopsBinaryWrapper();
             }
             if (jsonHandler == null) {
                 jsonHandler = new JacksonJsonHandler();
             }
-            return new SimpleWsonrpcConfig(execService, jsonHandler, binaryWrapper, timeout);
+            return new WsonrpcConfig() {
+
+                @Override
+                public ExecutorService getExecutorService() {
+                    return execService;
+                }
+
+                @Override
+                public JsonHandler getJsonHandler() {
+                    return jsonHandler;
+                }
+
+                @Override
+                public BinaryWrapper getBinaryWrapper() {
+                    return binaryWrapper;
+                }
+
+                @Override
+                public long getTimeout() {
+                    return timeout;
+                }
+            };
         }
 
         public Builder jsonHandler(JsonHandler jsonHandler) {
@@ -70,52 +93,10 @@ public interface WsonrpcConfig {
 
     /**
      * 
-     * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
-     *
-     */
-    static class SimpleWsonrpcConfig implements WsonrpcConfig {
-
-        private final ExecutorService execService;
-        private final JsonHandler jsonHandler;
-        private final BinaryWrapper binaryWrapper;
-        private final long timeout;
-
-        public SimpleWsonrpcConfig(ExecutorService execService, JsonHandler jsonHandler,
-                BinaryWrapper binaryWrapper, long timeout) {
-            this.execService = execService;
-            this.jsonHandler = jsonHandler;
-            this.binaryWrapper = binaryWrapper;
-            this.timeout = timeout;
-        }
-
-        @Override
-        public ExecutorService getExecutorService() {
-            return execService;
-        }
-
-        @Override
-        public JsonHandler getJsonHandler() {
-            return jsonHandler;
-        }
-
-        @Override
-        public BinaryWrapper getBinaryWrapper() {
-            return binaryWrapper;
-        }
-
-        @Override
-        public long getTimeout() {
-            return timeout;
-        }
-
-    }
-
-    /**
-     * 
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    static class NoopsBinaryWrapper implements BinaryWrapper {
+    class NoopsBinaryWrapper implements BinaryWrapper {
 
         @Override
         public InputStream wrap(InputStream ips) throws Exception {

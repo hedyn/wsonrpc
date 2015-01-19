@@ -39,7 +39,7 @@ public interface WsonrpcService {
      * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
      *
      */
-    public static final class Manager {
+    final class Manager {
 
         private static WsonrpcService instance = new WsonrpcService() {
 
@@ -59,7 +59,7 @@ public interface WsonrpcService {
             }
 
         };
-
+        
         public static WsonrpcSession getSession() {
             return instance.getSession();
         }
@@ -79,6 +79,8 @@ public interface WsonrpcService {
             }
             return null;
         }
+        
+        private Manager() {}
 
     }
 

@@ -41,7 +41,7 @@ public interface WsonrpcRemote {
      * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
      *
      */
-    public static class Executor {
+    final class Executor {
 
         public static Executor create(WsonrpcRemote remote) {
             return new Executor(remote);

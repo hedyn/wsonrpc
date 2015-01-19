@@ -15,7 +15,7 @@ import net.apexes.wsonrpc.internal.WsonrpcEndpoint;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public interface WsonrpcServiceContext extends WsonrpcContext {
+public abstract class WsonrpcServiceContext extends WsonrpcContext {
 
     /**
      * 
@@ -49,6 +49,8 @@ public interface WsonrpcServiceContext extends WsonrpcContext {
         public static Collection<? extends WsonrpcRemote> getRemotes() {
             return remotes.values();
         }
+        
+        private Remotes() {}
     }
     
     /**
@@ -56,7 +58,7 @@ public interface WsonrpcServiceContext extends WsonrpcContext {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    static class WsonrpcServiceEndpointProxy extends WsonrpcEndpoint {
+    private static class WsonrpcServiceEndpointProxy extends WsonrpcEndpoint {
         
         WsonrpcServiceEndpointProxy(WsonrpcSession session, ICaller caller) {
             online(session, caller);

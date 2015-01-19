@@ -41,7 +41,7 @@ public interface WsonrpcClient extends WsonrpcRemote {
      * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
      *
      */
-    public static class Builder {
+    final class Builder {
 
         public static WsonrpcClient create(URI uri, WsonrpcConfig config) {
             return create(uri, config, new SimpleWebsocketConnector());
@@ -50,6 +50,8 @@ public interface WsonrpcClient extends WsonrpcRemote {
         public static WsonrpcClient create(URI uri, WsonrpcConfig config, WebsocketConnector connector) {
             return new WsonrpcClientEndpoint(uri, config, connector);
         }
+        
+        private Builder() {}
     }
 
 }

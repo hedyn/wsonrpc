@@ -13,7 +13,7 @@ import net.apexes.wsonrpc.WsonrpcSession;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public interface WsonrpcContext {
+public abstract class WsonrpcContext {
 
     /**
      * 
@@ -35,6 +35,7 @@ public interface WsonrpcContext {
             return sessions.get();
         }
 
+        private Sessions() {}
     }
 
     /**
@@ -72,6 +73,8 @@ public interface WsonrpcContext {
                 map.remove(ref);
             }
         }
+        
+        private Futures() {}
 
     }
 
@@ -80,11 +83,11 @@ public interface WsonrpcContext {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    static class WeakElement extends WeakReference<WosonrpcFuture<Object>> implements IKey {
+    private static class WeakElement extends WeakReference<WosonrpcFuture<Object>> implements IKey {
 
         private IKey key;
 
-        public WeakElement(WosonrpcFuture<Object> future, ReferenceQueue<WosonrpcFuture<Object>> queue) {
+        WeakElement(WosonrpcFuture<Object> future, ReferenceQueue<WosonrpcFuture<Object>> queue) {
             super(future, queue);
             this.key = future.key;
         }
