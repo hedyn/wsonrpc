@@ -107,9 +107,6 @@
                         <phase>package</phase>
                         <configuration>
                             <finalName>wsonrpc-client-${project.version}</finalName>
-                            <archive>
-                                <addMavenDescriptor>false</addMavenDescriptor>
-                            </archive>
                             <excludes>
                                 <exclude>**/service/**</exclude>            
                             </excludes>
@@ -124,9 +121,6 @@
                         <phase>package</phase>
                         <configuration>
                             <finalName>wsonrpc-service-${project.version}</finalName>
-                            <archive>
-                                <addMavenDescriptor>false</addMavenDescriptor>
-                            </archive>
                             <excludes>
                                 <exclude>**/client/**</exclude>            
                             </excludes>
@@ -139,16 +133,6 @@
                             <goal>jar</goal>
                         </goals>
                         <phase>package</phase>
-                        <configuration>
-                            <finalName>wsonrpc-${project.version}</finalName>
-                            <archive>
-                                <manifest>
-                                    <addDefaultImplementationEntries>false</addDefaultImplementationEntries>
-                                    <addDefaultSpecificationEntries>false</addDefaultSpecificationEntries>
-                                </manifest>
-                                <addMavenDescriptor>false</addMavenDescriptor>
-                            </archive>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -174,9 +158,6 @@
                         <phase>package</phase>
                         <configuration>
                             <finalName>wsonrpc-client-${project.version}</finalName>
-                            <archive>
-                                <addMavenDescriptor>false</addMavenDescriptor>
-                            </archive>
                             <excludes>
                                 <exclude>**/service/**</exclude>            
                             </excludes>
@@ -191,9 +172,6 @@
                         <phase>package</phase>
                         <configuration>
                             <finalName>wsonrpc-service-${project.version}</finalName>
-                            <archive>
-                                <addMavenDescriptor>false</addMavenDescriptor>
-                            </archive>
                             <excludes>
                                 <exclude>**/client/**</exclude>            
                             </excludes>
@@ -206,12 +184,6 @@
                             <goal>jar-no-fork</goal>
                         </goals>
                         <phase>package</phase>
-                        <configuration>
-                            <finalName>wsonrpc-${project.version}</finalName>
-                            <archive>
-                                <addMavenDescriptor>false</addMavenDescriptor>
-                            </archive>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
