@@ -14,6 +14,8 @@ import java.util.concurrent.Future;
 public interface WsonrpcRemote {
 
     String getSessionId();
+    
+    boolean isOpen();
 
     void close() throws Exception;
 

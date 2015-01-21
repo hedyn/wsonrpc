@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import net.apexes.wsonrpc.WsonException;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.WsonrpcSession;
 
@@ -29,13 +30,14 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
         this.session = null;
         this.caller = null;
     }
-
-    protected boolean isOnline() {
-        return session != null && session.isOpen();
-    }
     
     protected WsonrpcSession getSession() {
         return session;
+    }
+    
+    @Override
+    public boolean isOpen() {
+        return session != null && session.isOpen();
     }
 
     @Override
@@ -56,6 +58,7 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
 
     @Override
     public void notify(String serviceName, String methodName, Object argument) throws Exception {
+        verifyOnline();
         caller.notify(session, serviceName, methodName, argument);
     }
 
@@ -85,6 +88,20 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
         return getValue(future, timeout);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> Future<T> asyncInvoke(String serviceName, String methodName, Object argument,
+            Class<T> returnType) throws Exception {
+        return (Future<T>) asyncInvoke(serviceName, methodName, argument, Type.class.cast(returnType));
+    }
+
+    @Override
+    public synchronized Future<Object> asyncInvoke(String serviceName, String methodName, Object argument,
+            Type returnType) throws Exception {
+        verifyOnline();
+        return caller.request(session, serviceName, methodName, argument, returnType);
+    }
+
     private <T> T getValue(Future<T> future, long timeout) throws Exception {
         try {
             if (timeout <= 0) {
@@ -97,18 +114,11 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
             throw ex;
         }
     }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> Future<T> asyncInvoke(String serviceName, String methodName, Object argument,
-            Class<T> returnType) throws Exception {
-        return (Future<T>) asyncInvoke(serviceName, methodName, argument, Type.class.cast(returnType));
-    }
-
-    @Override
-    public synchronized Future<Object> asyncInvoke(String serviceName, String methodName, Object argument,
-            Type returnType) throws Exception {
-        return caller.request(session, serviceName, methodName, argument, returnType);
+    
+    private void verifyOnline() throws Exception {
+        if (!isOpen()) {
+            throw new WsonException("Connection is closed.");
+        }
     }
 
 }
