@@ -132,6 +132,8 @@ public class WebSocketClient {
                     // Now decode websocket frames.
                     try {
                         mParser.start(stream);
+                    } catch(EOFException ex) {
+                        mListener.onDisconnect(0, "EOF");
                     } catch (IOException ex) {
                         if (disconnect) {
                             mListener.onDisconnect(0, "EOF");

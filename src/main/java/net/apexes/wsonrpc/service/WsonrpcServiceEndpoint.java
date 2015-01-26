@@ -10,9 +10,6 @@ import javax.websocket.Session;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
-import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
-import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
 
 /**
  * 
@@ -21,41 +18,34 @@ import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
  */
 public abstract class WsonrpcServiceEndpoint {
 
-    private final WsonrpcDispatcher dispatcher;
+    protected final WsonrpcServiceEndpointProxy proxy;
 
     protected WsonrpcServiceEndpoint(WsonrpcConfig config) {
-        dispatcher = new WsonrpcDispatcher(config);
+        proxy = new WsonrpcServiceEndpointProxy(config);
     }
 
     public WsonrpcServiceEndpoint addService(String name, Object handler) {
-        dispatcher.addService(name, handler);
+        proxy.addService(name, handler);
         return this;
     }
 
     public void setExceptionProcessor(ExceptionProcessor processor) {
-        dispatcher.setExceptionProcessor(processor);
+        proxy.setExceptionProcessor(processor);
     }
 
     @OnOpen
     public void onOpen(Session session) {
-        WsonrpcServiceContext.Remotes.addRemote(new WebSocketSessionAdapter(session), dispatcher);
+        proxy.onOpen(session);
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        WsonrpcServiceContext.Remotes.removeRemote(session.getId());
+        proxy.onClose(session);
     }
 
     @OnMessage
     public void onMessage(final Session session, final ByteBuffer buffer) {
-        try {
-            WsonrpcSession wsonrpcSession = WsonrpcServiceContext.Remotes.getSession(session.getId());
-            dispatcher.handleMessage(wsonrpcSession, buffer.array());
-        } catch (Exception ex) {
-            if (dispatcher.getExceptionProcessor() != null) {
-                dispatcher.getExceptionProcessor().onError(ex);
-            }
-        }
+        proxy.onMessage(session, buffer);
     }
 
 }

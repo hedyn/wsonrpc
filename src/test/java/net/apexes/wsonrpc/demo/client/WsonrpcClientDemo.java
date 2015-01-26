@@ -52,7 +52,7 @@ public class WsonrpcClientDemo {
     
     private static void testClient(final int clientIndex) throws Exception {
         WsonrpcConfig config = WsonrpcConfig.Builder.create().build(execService);
-        URI uri = new URI("ws://127.0.0.1:8080/wsonrpc");
+        URI uri = new URI("ws://127.0.0.1:8080/wsonrpc/" + clientIndex);
         WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
         
         // 供Server端调用的接口
