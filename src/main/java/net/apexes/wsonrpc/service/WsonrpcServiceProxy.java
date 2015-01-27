@@ -3,12 +3,9 @@ package net.apexes.wsonrpc.service;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 
-import javax.websocket.Session;
-
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
 import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
 
 /**
@@ -16,15 +13,15 @@ import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WsonrpcServiceEndpointProxy {
+public class WsonrpcServiceProxy {
     
     private final WsonrpcDispatcher dispatcher;
 
-    public WsonrpcServiceEndpointProxy(WsonrpcConfig config) {
+    public WsonrpcServiceProxy(WsonrpcConfig config) {
         dispatcher = new WsonrpcDispatcher(config);
     }
     
-    public WsonrpcServiceEndpointProxy(ExecutorService execService) {
+    public WsonrpcServiceProxy(ExecutorService execService) {
         dispatcher = new WsonrpcDispatcher(WsonrpcConfig.Builder.create().build(execService));
     }
 
@@ -36,17 +33,17 @@ public class WsonrpcServiceEndpointProxy {
         dispatcher.setExceptionProcessor(processor);
     }
 
-    public void onOpen(Session session) {
-        WsonrpcServiceContext.Remotes.addRemote(new WebSocketSessionAdapter(session), dispatcher);
+    public void onOpen(WsonrpcSession session) {
+        WsonrpcServiceContext.Remotes.addRemote(session, dispatcher);
     }
 
-    public void onClose(Session session) {
-        WsonrpcServiceContext.Remotes.removeRemote(session.getId());
+    public void onClose(String sessionId) {
+        WsonrpcServiceContext.Remotes.removeRemote(sessionId);
     }
 
-    public void onMessage(final Session session, final ByteBuffer buffer) {
+    public void onMessage(String sessionId, ByteBuffer buffer) {
         try {
-            WsonrpcSession wsonrpcSession = WsonrpcServiceContext.Remotes.getSession(session.getId());
+            WsonrpcSession wsonrpcSession = WsonrpcServiceContext.Remotes.getSession(sessionId);
             dispatcher.handleMessage(wsonrpcSession, buffer.array());
         } catch (Exception ex) {
             if (dispatcher.getExceptionProcessor() != null) {

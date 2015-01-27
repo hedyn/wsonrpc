@@ -14,7 +14,8 @@ import javax.websocket.server.ServerEndpoint;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.demo.api.LoginService;
-import net.apexes.wsonrpc.service.WsonrpcServiceEndpointProxy;
+import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
+import net.apexes.wsonrpc.service.WsonrpcServiceProxy;
 
 import org.glassfish.tyrus.core.MaxSessions;
 
@@ -27,10 +28,10 @@ import org.glassfish.tyrus.core.MaxSessions;
 @ServerEndpoint("/wsonrpc/{client}")
 public class WsonrpcService implements ExceptionProcessor {
     
-    private final WsonrpcServiceEndpointProxy proxy;
+    private final WsonrpcServiceProxy proxy;
 
     public WsonrpcService() {
-        proxy = new WsonrpcServiceEndpointProxy(Executors.newCachedThreadPool());
+        proxy = new WsonrpcServiceProxy(Executors.newCachedThreadPool());
         proxy.setExceptionProcessor(this);
         proxy.addService(LoginService.class.getSimpleName(), new LoginServiceImpl());
     }
@@ -53,17 +54,17 @@ public class WsonrpcService implements ExceptionProcessor {
 //                e.printStackTrace();
 //            }
 //        } else {
-            proxy.onOpen(session);
+            proxy.onOpen(new WebSocketSessionAdapter(session));
 //        }
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        proxy.onClose(session);
+        proxy.onClose(session.getId());
     }
 
     @OnMessage
     public void onMessage(final Session session, final ByteBuffer buffer) {
-        proxy.onMessage(session, buffer);
+        proxy.onMessage(session.getId(), buffer);
     }
 }

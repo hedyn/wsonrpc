@@ -10,6 +10,7 @@ import javax.websocket.Session;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
 
 /**
  * 
@@ -18,10 +19,10 @@ import net.apexes.wsonrpc.WsonrpcConfig;
  */
 public abstract class WsonrpcServiceEndpoint {
 
-    protected final WsonrpcServiceEndpointProxy proxy;
+    protected final WsonrpcServiceProxy proxy;
 
     protected WsonrpcServiceEndpoint(WsonrpcConfig config) {
-        proxy = new WsonrpcServiceEndpointProxy(config);
+        proxy = new WsonrpcServiceProxy(config);
     }
 
     public WsonrpcServiceEndpoint addService(String name, Object handler) {
@@ -35,17 +36,17 @@ public abstract class WsonrpcServiceEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
-        proxy.onOpen(session);
+        proxy.onOpen(new WebSocketSessionAdapter(session));
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        proxy.onClose(session);
+        proxy.onClose(session.getId());
     }
 
     @OnMessage
-    public void onMessage(final Session session, final ByteBuffer buffer) {
-        proxy.onMessage(session, buffer);
+    public void onMessage(Session session, ByteBuffer buffer) {
+        proxy.onMessage(session.getId(), buffer);
     }
 
 }
