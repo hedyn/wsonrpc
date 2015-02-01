@@ -85,14 +85,14 @@ public class WsonrpcDispatcher implements ICaller {
             Object argument, Type returnType) throws Exception {
         String id = UUID.randomUUID().toString();
         WosonrpcFuture<Object> future = new WosonrpcFuture<>(id, returnType);
-        WsonrpcContext.Futures.put(future);
+        Futures.put(future);
         try {
             String method = serviceName + "." + methodName;
             JsonRpcInvocation invocation = new JsonRpcRequest(id, method, argument);
             writeAndFlushMessage(session, invocation);
             return future;
         } catch (Exception ex) {
-            WsonrpcContext.Futures.out(id);
+            Futures.out(id);
             throw ex;
         }
     }
@@ -116,7 +116,7 @@ public class WsonrpcDispatcher implements ICaller {
                     break;
                 case RESPONSE:
                     JsonRpcResponse response = (JsonRpcResponse) message;
-                    WosonrpcFuture<Object> future = WsonrpcContext.Futures.out(response.getId());
+                    WosonrpcFuture<Object> future = Futures.out(response.getId());
                     if (future != null) {
                         if (response.getError() != null) {
                             Throwable throwable = jsonHandler.convertError(response.getError());
@@ -146,7 +146,7 @@ public class WsonrpcDispatcher implements ICaller {
 
             @Override
             public void run() {
-                WsonrpcContext.Sessions.begin(session);
+                Sessions.begin(session);
                 try {
                     int index = serviceMethod.lastIndexOf(".");
                     String serviceName = serviceMethod.substring(0, index);
@@ -193,7 +193,7 @@ public class WsonrpcDispatcher implements ICaller {
                         exceptionProcessor.onError(ex);
                     }
                 } finally {
-                    WsonrpcContext.Sessions.end();
+                    Sessions.end();
                 }
             }
 

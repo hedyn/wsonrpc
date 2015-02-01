@@ -2,8 +2,7 @@ package net.apexes.wsonrpc.internal;
 
 import java.lang.reflect.Type;
 
-import net.apexes.wsonrpc.internal.WsonrpcContext.IKey;
-import net.apexes.wsonrpc.internal.WsonrpcContext.StringKey;
+import net.apexes.wsonrpc.internal.IKey.StringKey;
 import net.apexes.wsonrpc.util.AbstractFuture;
 
 /**

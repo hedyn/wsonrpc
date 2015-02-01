@@ -13,9 +13,8 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
-import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
-import net.apexes.wsonrpc.service.WsonrpcServiceProxy;
+import net.apexes.wsonrpc.server.WsonrpcServerProxy;
 
 import org.glassfish.tyrus.core.MaxSessions;
 
@@ -28,12 +27,12 @@ import org.glassfish.tyrus.core.MaxSessions;
 @ServerEndpoint("/wsonrpc/{client}")
 public class WsonrpcService implements ExceptionProcessor {
     
-    private final WsonrpcServiceProxy proxy;
+    private final WsonrpcServerProxy proxy;
 
     public WsonrpcService() {
-        proxy = new WsonrpcServiceProxy(Executors.newCachedThreadPool());
+        proxy = new WsonrpcServerProxy(Executors.newCachedThreadPool());
         proxy.setExceptionProcessor(this);
-        proxy.addService(LoginService.class.getSimpleName(), new LoginServiceImpl());
+        proxy.register(new LoginServiceImpl());
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.apexes.wsonrpc.client;
 import java.net.URI;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.ServiceRegistry;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.WsonrpcSession;
@@ -15,11 +16,11 @@ import net.apexes.wsonrpc.client.support.SimpleWebsocketConnector;
  */
 public interface WsonrpcClient extends WsonrpcRemote {
     
-    void addService(String name, Object handler);
-
-    void setExceptionProcessor(ExceptionProcessor processor);
+    ServiceRegistry getServiceRegistry();
     
     ExceptionProcessor getExceptionProcessor();
+    
+    void setExceptionProcessor(ExceptionProcessor processor);
 
     void setStatusListener(ClientStatusListener listener);
 

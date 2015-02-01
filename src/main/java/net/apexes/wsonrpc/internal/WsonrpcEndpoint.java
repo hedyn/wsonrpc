@@ -110,7 +110,7 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
                 return future.get(timeout, TimeUnit.MILLISECONDS);
             }
         } catch (Exception ex) {
-            WsonrpcContext.Futures.out(future);
+            Futures.out(future);
             throw ex;
         }
     }

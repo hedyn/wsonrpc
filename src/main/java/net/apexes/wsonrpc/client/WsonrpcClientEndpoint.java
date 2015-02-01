@@ -3,8 +3,10 @@ package net.apexes.wsonrpc.client;
 import java.net.URI;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.ServiceRegistry;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
+import net.apexes.wsonrpc.internal.AbstractServiceRegistry;
 import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
 import net.apexes.wsonrpc.internal.WsonrpcEndpoint;
 
@@ -19,17 +21,24 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
     private final WebsocketConnector connector;
     private final URI uri;
     private final WsonrpcDispatcher dispatcher;
+    private final ServiceRegistry serviceRegistry;
     private ClientStatusListener statusListener;
     
     public WsonrpcClientEndpoint(URI uri, WsonrpcConfig config, WebsocketConnector connector) {
         this.uri = uri;
         this.connector = connector;
         this.dispatcher = new WsonrpcDispatcher(config);
+        serviceRegistry = new AbstractServiceRegistry() {
+            @Override
+            public void register(String name, Object handler) {
+                dispatcher.addService(name, handler);
+            }
+        };
     }
 
     @Override
-    public void addService(String name, Object handler) {
-        dispatcher.addService(name, handler);
+    public ServiceRegistry getServiceRegistry() {
+        return serviceRegistry;
     }
 
     @Override
@@ -93,4 +102,5 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
             statusListener.onClose(WsonrpcClientEndpoint.this);
         }
     }
+    
 }

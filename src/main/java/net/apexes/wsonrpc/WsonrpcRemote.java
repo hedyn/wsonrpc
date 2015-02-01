@@ -76,7 +76,7 @@ public interface WsonrpcRemote {
         @SuppressWarnings("unchecked")
         public <T> T getService(final Class<T> serviceClass) {
             if (serviceName == null) {
-                serviceName = serviceClass.getSimpleName();
+                serviceName = serviceClass.getName();
             }
             if (classLoader == null) {
                 classLoader = serviceClass.getClassLoader();

@@ -1,4 +1,4 @@
-package net.apexes.wsonrpc.service;
+package net.apexes.wsonrpc.server;
 
 import java.nio.ByteBuffer;
 
@@ -17,16 +17,16 @@ import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public abstract class WsonrpcServiceEndpoint {
+public abstract class WsonrpcServerEndpoint {
 
-    protected final WsonrpcServiceProxy proxy;
+    protected final WsonrpcServerProxy proxy;
 
-    protected WsonrpcServiceEndpoint(WsonrpcConfig config) {
-        proxy = new WsonrpcServiceProxy(config);
+    protected WsonrpcServerEndpoint(WsonrpcConfig config) {
+        proxy = new WsonrpcServerProxy(config);
     }
 
-    public WsonrpcServiceEndpoint addService(String name, Object handler) {
-        proxy.addService(name, handler);
+    public WsonrpcServerEndpoint addService(String name, Object handler) {
+        proxy.register(name, handler);
         return this;
     }
 

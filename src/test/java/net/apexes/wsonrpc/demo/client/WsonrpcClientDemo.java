@@ -5,7 +5,6 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,12 +12,9 @@ import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.client.WsonrpcClient;
-import net.apexes.wsonrpc.client.support.TyrusWebsocketConnector;
 import net.apexes.wsonrpc.demo.api.CallClientService;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
-import net.apexes.wsonrpc.internal.WsonrpcContext;
-import net.apexes.wsonrpc.service.WsonrpcService;
 
 /**
  * 
@@ -56,7 +52,7 @@ public class WsonrpcClientDemo {
         WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
         
         // 供Server端调用的接口
-        client.addService(CallClientService.class.getSimpleName(), new CallClientServiceImpl());
+        client.getServiceRegistry().register(new CallClientServiceImpl());
         client.setExceptionProcessor(new ExceptionProcessor() {
 
             @Override
