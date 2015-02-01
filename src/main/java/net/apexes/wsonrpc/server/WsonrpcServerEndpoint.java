@@ -25,9 +25,12 @@ public abstract class WsonrpcServerEndpoint {
         proxy = new WsonrpcServerProxy(config);
     }
 
-    public WsonrpcServerEndpoint addService(String name, Object handler) {
+    public void register(String name, Object handler) {
         proxy.register(name, handler);
-        return this;
+    }
+    
+    public void register(Object handler) {
+        proxy.register(handler);
     }
 
     public void setExceptionProcessor(ExceptionProcessor processor) {
