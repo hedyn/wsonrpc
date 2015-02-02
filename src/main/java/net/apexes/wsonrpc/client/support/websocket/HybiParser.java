@@ -1,9 +1,3 @@
-/*
- * Copyright (C) 2015, Apexes.net. All rights reserved.
- * 
- *        http://www.apexes.net
- * 
- */
 package net.apexes.wsonrpc.client.support.websocket;
 
 import java.io.ByteArrayOutputStream;
@@ -14,11 +8,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * 
- * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
- *
- */
 public class HybiParser {
     
     private WebSocketClient mClient;

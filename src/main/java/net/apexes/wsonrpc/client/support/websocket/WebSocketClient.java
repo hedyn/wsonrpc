@@ -1,9 +1,3 @@
-/*
- * Copyright (C) 2015, Apexes.net. All rights reserved.
- * 
- *        http://www.apexes.net
- * 
- */
 package net.apexes.wsonrpc.client.support.websocket;
 
 import java.io.EOFException;
@@ -27,11 +21,6 @@ import javax.net.ssl.TrustManager;
 
 import net.apexes.wsonrpc.util.Base64;
 
-/**
- * 
- * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
- *
- */
 public class WebSocketClient {
     
     private final Object mSendLock = new Object();
