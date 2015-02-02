@@ -1,9 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
 	<version>0.1.0</version>
+	
+	<repositories>
+        <repository>
+            <id>oschina</id>
+            <url>http://maven.oschina.net/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>maven2</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -18,6 +29,9 @@
 
 		<!-- gson -->
         <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
+        
+        <!-- springframework -->
+        <version.org.springframework>4.1.2.RELEASE</version.org.springframework>
         
 		<!-- plugin -->
 		<version.maven-compiler-plugin>3.1</version.maven-compiler-plugin>
@@ -73,6 +87,14 @@
             <artifactId>gson</artifactId>
             <version>${version.com.google.code.gson}</version>
 			<scope>provided</scope>
+        </dependency>
+        
+        <!-- springframework -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-websocket</artifactId>
+            <version>${version.org.springframework}</version>
+            <scope>provided</scope>
         </dependency>
         
 	</dependencies>

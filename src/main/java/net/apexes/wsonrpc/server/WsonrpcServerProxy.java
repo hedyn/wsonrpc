@@ -30,6 +30,10 @@ public class WsonrpcServerProxy extends AbstractServiceRegistry implements Servi
     public void setExceptionProcessor(ExceptionProcessor processor) {
         dispatcher.setExceptionProcessor(processor);
     }
+    
+    public ExceptionProcessor getExceptionProcessor() {
+        return dispatcher.getExceptionProcessor();
+    }
 
     public void onOpen(WsonrpcSession session) {
         Remotes.addRemote(session, dispatcher);
