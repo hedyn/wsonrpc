@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
 import net.apexes.wsonrpc.server.WsonrpcServerProxy;
@@ -34,8 +35,20 @@ public class SpringWebSocketHandler extends BinaryWebSocketHandler {
         proxy = new WsonrpcServerProxy(execService);
     }
     
-    protected WsonrpcServerProxy getWsonrpcServerProxy() {
-        return proxy;
+    protected void setExceptionProcessor(ExceptionProcessor processor) {
+        proxy.setExceptionProcessor(processor);
+    }
+    
+    protected ExceptionProcessor getExceptionProcessor() {
+        return proxy.getExceptionProcessor();
+    }
+    
+    protected void register(String name, Object handler) {
+        proxy.register(name, handler);
+    }
+    
+    protected void register(Object handler) {
+        proxy.register(handler);
     }
     
     @Override
@@ -55,8 +68,8 @@ public class SpringWebSocketHandler extends BinaryWebSocketHandler {
     
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        if (proxy.getExceptionProcessor() != null) {
-            proxy.getExceptionProcessor().onError(exception);
+        if (getExceptionProcessor() != null) {
+            getExceptionProcessor().onError(exception);
         }
     }
     
