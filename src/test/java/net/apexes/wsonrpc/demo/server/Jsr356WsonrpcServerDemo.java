@@ -12,7 +12,7 @@ import org.glassfish.tyrus.server.Server;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public class WsonrpcServerDemo {
+public class Jsr356WsonrpcServerDemo {
 
     public static void main(String[] args) {
         runServer();
@@ -21,7 +21,7 @@ public class WsonrpcServerDemo {
     public static void runServer() {
         Map<String, Object> properties = new HashMap<>();
         properties.put("org.glassfish.tyrus.maxSessionsPerRemoteAddr", 10000);
-        Server server = new Server("localhost", 8080, null, properties, WsonrpcService.class);
+        Server server = new Server("localhost", 8080, null, properties, Jsr356WsonrpcService.class);
         try {
             server.start();
 

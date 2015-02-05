@@ -12,7 +12,7 @@ import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.client.WsonrpcClient;
-import net.apexes.wsonrpc.demo.api.CallClientService;
+import net.apexes.wsonrpc.client.support.JavaWebsocketConnector;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
 
@@ -24,7 +24,7 @@ import net.apexes.wsonrpc.demo.api.User;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 100;
+    static final int CLIENT_COUNT = 1;
     static final int THREAD_COUNT = 50;
     static final int LOOP_COUNT = 10;
     private static CountDownLatch clientDownLatch;
@@ -49,7 +49,7 @@ public class WsonrpcClientDemo {
     private static void testClient(final int clientIndex) throws Exception {
         WsonrpcConfig config = WsonrpcConfig.Builder.create().build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc/" + clientIndex);
-        WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
+        WsonrpcClient client = WsonrpcClient.Builder.create(uri, config, new JavaWebsocketConnector());
         
         // 供Server端调用的接口
         client.getServiceRegistry().register(new CallClientServiceImpl());

@@ -18,6 +18,13 @@ public interface WsonrpcRemote {
     boolean isOpen();
 
     void close() throws Exception;
+    
+    /**
+     * 返回超时时间，0表示永不超时。单位为TimeUnit.MILLISECONDS
+     * 
+     * @return
+     */
+    long getTimeout();
 
     void notify(String serviceName, String methodName, Object argument) throws Exception;
 

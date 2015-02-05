@@ -14,7 +14,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
-import net.apexes.wsonrpc.server.WsonrpcServerProxy;
+import net.apexes.wsonrpc.server.WsonrpcServerEndpoint;
 
 import org.glassfish.tyrus.core.MaxSessions;
 
@@ -25,14 +25,14 @@ import org.glassfish.tyrus.core.MaxSessions;
  */
 @MaxSessions(10000)
 @ServerEndpoint("/wsonrpc/{client}")
-public class WsonrpcService implements ExceptionProcessor {
+public class Jsr356WsonrpcService implements ExceptionProcessor {
     
-    private final WsonrpcServerProxy proxy;
+    private final WsonrpcServerEndpoint endpoint;
 
-    public WsonrpcService() {
-        proxy = new WsonrpcServerProxy(Executors.newCachedThreadPool());
-        proxy.setExceptionProcessor(this);
-        proxy.register(new LoginServiceImpl());
+    public Jsr356WsonrpcService() {
+        endpoint = new WsonrpcServerEndpoint(Executors.newCachedThreadPool());
+        endpoint.setExceptionProcessor(this);
+        endpoint.register(new LoginServiceImpl());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class WsonrpcService implements ExceptionProcessor {
     
     @OnOpen
     public void onOpen(Session session, @PathParam("client") String client) {
-//        System.out.println("client="+client);
+//        System.out.println("client="+client + ", session=" + session);
 //        if ("1".equals(client)) {
 //            try {
 //                session.close();
@@ -53,17 +53,18 @@ public class WsonrpcService implements ExceptionProcessor {
 //                e.printStackTrace();
 //            }
 //        } else {
-            proxy.onOpen(new WebSocketSessionAdapter(session));
+        endpoint.onOpen(new WebSocketSessionAdapter(session));
 //        }
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        proxy.onClose(session.getId());
+//        System.out.println("onClose: "+session);
+        endpoint.onClose(session.getId());
     }
 
     @OnMessage
     public void onMessage(final Session session, final ByteBuffer buffer) {
-        proxy.onMessage(session.getId(), buffer);
+        endpoint.onMessage(session.getId(), buffer);
     }
 }

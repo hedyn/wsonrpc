@@ -13,7 +13,7 @@ import net.apexes.wsonrpc.WsonrpcSession;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public class WsonrpcEndpoint implements WsonrpcRemote {
+public abstract class WsonrpcEndpoint implements WsonrpcRemote {
 
     private WsonrpcSession session;
     private ICaller caller;
@@ -31,7 +31,7 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
         this.caller = null;
     }
     
-    protected WsonrpcSession getSession() {
+    public WsonrpcSession getSession() {
         return session;
     }
     
@@ -55,7 +55,7 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
             session = null;
         }
     }
-
+    
     @Override
     public void notify(String serviceName, String methodName, Object argument) throws Exception {
         verifyOnline();

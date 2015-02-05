@@ -1,9 +1,3 @@
-/*
- * Copyright (C) 2015, Apexes.net. All rights reserved.
- * 
- *        http://www.apexes.net
- * 
- */
 package net.apexes.wsonrpc.client.support;
 
 import java.io.IOException;
@@ -16,6 +10,7 @@ import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.client.support.websocket.WebSocketClient;
 
 /**
+ * 基于 {@link net.apexes.wsonrpc.client.support.websocket.WebSocketClient}的连接
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *

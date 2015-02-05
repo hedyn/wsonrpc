@@ -2,68 +2,59 @@ package net.apexes.wsonrpc.server.support;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.server.WsonrpcServerProxy;
+import net.apexes.wsonrpc.server.WsonrpcServerBase;
 
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.PongMessage;
+import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 /**
+ * 基于Spring WebSocket 的服务端
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class SpringWebSocketHandler extends BinaryWebSocketHandler {
+public class SpringWsonrpcServerHandler extends WsonrpcServerBase implements WebSocketHandler {
     
-    private final WsonrpcServerProxy proxy;
-    
-    public SpringWebSocketHandler() {
-        proxy = new WsonrpcServerProxy(Executors.newCachedThreadPool());
-    }
-    
-    public SpringWebSocketHandler(WsonrpcConfig config) {
-        proxy = new WsonrpcServerProxy(config);
+    public SpringWsonrpcServerHandler() {
     }
 
-    public SpringWebSocketHandler(ExecutorService execService) {
-        proxy = new WsonrpcServerProxy(execService);
+    public SpringWsonrpcServerHandler(ExecutorService execService) {
+        super(execService);
     }
     
-    protected void setExceptionProcessor(ExceptionProcessor processor) {
-        proxy.setExceptionProcessor(processor);
-    }
-    
-    protected ExceptionProcessor getExceptionProcessor() {
-        return proxy.getExceptionProcessor();
-    }
-    
-    protected void register(String name, Object handler) {
-        proxy.register(name, handler);
-    }
-    
-    protected void register(Object handler) {
-        proxy.register(handler);
+    public SpringWsonrpcServerHandler(WsonrpcConfig config) {
+        super(config);
     }
     
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        proxy.onOpen(new SpringWebSocketSessionAdapter(session));
+        endpoint.onOpen(new SpringWebSocketSessionAdapter(session));
+    }
+    
+    @Override
+    public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
+        if (message instanceof BinaryMessage) {
+            handleBinaryMessage(session, (BinaryMessage) message);
+        } else if (message instanceof PongMessage) {
+        } else {
+            throw new IllegalStateException("Unexpected WebSocket message type: " + message);
+        }
     }
 
-    @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
-        proxy.onMessage(session.getId(), message.getPayload());
+        endpoint.onMessage(session.getId(), message.getPayload());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        proxy.onClose(session.getId());
+        endpoint.onClose(session.getId());
     }
     
     @Override
@@ -71,6 +62,11 @@ public class SpringWebSocketHandler extends BinaryWebSocketHandler {
         if (getExceptionProcessor() != null) {
             getExceptionProcessor().onError(exception);
         }
+    }
+    
+    @Override
+    public boolean supportsPartialMessages() {
+        return false;
     }
     
     /**

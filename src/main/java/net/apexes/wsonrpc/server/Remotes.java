@@ -76,13 +76,16 @@ public final class Remotes {
      */
     private static class WsonrpcServerEndpointProxy extends WsonrpcEndpoint {
         
+        private final ICaller caller;
+        
         WsonrpcServerEndpointProxy(WsonrpcSession session, ICaller caller) {
+            this.caller = caller;
             online(session, caller);
         }
-        
+
         @Override
-        public WsonrpcSession getSession() {
-            return super.getSession();
+        public long getTimeout() {
+            return caller.getTimeout();
         }
 
     }

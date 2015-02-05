@@ -19,6 +19,7 @@ import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.container.jdk.client.JdkClientContainer;
 
 /**
+ * 基于Tyrus jdk client {@link org.glassfish.tyrus.container.jdk.client.JdkClientContainer}的连接
  * 
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *

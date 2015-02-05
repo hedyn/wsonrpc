@@ -35,6 +35,13 @@ public class WsonrpcClientEndpoint extends WsonrpcEndpoint implements WsonrpcCli
             }
         };
     }
+    
+    @Override
+    public long getTimeout() {
+        return dispatcher.getTimeout();
+    }
+
+
 
     @Override
     public ServiceRegistry getServiceRegistry() {
