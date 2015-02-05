@@ -28,7 +28,7 @@ public class JavaWebsocketConnector implements WebsocketConnector {
         CountDownLatch latch = new CountDownLatch(1);
         WebSocketClientAdapter clientAdapter = new WebSocketClientAdapter(uri, client, latch);
         /*
-         * connectBlocking() 方法返回后才会触发onOpen(ServerHandshake)，
+         * connectBlocking()方法返回后才会触发onOpen(ServerHandshake)，
          * 所以要用CountDownLatch阻塞到onOpen(ServerHandshake)时
          */
         clientAdapter.connectBlocking();
