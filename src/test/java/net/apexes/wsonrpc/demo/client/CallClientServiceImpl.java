@@ -12,7 +12,9 @@ public class CallClientServiceImpl implements CallClientService {
     
     @Override
     public String callClient(String msg) {
-        return "Client result: " + msg;
+        String s = "Client result: " + msg;
+//        System.err.println(s);
+        return s;
     }
     
     @Override
@@ -20,6 +22,7 @@ public class CallClientServiceImpl implements CallClientService {
         String[] results = new String[2];
         results[0] = user.getUsername();
         results[1] = user.getPassword();
+//        System.err.println("user: " + user);
         return results;
     }
 

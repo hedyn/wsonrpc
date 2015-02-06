@@ -90,7 +90,6 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
         } catch (Exception ex) {
             throw new WsonException(ex.getMessage(), ex.getCause());
         }
-        
     }
 
     @Override

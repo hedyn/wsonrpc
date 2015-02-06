@@ -67,6 +67,10 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
         wsServer.run();
     }
     
+    public void stop() throws IOException, InterruptedException {
+        wsServer.stop();
+    }
+    
     private static String toSessionId(WebSocket websocket) {
         String id;
         if (websocket instanceof SessionWebSocketImpl) {

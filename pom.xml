@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
-	<version>0.2.1</version>
+	<version>0.2.2</version>
 	
 	<repositories>
         <repository>
