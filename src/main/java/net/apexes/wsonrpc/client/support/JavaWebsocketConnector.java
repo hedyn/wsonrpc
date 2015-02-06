@@ -49,7 +49,7 @@ public class JavaWebsocketConnector implements WebsocketConnector {
         private final WsonrpcClient rpcClient;
         private final CountDownLatch latch;
         private String id;
-        private boolean opened;
+        private volatile boolean opened;
         
         public WebSocketClientAdapter(URI uri, WsonrpcClient rpcClient, CountDownLatch latch) {
             super(uri, new Draft_17());

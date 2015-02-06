@@ -2,7 +2,10 @@ package net.apexes.wsonrpc.server.support;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 import net.apexes.wsonrpc.WsonrpcConfig;
@@ -11,8 +14,14 @@ import net.apexes.wsonrpc.server.WsonrpcServerBase;
 import net.apexes.wsonrpc.server.WsonrpcServerEndpoint;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.WebSocketAdapter;
+import org.java_websocket.WebSocketImpl;
+import org.java_websocket.WebSocketListener;
+import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.DefaultWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
+import org.java_websocket.server.WebSocketServer.WebSocketServerFactory;
 
 /**
  * 基于 {@link org.java_websocket.server.WebSocketServer}的服务端
@@ -23,19 +32,35 @@ import org.java_websocket.server.WebSocketServer;
 public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
     
     protected final WebSocketServer wsServer;
+    
+    private final WebSocketServerFactory wsf = new DefaultWebSocketServerFactory() {
+
+        @Override
+        public WebSocketImpl createWebSocket(WebSocketAdapter a, Draft d, Socket s) {
+            return new SessionWebSocketImpl(a, d);
+        }
+
+        @Override
+        public WebSocketImpl createWebSocket(WebSocketAdapter a, List<Draft> d, Socket s) {
+            return new SessionWebSocketImpl(a, d);
+        }
+    };
 
     public JavaWebsocketWsonrpcServer(InetSocketAddress address) {
         wsServer = new WebSocketServerProxy(address, endpoint);
+        wsServer.setWebSocketFactory(wsf);
     }
     
     public JavaWebsocketWsonrpcServer(InetSocketAddress address, ExecutorService execService) {
         super(execService);
         wsServer = new WebSocketServerProxy(address, endpoint);
+        wsServer.setWebSocketFactory(wsf);
     }
     
     public JavaWebsocketWsonrpcServer(InetSocketAddress address, WsonrpcConfig config) {
         super(config);
         wsServer = new WebSocketServerProxy(address, endpoint);
+        wsServer.setWebSocketFactory(wsf);
     }
     
     public void run() {
@@ -43,7 +68,38 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
     }
     
     private static String toSessionId(WebSocket websocket) {
-        return websocket.getRemoteSocketAddress().toString();
+        String id;
+        if (websocket instanceof SessionWebSocketImpl) {
+            id = ((SessionWebSocketImpl) websocket).getId();
+        } else {
+            id = websocket.getRemoteSocketAddress().toString();
+        }
+        return id;
+    }
+    
+    /**
+     * 
+     * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
+     *
+     */
+    private static class SessionWebSocketImpl extends WebSocketImpl {
+        
+        private final String id;
+        
+        public SessionWebSocketImpl(WebSocketListener listener , Draft draft) {
+            super(listener, draft);
+            id = UUID.randomUUID().toString();
+        }
+        
+        public SessionWebSocketImpl(WebSocketListener listener , List<Draft> drafts) {
+            super(listener, drafts);
+            id = UUID.randomUUID().toString();
+        }
+
+        String getId() {
+            return id;
+        }
+        
     }
     
     /**

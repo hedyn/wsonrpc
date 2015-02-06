@@ -24,9 +24,9 @@ import net.apexes.wsonrpc.support.GsonJsonHandler;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 50;
-    static final int THREAD_COUNT = 50;//实际为 THREAD_COUNT * 3
-    static final int LOOP_COUNT = 10;
+    static final int CLIENT_COUNT = 10;
+    static final int THREAD_COUNT = 1;//实际为 THREAD_COUNT * 3
+    static final int LOOP_COUNT = 1;
     private static CountDownLatch clientDownLatch;
     private static ExecutorService execService = Executors.newCachedThreadPool();
     

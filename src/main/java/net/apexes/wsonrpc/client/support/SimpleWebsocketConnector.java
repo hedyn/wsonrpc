@@ -33,7 +33,7 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
         private final WsonrpcClient rpcClient;
         private final WebSocketClient wsClient;
         private String id;
-        private boolean opened;
+        private volatile boolean opened;
         
         WebSocketClientProxy(WsonrpcClient rpcClient, WebSocketClient wsClient) {
             this.rpcClient = rpcClient;
