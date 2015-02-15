@@ -14,6 +14,7 @@ import net.apexes.wsonrpc.message.JsonRpcRequest;
 import net.apexes.wsonrpc.message.JsonRpcResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -28,7 +29,7 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
     private final Gson gson;
     
     public GsonJsonHandler() {
-        this(new Gson());
+        this.gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").create();
     }
     
     public GsonJsonHandler(Gson gson) {
@@ -40,6 +41,9 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
         try {
             JsonParser jsonParser = new JsonParser();
             JsonElement jsonElement = jsonParser.parse(new InputStreamReader(ips));
+            if (getLogger() != null) {
+                getLogger().onRead(jsonElement.toString());
+            }
             if (!jsonElement.isJsonObject()) {
                 throw new WsonException("Invalid WSON-RPC data.");
             }
@@ -96,6 +100,9 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
     public void write(JsonRpcMessage message, OutputStream ops) throws IOException, WsonException {
         try {
             String json = gson.toJson(message);
+            if (getLogger() != null) {
+                getLogger().onWrite(json);
+            }
             ops.write(json.getBytes());
             ops.flush();
         } catch (IOException ex) {

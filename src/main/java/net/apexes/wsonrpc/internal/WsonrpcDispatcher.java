@@ -22,7 +22,6 @@ import net.apexes.wsonrpc.JsonHandler.MethodAndArgs;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
 import net.apexes.wsonrpc.message.JsonRpcError;
-import net.apexes.wsonrpc.message.JsonRpcInvocation;
 import net.apexes.wsonrpc.message.JsonRpcMessage;
 import net.apexes.wsonrpc.message.JsonRpcNotification;
 import net.apexes.wsonrpc.message.JsonRpcRequest;
@@ -76,8 +75,8 @@ public class WsonrpcDispatcher implements ICaller {
     public void notify(WsonrpcSession session, String serviceName, String methodName, Object argument) 
             throws Exception {
         String method = serviceName + "." + methodName;
-        JsonRpcInvocation invocation = new JsonRpcNotification(method, argument);
-        writeAndFlushMessage(session, invocation);
+        JsonRpcNotification notification = new JsonRpcNotification(method, argument);
+        writeAndFlushMessage(session, notification);
     }
 
     @Override
@@ -88,8 +87,8 @@ public class WsonrpcDispatcher implements ICaller {
         Futures.put(future);
         try {
             String method = serviceName + "." + methodName;
-            JsonRpcInvocation invocation = new JsonRpcRequest(id, method, argument);
-            writeAndFlushMessage(session, invocation);
+            JsonRpcRequest request = new JsonRpcRequest(id, method, argument);
+            writeAndFlushMessage(session, request);
             return future;
         } catch (Exception ex) {
             Futures.out(id);
@@ -154,18 +153,28 @@ public class WsonrpcDispatcher implements ICaller {
                     
                     Object service = serviceFinder.get(serviceName);
                     if (service == null) {
-                        writeAndFlushMessage(session, new JsonRpcResponse(id, JsonRpcError.METHOD_NOT_FOUND));
+                        JsonRpcError error = JsonRpcError.createMethodNoFound(serviceMethod);
+                        writeAndFlushMessage(session, new JsonRpcResponse(id, error));
                         return;
                     }
                     
                     Set<Method> methods = findMethods(service.getClass(), methodName);
                     if (methods.isEmpty()) {
-                        writeAndFlushMessage(session, new JsonRpcResponse(id, JsonRpcError.METHOD_NOT_FOUND));
+                        JsonRpcError error = JsonRpcError.createMethodNoFound(serviceMethod);
+                        writeAndFlushMessage(session, new JsonRpcResponse(id, error));
                         return;
                     }
-                    MethodAndArgs methodAndArgs = jsonHandler.findMethod(methods, params);
+                    MethodAndArgs methodAndArgs = null;
+                    try {
+                        methodAndArgs = jsonHandler.findMethod(methods, params);
+                    } catch (Exception ex) {
+                        JsonRpcError error = JsonRpcError.createInvalidParamsError(ex);
+                        writeAndFlushMessage(session, new JsonRpcResponse(id, error));
+                        return;
+                    }
                     if (methodAndArgs == null) {
-                        writeAndFlushMessage(session, new JsonRpcResponse(id, JsonRpcError.INVALID_PARAMS));
+                        JsonRpcError error = JsonRpcError.createMethodNoFound(serviceMethod);
+                        writeAndFlushMessage(session, new JsonRpcResponse(id, error));
                         return;
                     }
                     

@@ -18,7 +18,7 @@ public interface WsonrpcConfig {
     JsonHandler getJsonHandler();
 
     BinaryWrapper getBinaryWrapper();
-
+    
     /**
      * 返回超时时间，0表示永不超时。单位为TimeUnit.MILLISECONDS
      * 

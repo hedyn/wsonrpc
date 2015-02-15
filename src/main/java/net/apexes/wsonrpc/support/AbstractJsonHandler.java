@@ -15,6 +15,16 @@ import net.apexes.wsonrpc.message.JsonRpcError;
  */
 public abstract class AbstractJsonHandler<T> implements JsonHandler {
     
+    private JsonLogger logger;
+    
+    public JsonLogger getLogger() {
+        return logger;
+    }
+
+    public void setLogger(JsonLogger logger) {
+        this.logger = logger;
+    }
+
     @Override
     public Throwable convertError(JsonRpcError error) {
         return new Exception(error.getMessage());
@@ -27,7 +37,7 @@ public abstract class AbstractJsonHandler<T> implements JsonHandler {
     }
     
     @Override
-    public MethodAndArgs findMethod(Set<Method> methods, Object params) {
+    public MethodAndArgs findMethod(Set<Method> methods, Object params) throws Exception {
         IParams<T> paramsNode = convertParams(params);
         int paramCount = paramsNode.size();
         
@@ -74,20 +84,16 @@ public abstract class AbstractJsonHandler<T> implements JsonHandler {
         }
         
         Class<?>[] paramTypes = bestMethod.getParameterTypes();
-        try {
-            if (paramCount == 1) {
-                Object argument = convertObject(paramsNode.get(0), paramTypes[0]);
-                return new MethodAndArgs(bestMethod, argument);
-            } else {
-                Object[] args = new Object[paramTypes.length];
-                for (int i = 0; i < paramTypes.length; i++) {
-                    args[i] = convertObject(paramsNode.get(i), paramTypes[i]);
-                }
-                return new MethodAndArgs(bestMethod, args);
+        if (paramCount == 1) {
+            Object argument = convertObject(paramsNode.get(0), paramTypes[0]);
+            return new MethodAndArgs(bestMethod, argument);
+        } else {
+            Object[] args = new Object[paramTypes.length];
+            for (int i = 0; i < paramTypes.length; i++) {
+                args[i] = convertObject(paramsNode.get(i), paramTypes[i]);
             }
-        } catch (Exception ex) {
+            return new MethodAndArgs(bestMethod, args);
         }
-        return null;
     }
     
     protected abstract Object convertObject(T node, Type type) throws Exception;

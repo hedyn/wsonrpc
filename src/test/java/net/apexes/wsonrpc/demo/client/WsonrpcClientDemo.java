@@ -15,6 +15,7 @@ import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
 import net.apexes.wsonrpc.support.GsonJsonHandler;
+import net.apexes.wsonrpc.support.JsonLogger;
 
 /**
  * 
@@ -24,9 +25,9 @@ import net.apexes.wsonrpc.support.GsonJsonHandler;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 1;
-    static final int THREAD_COUNT = 1;//实际为 THREAD_COUNT * 3
-    static final int LOOP_COUNT = 1;
+    static final int CLIENT_COUNT = 100;
+    static final int THREAD_COUNT = 10;//实际为 THREAD_COUNT * 3
+    static final int LOOP_COUNT = 10;
     private static CountDownLatch clientDownLatch;
     private static ExecutorService execService = Executors.newCachedThreadPool();
     
@@ -47,8 +48,20 @@ public class WsonrpcClientDemo {
     }
     
     private static void testClient(final int clientIndex) throws Exception {
-        WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonHandler(new GsonJsonHandler())
-                .build(execService);
+        GsonJsonHandler jsonHandler = new GsonJsonHandler();
+        jsonHandler.setLogger(new JsonLogger() {
+
+            @Override
+            public void onRead(String json) {
+                System.err.println("onRead: " + json);
+            }
+
+            @Override
+            public void onWrite(String json) {
+                System.err.println("onWrite: " + json);
+            }
+        });
+        WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonHandler(jsonHandler).build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc/" + clientIndex);
         //URI uri = new URI("ws://127.0.0.1:9080");//JavaWebsocketWsonrpcServer on android
         WsonrpcClient client = WsonrpcClient.Builder.create(uri, config);
@@ -82,7 +95,7 @@ public class WsonrpcClientDemo {
 //        System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
                 
         // 同步调用
-        LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
+        LoginService srv = getLoginService(client);
         User user = srv.login("admin", "admin");
         System.out.println("@" + clientIndex + ": login(String,String): " + user);
         
@@ -135,6 +148,10 @@ public class WsonrpcClientDemo {
         }
     }
     
+    static LoginService getLoginService(WsonrpcClient client) {
+        return WsonrpcRemote.Executor.create(client).getService(LoginService.class);
+    }
+    
     private static final int RANDOM = 100;
         
     private static AtomicInteger threadCounter = new AtomicInteger(0);
@@ -153,7 +170,7 @@ public class WsonrpcClientDemo {
                         Thread.sleep(r);
                     } catch (InterruptedException e) {
                     }
-                    LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
+                    LoginService srv = getLoginService(client);
                     String user = srv.login1("login1_" + i, "123456");
 //                    System.out.println("login1 result: " + user);
                 }
@@ -178,7 +195,7 @@ public class WsonrpcClientDemo {
                         Thread.sleep(r);
                     } catch (InterruptedException e) {
                     }
-                    LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
+                    LoginService srv = getLoginService(client);
                     String user = srv.login2("login2_" + i, "123456");
 //                    System.out.println("login2 result: " + user);
                 }
@@ -203,7 +220,7 @@ public class WsonrpcClientDemo {
                         Thread.sleep(r);
                     } catch (InterruptedException e) {
                     }
-                    LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
+                    LoginService srv = getLoginService(client);
                     String user = srv.login3("login3_" + i, "123456");
 //                    System.out.println("login3 result: " + user);
                 }

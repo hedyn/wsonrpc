@@ -1,9 +1,11 @@
 package net.apexes.wsonrpc.support;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 
 import net.apexes.wsonrpc.WsonException;
@@ -43,6 +45,9 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
     public JsonRpcMessage read(InputStream ips) throws IOException, WsonException {
         try {
             JsonNode data = objectMapper.readTree(new NoCloseInputStream(ips));
+            if (getLogger() != null) {
+                getLogger().onRead(data.toString());
+            }
             if (!data.isObject()) {
                 throw new WsonException("Invalid WSON-RPC data.");
             }
@@ -99,7 +104,18 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
     @Override
     public void write(JsonRpcMessage message, OutputStream ops) throws IOException, WsonException {
         try {
-            objectMapper.writeValue(ops, message);
+            if (getLogger() != null) {
+                ByteArrayOutputStream bops = new ByteArrayOutputStream();
+                objectMapper.writeValue(bops, message);
+                
+                byte[] bytes = bops.toByteArray();
+                String json = new String(bytes);
+                getLogger().onWrite(json);
+                
+                ops.write(bytes);
+            } else {
+                objectMapper.writeValue(ops, message);
+            }
         } catch (IOException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -214,6 +230,7 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
         
         public NonNullObjectMapper() {
             setSerializationInclusion(Include.NON_NULL);
+            setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
         }
     }
     

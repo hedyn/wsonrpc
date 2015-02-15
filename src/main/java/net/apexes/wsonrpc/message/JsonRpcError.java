@@ -8,37 +8,64 @@ package net.apexes.wsonrpc.message;
 public class JsonRpcError {
     
     /**
-     * Parse Error constant
+     * 
+     * @param data
+     * @return
      */
-    public static final JsonRpcError PARSE_ERROR = new JsonRpcError(-32700, "Parse Error");
+    public static final JsonRpcError createParseError(Object data) {
+        return new JsonRpcError(-32700, "Parse Error", data);
+    }
     
     /**
-     * Invalid Request Error constant
+     * 
+     * @param data
+     * @return
      */
-    public static final JsonRpcError INVALID_REQUEST = new JsonRpcError(-32600, "Invalid Request");
+    public static final JsonRpcError createInvalidRequestError(Object data) {
+        return new JsonRpcError(-32600, "Invalid Request", data);
+    }
     
     /**
-     * Method Not Found Error constant
+     * 
+     * @param data
+     * @return
      */
-    public static final JsonRpcError METHOD_NOT_FOUND = new JsonRpcError(-32601, "Method not found");
+    public static final JsonRpcError createMethodNoFound(Object data) {
+        return new JsonRpcError(-32601, "Method not found", data);
+    }
     
     /**
-     * Invalid Params error constant
+     * 
+     * @param data
+     * @return
      */
-    public static final JsonRpcError INVALID_PARAMS = new JsonRpcError(-32602, "Invalid Params");
+    public static final JsonRpcError createInvalidParamsError(Object data) {
+        return new JsonRpcError(-32602, "Invalid Params", data);
+    }
     
     /**
-     * Internal Error constant
+     * 
+     * @param data
+     * @return
      */
-    public static final JsonRpcError INTERNAL_ERROR = new JsonRpcError(-32603, "Internal Error");
+    public static final JsonRpcError createInternalError(Object data) {
+        return new JsonRpcError(-32603, "Internal Error", data);
+    }
     
     private final int code;
     
     private final String message;
     
+    private final Object data;
+    
     public JsonRpcError(int code, String message) {
+        this( code, message, null);
+    }
+    
+    public JsonRpcError(int code, String message, Object data) {
         this.code = code;
         this.message = message;
+        this.data = data;
     }
     
     public int getCode() {
@@ -47,6 +74,10 @@ public class JsonRpcError {
 
     public String getMessage() {
         return message;
+    }
+    
+    public Object getData() {
+        return data;
     }
 
 }

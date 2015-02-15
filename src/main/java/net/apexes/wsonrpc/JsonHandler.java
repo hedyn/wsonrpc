@@ -21,7 +21,7 @@ public interface JsonHandler {
     
     void write(JsonRpcMessage message, OutputStream ops) throws IOException, WsonException;
     
-    MethodAndArgs findMethod(Set<Method> methods, Object params);
+    MethodAndArgs findMethod(Set<Method> methods, Object params) throws Exception;
     
     Object convertResult(Object result, Type type) throws Exception;
     
