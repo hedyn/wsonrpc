@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -90,9 +91,9 @@ public class WsonrpcClientDemo {
     
     static void testInvoke(WsonrpcClient client, int clientIndex) throws Exception {
         // 异步调用
-//        Future<User> future = client.asyncInvoke(LoginService.class.getSimpleName(), "login",
-//                new Object[] { "async", "async" }, User.class);
-//        System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
+        Future<User> future = client.asyncInvoke(LoginService.class.getName(), "login",
+                new Object[] { "async", "async" }, User.class);
+        System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
                 
         // 同步调用
         LoginService srv = getLoginService(client);
