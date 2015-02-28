@@ -21,7 +21,7 @@
 		<maven.compiler.target>1.7</maven.compiler.target>
 
         <!-- tyrus -->
-        <version.org.glassfish.tyrus>1.9</version.org.glassfish.tyrus>
+        <version.org.glassfish.tyrus>1.10</version.org.glassfish.tyrus>
         
         <!-- Java-WebSocket -->
         <version.java-websocket>1.3.0</version.java-websocket>

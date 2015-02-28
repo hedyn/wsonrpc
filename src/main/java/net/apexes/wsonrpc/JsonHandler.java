@@ -17,6 +17,8 @@ import net.apexes.wsonrpc.message.JsonRpcMessage;
  */
 public interface JsonHandler {
     
+    String ISO_8601_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    
     JsonRpcMessage read(InputStream ips) throws IOException, WsonException;
     
     void write(JsonRpcMessage message, OutputStream ops) throws IOException, WsonException;

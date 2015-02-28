@@ -14,6 +14,8 @@ import net.apexes.wsonrpc.WsonrpcSession;
  */
 public class WebSocketSessionAdapter implements WsonrpcSession {
     
+    private static final byte[] EMPTY_ARRAY = {};
+    
     private final Session session;
     
     public WebSocketSessionAdapter(Session session) {
@@ -33,6 +35,11 @@ public class WebSocketSessionAdapter implements WsonrpcSession {
     @Override
     public void sendBinary(byte[] bytes) throws IOException {
         session.getBasicRemote().sendBinary(ByteBuffer.wrap(bytes));
+    }
+
+    @Override
+    public void ping() throws IOException {
+        session.getBasicRemote().sendPing(ByteBuffer.wrap(EMPTY_ARRAY));
     }
 
     @Override

@@ -13,6 +13,8 @@ import net.apexes.wsonrpc.client.WsonrpcClient;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
+import org.java_websocket.framing.FramedataImpl1;
+import org.java_websocket.framing.Framedata.Opcode;
 import org.java_websocket.handshake.ServerHandshake;
 
 /**
@@ -45,6 +47,11 @@ public class JavaWebsocketConnector implements WebsocketConnector {
      *
      */
     private static class WebSocketClientAdapter extends WebSocketClient implements WsonrpcSession {
+        
+        private static FramedataImpl1 PING_FRAME = new FramedataImpl1(Opcode.PING);
+        static {
+            PING_FRAME.setFin(true);
+        }
         
         private final WsonrpcClient rpcClient;
         private final CountDownLatch latch;
@@ -100,6 +107,12 @@ public class JavaWebsocketConnector implements WebsocketConnector {
         public void sendBinary(byte[] bytes) throws IOException {
             send(bytes);
         }
+
+        @Override
+        public void ping() throws IOException {
+            getConnection().sendFrame(PING_FRAME);
+        }
+        
     }
 
 }

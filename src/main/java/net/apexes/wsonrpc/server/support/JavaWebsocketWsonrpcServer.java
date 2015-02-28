@@ -18,6 +18,8 @@ import org.java_websocket.WebSocketAdapter;
 import org.java_websocket.WebSocketImpl;
 import org.java_websocket.WebSocketListener;
 import org.java_websocket.drafts.Draft;
+import org.java_websocket.framing.Framedata.Opcode;
+import org.java_websocket.framing.FramedataImpl1;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.DefaultWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
@@ -156,6 +158,11 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
      */
     private static class JavaWebSocketSessionAdapter implements WsonrpcSession {
         
+        private static FramedataImpl1 PING_FRAME = new FramedataImpl1(Opcode.PING);
+        static {
+            PING_FRAME.setFin(true);
+        }
+        
         private final WebSocket websocket;
         
         JavaWebSocketSessionAdapter(WebSocket websocket) {
@@ -175,6 +182,11 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
         @Override
         public void sendBinary(byte[] bytes) throws IOException {
             websocket.send(bytes);
+        }
+
+        @Override
+        public void ping() throws IOException {
+            websocket.sendFrame(PING_FRAME);
         }
 
         @Override

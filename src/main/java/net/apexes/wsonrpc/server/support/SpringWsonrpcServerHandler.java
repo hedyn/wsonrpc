@@ -9,6 +9,7 @@ import net.apexes.wsonrpc.server.WsonrpcServerBase;
 
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.PingMessage;
 import org.springframework.web.socket.PongMessage;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
@@ -95,6 +96,11 @@ public class SpringWsonrpcServerHandler extends WsonrpcServerBase implements Web
         @Override
         public void sendBinary(byte[] bytes) throws IOException {
             session.sendMessage(new BinaryMessage(bytes));
+        }
+
+        @Override
+        public void ping() throws IOException {
+            session.sendMessage(new PingMessage());
         }
 
         @Override

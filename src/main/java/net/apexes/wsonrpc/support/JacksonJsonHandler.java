@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 
+import net.apexes.wsonrpc.JsonHandler;
 import net.apexes.wsonrpc.WsonException;
 import net.apexes.wsonrpc.message.JsonRpcError;
 import net.apexes.wsonrpc.message.JsonRpcMessage;
@@ -230,7 +231,7 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
         
         public NonNullObjectMapper() {
             setSerializationInclusion(Include.NON_NULL);
-            setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+            setDateFormat(new SimpleDateFormat(JsonHandler.ISO_8601_DATE_TIME_FORMAT));
         }
     }
     

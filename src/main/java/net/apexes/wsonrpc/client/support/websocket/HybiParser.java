@@ -209,8 +209,8 @@ public class HybiParser {
         return frame;
     }
 
-    public void ping(String message) {
-        mClient.send(frame(message, OP_PING, -1));
+    public byte[] pingFrame(String message) {
+        return frame(message, OP_PING, -1);
     }
 
     public void close(int code, String reason) {
@@ -266,6 +266,7 @@ public class HybiParser {
 
         } else if (opcode == OP_PONG) {
 //            String message = encode(payload);
+            System.out.println("...PONG...");
             // FIXME: Fire callback...
             
         }

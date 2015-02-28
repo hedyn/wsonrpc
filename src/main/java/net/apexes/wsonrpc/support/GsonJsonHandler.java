@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 
+import net.apexes.wsonrpc.JsonHandler;
 import net.apexes.wsonrpc.WsonException;
 import net.apexes.wsonrpc.message.JsonRpcError;
 import net.apexes.wsonrpc.message.JsonRpcMessage;
@@ -29,7 +30,7 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
     private final Gson gson;
     
     public GsonJsonHandler() {
-        this.gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").create();
+        this.gson = new GsonBuilder().setDateFormat(JsonHandler.ISO_8601_DATE_TIME_FORMAT).create();
     }
     
     public GsonJsonHandler(Gson gson) {

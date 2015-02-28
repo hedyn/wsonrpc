@@ -41,12 +41,12 @@ public class WsonrpcDispatcher implements ICaller {
     private final Map<String, Object> serviceFinder;
 
     private ExceptionProcessor exceptionProcessor;
-
+    
     public WsonrpcDispatcher(WsonrpcConfig config) {
         this.execService = config.getExecutorService();
         this.binaryProcessor = config.getBinaryWrapper();
-        this.timeout = config.getTimeout();
         this.jsonHandler = config.getJsonHandler();
+        this.timeout = config.getTimeout();
         serviceFinder = new ConcurrentHashMap<>();
     }
     
@@ -131,11 +131,11 @@ public class WsonrpcDispatcher implements ICaller {
         }
     }
     
-    private void handleNotification(final WsonrpcSession session, final JsonRpcNotification notification) {
+    private void handleNotification(WsonrpcSession session, JsonRpcNotification notification) {
         handle(session, notification.getMethod(), notification.getParams(), null);
     }
     
-    private void handleRequest(final WsonrpcSession session, final JsonRpcRequest request) {
+    private void handleRequest(WsonrpcSession session, JsonRpcRequest request) {
         handle(session, request.getMethod(), request.getParams(), request.getId());
     }
     

@@ -43,16 +43,30 @@ public interface WsonrpcClient extends WsonrpcRemote {
      *
      */
     final class Builder {
+        
+        public static Builder create(URI uri) {
+            return new Builder(uri);
+        }
+        
+        private final URI uri;
+        private WebsocketConnector connector;
 
-        public static WsonrpcClient create(URI uri, WsonrpcConfig config) {
-            return create(uri, config, new SimpleWebsocketConnector());
+        private Builder(URI uri) {
+            this.uri = uri;
         }
 
-        public static WsonrpcClient create(URI uri, WsonrpcConfig config, WebsocketConnector connector) {
+        public Builder connector(WebsocketConnector connector) {
+            this.connector = connector;
+            return this;
+        }
+        
+        public WsonrpcClient build(WsonrpcConfig config) {
+            if (connector == null) {
+                connector = new SimpleWebsocketConnector();
+            }
             return new WsonrpcClientEndpoint(uri, config, connector);
         }
         
-        private Builder() {}
     }
 
 }

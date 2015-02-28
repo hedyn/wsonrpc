@@ -85,6 +85,11 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
         }
 
         @Override
+        public void ping() throws IOException {
+            wsClient.sendPing("");
+        }
+
+        @Override
         public void close() throws IOException {
             wsClient.disconnect();
         }

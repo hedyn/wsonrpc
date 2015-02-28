@@ -166,6 +166,10 @@ public class WebSocketClient {
     public void send(byte[] data) {
         sendFrame(mParser.frame(data));
     }
+    
+    public void sendPing(String message) {
+        sendFrame(mParser.pingFrame(message));
+    }
         
     private void checkStatusLine(String line) throws Exception {
         if (isEmpty(line)) {

@@ -12,8 +12,10 @@ public interface WsonrpcSession {
     String getId();
     
     boolean isOpen();
-    
+
     void sendBinary(byte[] bytes) throws IOException;
+    
+    void ping() throws IOException;
     
     void close() throws IOException;
 
