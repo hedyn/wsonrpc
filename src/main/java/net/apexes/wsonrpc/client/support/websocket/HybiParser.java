@@ -266,7 +266,6 @@ public class HybiParser {
 
         } else if (opcode == OP_PONG) {
 //            String message = encode(payload);
-            System.out.println("...PONG...");
             // FIXME: Fire callback...
             
         }
