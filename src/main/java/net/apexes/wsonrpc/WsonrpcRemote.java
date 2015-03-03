@@ -103,6 +103,10 @@ public interface WsonrpcRemote {
                         }
                     }
                     Type returnType = method.getGenericReturnType();
+                    if (returnType == Void.TYPE) {
+                        remote.notify(serviceName, method.getName(), argument);
+                        return null;
+                    }
                     return remote.invoke(serviceName, method.getName(), argument, returnType, timeout);
                 }
             };

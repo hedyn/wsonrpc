@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
-	<version>0.3.1</version>
+	<version>0.3.2</version>
 	
 	<repositories>
         <repository>
@@ -74,16 +74,11 @@
             <groupId>org.java-websocket</groupId>
             <artifactId>Java-WebSocket</artifactId>
             <version>${version.java-websocket}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Support -->
 		<!-- jackson -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${version.com.fasterxml.jackson.core}</version>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
