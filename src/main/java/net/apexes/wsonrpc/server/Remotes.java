@@ -19,7 +19,7 @@ public final class Remotes {
     
     private Remotes() {}
 
-    private static final Map<String, WsonrpcServerEndpointProxy> remotes = new ConcurrentHashMap<>();
+    private static final Map<String, WsonrpcServerEndpointProxy> remotes = new ConcurrentHashMap<String, WsonrpcServerEndpointProxy>();
 
     static void addRemote(WsonrpcSession session, ICaller caller) {
         remotes.put(session.getId(), new WsonrpcServerEndpointProxy(session, caller));

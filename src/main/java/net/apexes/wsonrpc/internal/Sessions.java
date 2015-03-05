@@ -11,7 +11,7 @@ public abstract class Sessions {
 
     private Sessions() {}
 
-    private static final ThreadLocal<WsonrpcSession> sessions = new ThreadLocal<>();
+    private static final ThreadLocal<WsonrpcSession> sessions = new ThreadLocal<WsonrpcSession>();
 
     static void begin(WsonrpcSession session) {
         sessions.set(session);

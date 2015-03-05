@@ -231,7 +231,7 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
         
         public NonNullObjectMapper() {
             setSerializationInclusion(Include.NON_NULL);
-            setDateFormat(new SimpleDateFormat(JsonHandler.ISO_8601_DATE_TIME_FORMAT));
+            setDateFormat(new SimpleDateFormat(JsonHandler.DEFAUAL_DATE_TIME_FORMAT));
         }
     }
     

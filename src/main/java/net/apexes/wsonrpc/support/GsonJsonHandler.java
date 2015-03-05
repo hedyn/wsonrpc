@@ -30,7 +30,7 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
     private final Gson gson;
     
     public GsonJsonHandler() {
-        this.gson = new GsonBuilder().setDateFormat(JsonHandler.ISO_8601_DATE_TIME_FORMAT).create();
+        this.gson = new GsonBuilder().setDateFormat(JsonHandler.DEFAUAL_DATE_TIME_FORMAT).create();
     }
     
     public GsonJsonHandler(Gson gson) {

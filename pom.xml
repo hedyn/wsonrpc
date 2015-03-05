@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
-	<version>0.3.2</version>
+	<version>0.3.3</version>
 	
 	<repositories>
         <repository>
@@ -17,8 +17,8 @@
     </repositories>
 
 	<properties>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
 
         <!-- tyrus -->
         <version.org.glassfish.tyrus>1.10</version.org.glassfish.tyrus>

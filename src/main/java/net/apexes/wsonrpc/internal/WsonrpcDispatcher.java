@@ -47,7 +47,7 @@ public class WsonrpcDispatcher implements ICaller {
         this.binaryProcessor = config.getBinaryWrapper();
         this.jsonHandler = config.getJsonHandler();
         this.timeout = config.getTimeout();
-        serviceFinder = new ConcurrentHashMap<>();
+        serviceFinder = new ConcurrentHashMap<String, Object>();
     }
     
     public ExecutorService getExecutorService() {
@@ -83,7 +83,7 @@ public class WsonrpcDispatcher implements ICaller {
     public Future<Object> request(WsonrpcSession session, String serviceName, String methodName, 
             Object argument, Type returnType) throws Exception {
         String id = UUID.randomUUID().toString();
-        WosonrpcFuture<Object> future = new WosonrpcFuture<>(id, returnType);
+        WosonrpcFuture<Object> future = new WosonrpcFuture<Object>(id, returnType);
         Futures.put(future);
         try {
             String method = serviceName + "." + methodName;

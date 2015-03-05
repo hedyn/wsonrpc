@@ -19,7 +19,7 @@ public class Jsr356WsonrpcServerDemo {
     }
 
     public static void runServer() {
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("org.glassfish.tyrus.maxSessionsPerRemoteAddr", 10000);
         Server server = new Server("localhost", 8080, null, properties, Jsr356WsonrpcService.class);
         try {

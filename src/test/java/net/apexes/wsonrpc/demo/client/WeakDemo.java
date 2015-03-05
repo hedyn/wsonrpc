@@ -81,10 +81,10 @@ public class WeakDemo {
         String s;
         if (b) {
             s = new String("a");
-            ref = new WeakReference<>(s);
+            ref = new WeakReference<String>(s);
         } else {
             s = new String("b");
-            ref2 = new WeakReference<>(s);
+            ref2 = new WeakReference<String>(s);
         }
         return s;
     }

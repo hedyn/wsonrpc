@@ -17,9 +17,9 @@ final class Futures {
     
     private Futures() {}
     
-    private static final Map<IKey, WeakElement> map = new ConcurrentHashMap<>();
+    private static final Map<IKey, WeakElement> map = new ConcurrentHashMap<IKey, WeakElement>();
 
-    private static final ReferenceQueue<WosonrpcFuture<Object>> queue = new ReferenceQueue<>();
+    private static final ReferenceQueue<WosonrpcFuture<Object>> queue = new ReferenceQueue<WosonrpcFuture<Object>>();
 
     static void put(WosonrpcFuture<Object> future) {
         processQueue();
