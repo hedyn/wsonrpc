@@ -46,7 +46,7 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
                 getLogger().onRead(jsonElement.toString());
             }
             if (!jsonElement.isJsonObject()) {
-                throw new WsonException("Invalid WSON-RPC data.");
+                throw new WsonException("Invalid data.");
             }
             
             JsonObject jsonObject = JsonObject.class.cast(jsonElement);
@@ -79,7 +79,7 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
                 if (jsonObject.has("error")) {
                     JsonElement errorElement = jsonObject.get("error");
                     if (!errorElement.isJsonObject()) {
-                        throw new WsonException("Invalid WSON-RPC data.");
+                        throw new WsonException("Invalid data.");
                     }
                     JsonObject errorObject = errorElement.getAsJsonObject();
                     JsonElement codeElement = errorObject.get("code");
@@ -91,7 +91,7 @@ public class GsonJsonHandler extends AbstractJsonHandler<JsonElement> {
                 }
             }
             
-            throw new WsonException("Invalid WSON-RPC data.");
+            throw new WsonException("Invalid data.");
         } catch (Exception ex) {
             throw new WsonException(ex.getMessage(), ex.getCause());
         }

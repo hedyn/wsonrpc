@@ -50,7 +50,7 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
                 getLogger().onRead(data.toString());
             }
             if (!data.isObject()) {
-                throw new WsonException("Invalid WSON-RPC data.");
+                throw new WsonException("Invalid data.");
             }
             
             ObjectNode objectNode = ObjectNode.class.cast(data);
@@ -94,7 +94,7 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
                 }
             }
             
-            throw new WsonException("Invalid WSON-RPC data.");
+            throw new WsonException("Invalid data.");
         } catch (IOException ex) {
             throw ex;
         } catch (Exception ex) {

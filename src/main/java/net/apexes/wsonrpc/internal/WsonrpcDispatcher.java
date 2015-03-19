@@ -223,7 +223,6 @@ public class WsonrpcDispatcher implements ICaller {
             return methodCache.get(cacheKey);
         }
         Set<Method> methods = new HashSet<Method>();
-        
         for (Method method : clazz.getMethods()) {
             if (method.getName().equals(name)) {
                 methods.add(method);
