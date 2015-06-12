@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer;
+import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer.PathStrategy;
 import net.apexes.wsonrpc.support.JacksonJsonHandler;
 import net.apexes.wsonrpc.support.JsonLogger;
 
@@ -37,7 +38,15 @@ public class JavaWebsocketServerDemo {
         });
         WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonHandler(jsonHandler)
                 .build(Executors.newCachedThreadPool());
-        JavaWebsocketWsonrpcServer server = new JavaWebsocketWsonrpcServer(address, config);
+        PathStrategy pathStrategy = new PathStrategy() {
+
+            @Override
+            public boolean accept(String path) {
+                return path.startsWith("/wsonrpc/");
+            }
+            
+        };
+        JavaWebsocketWsonrpcServer server = new JavaWebsocketWsonrpcServer(address, pathStrategy, config);
         server.setExceptionProcessor(new ExceptionProcessor() {
 
             @Override

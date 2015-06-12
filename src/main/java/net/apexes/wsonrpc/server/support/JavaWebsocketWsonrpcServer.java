@@ -18,9 +18,12 @@ import org.java_websocket.WebSocketAdapter;
 import org.java_websocket.WebSocketImpl;
 import org.java_websocket.WebSocketListener;
 import org.java_websocket.drafts.Draft;
+import org.java_websocket.exceptions.InvalidDataException;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.framing.Framedata.Opcode;
 import org.java_websocket.framing.FramedataImpl1;
 import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.handshake.ServerHandshakeBuilder;
 import org.java_websocket.server.DefaultWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 import org.java_websocket.server.WebSocketServer.WebSocketServerFactory;
@@ -48,20 +51,20 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
         }
     };
 
-    public JavaWebsocketWsonrpcServer(InetSocketAddress address) {
-        wsServer = new WebSocketServerProxy(address, endpoint);
+    public JavaWebsocketWsonrpcServer(InetSocketAddress address, PathStrategy pathStrategy) {
+        wsServer = new WebSocketServerProxy(address, pathStrategy, endpoint);
         wsServer.setWebSocketFactory(wsf);
     }
     
-    public JavaWebsocketWsonrpcServer(InetSocketAddress address, ExecutorService execService) {
+    public JavaWebsocketWsonrpcServer(InetSocketAddress address, PathStrategy pathStrategy, ExecutorService execService) {
         super(execService);
-        wsServer = new WebSocketServerProxy(address, endpoint);
+        wsServer = new WebSocketServerProxy(address, pathStrategy, endpoint);
         wsServer.setWebSocketFactory(wsf);
     }
     
-    public JavaWebsocketWsonrpcServer(InetSocketAddress address, WsonrpcConfig config) {
+    public JavaWebsocketWsonrpcServer(InetSocketAddress address, PathStrategy pathStrategy, WsonrpcConfig config) {
         super(config);
-        wsServer = new WebSocketServerProxy(address, endpoint);
+        wsServer = new WebSocketServerProxy(address, pathStrategy, endpoint);
         wsServer.setWebSocketFactory(wsf);
     }
     
@@ -81,6 +84,17 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
             id = websocket.getRemoteSocketAddress().toString();
         }
         return id;
+    }
+    
+    /**
+     * 
+     * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
+     *
+     */
+    public static interface PathStrategy {
+        
+        boolean accept(String path);
+        
     }
     
     /**
@@ -116,10 +130,23 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
     private static class WebSocketServerProxy extends WebSocketServer {
         
         private final WsonrpcServerEndpoint endpoint;
-
-        public WebSocketServerProxy(InetSocketAddress address, WsonrpcServerEndpoint endpoint) {
+        private final PathStrategy pathStrategy;
+        
+        public WebSocketServerProxy(InetSocketAddress address, PathStrategy pathStrategy, WsonrpcServerEndpoint endpoint) {
             super(address);
+            this.pathStrategy = pathStrategy;
             this.endpoint = endpoint;
+        }
+        
+        @Override
+        public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(WebSocket conn, Draft draft,
+                ClientHandshake request) throws InvalidDataException {
+            if (pathStrategy != null) {
+                if (!pathStrategy.accept(request.getResourceDescriptor())) {
+                    throw new InvalidDataException(CloseFrame.TLS_ERROR, request.getResourceDescriptor());
+                }
+            }
+            return super.onWebsocketHandshakeReceivedAsServer(conn, draft, request);
         }
 
         @Override

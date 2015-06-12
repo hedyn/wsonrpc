@@ -27,9 +27,9 @@ import net.apexes.wsonrpc.support.JsonLogger;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 100;
-    static final int THREAD_COUNT = 10;//实际为 THREAD_COUNT * 3
-    static final int LOOP_COUNT = 10;
+    static final int CLIENT_COUNT = 1;
+    static final int THREAD_COUNT = 1;//实际为 THREAD_COUNT * 3
+    static final int LOOP_COUNT = 1;
     private static CountDownLatch clientDownLatch;
     private static ExecutorService execService = Executors.newCachedThreadPool();
     
@@ -65,7 +65,6 @@ public class WsonrpcClientDemo {
         });
         WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonHandler(jsonHandler).build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc/" + clientIndex);
-        //URI uri = new URI("ws://127.0.0.1:9080");//JavaWebsocketWsonrpcServer on android
         WsonrpcClient client = WsonrpcClient.Builder.create(uri)
                 //.connector(new net.apexes.wsonrpc.client.support.JavaWebsocketConnector())
                 //.connector(new net.apexes.wsonrpc.client.support.TyrusWebsocketConnector())

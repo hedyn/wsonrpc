@@ -45,7 +45,7 @@ public class WsonrpcServerDemo {
         });
         execService = Executors.newCachedThreadPool();
         WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonHandler(jsonHandler).build(execService);
-        server = new JavaWebsocketWsonrpcServer(address, config);
+        server = new JavaWebsocketWsonrpcServer(address, null, config);
         server.setExceptionProcessor(new ExceptionProcessor() {
 
             @Override
