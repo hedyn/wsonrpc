@@ -2,8 +2,8 @@ package net.apexes.wsonrpc.client;
 
 import java.net.URI;
 
+import net.apexes.jsonrpc.ServiceRegistry;
 import net.apexes.wsonrpc.ExceptionProcessor;
-import net.apexes.wsonrpc.ServiceRegistry;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.WsonrpcSession;

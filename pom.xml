@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
-	<version>0.3.4</version>
+	<version>0.4.0</version>
 	
 	<repositories>
         <repository>
@@ -135,7 +135,7 @@
                         <configuration>
                             <finalName>wsonrpc-client-${project.version}</finalName>
                             <excludes>
-                                <exclude>**/service/**</exclude>            
+                                <exclude>**/server/**</exclude>            
                             </excludes>
                         </configuration>
                     </execution>

@@ -9,15 +9,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.apexes.jsonrpc.GsonJsonContext;
+import net.apexes.jsonrpc.JsonRpcLogger;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.client.WsonrpcClient;
-import net.apexes.wsonrpc.client.support.JavaWebsocketConnector;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
-import net.apexes.wsonrpc.support.GsonJsonHandler;
-import net.apexes.wsonrpc.support.JsonLogger;
 
 /**
  * 
@@ -50,8 +49,8 @@ public class WsonrpcClientDemo {
     }
     
     private static void testClient(final int clientIndex) throws Exception {
-        GsonJsonHandler jsonHandler = new GsonJsonHandler();
-        jsonHandler.setLogger(new JsonLogger() {
+        GsonJsonContext jsonContext = new GsonJsonContext();
+        jsonContext.setLogger(new JsonRpcLogger() {
 
             @Override
             public void onRead(String json) {
@@ -63,7 +62,7 @@ public class WsonrpcClientDemo {
                 System.err.println("onWrite: " + json);
             }
         });
-        WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonHandler(jsonHandler).build(execService);
+        WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonContext(jsonContext).build(execService);
         URI uri = new URI("ws://127.0.0.1:8080/wsonrpc/" + clientIndex);
         WsonrpcClient client = WsonrpcClient.Builder.create(uri)
                 //.connector(new net.apexes.wsonrpc.client.support.JavaWebsocketConnector())
@@ -97,11 +96,17 @@ public class WsonrpcClientDemo {
         Future<User> future = client.asyncInvoke(LoginService.class.getName(), "login",
                 new Object[] { "async", "async" }, User.class);
         System.out.println("@" + clientIndex + ": async login: " + future.get(10, TimeUnit.SECONDS));
-                
+        
+        User user1 = new User();
+        user1.setUsername("user1");
+        user1.setPassword("user1.password");
+        User user2 = new User();
+        user2.setUsername("user2");
+        user2.setPassword("user2.password");
         // 同步调用
         LoginService srv = getLoginService(client);
-        User user = srv.login("admin", "admin");
-        System.out.println("@" + clientIndex + ": login(String,String): " + user);
+        User user = srv.login(user1, user2);
+        System.out.println("@" + clientIndex + ": login(User,User): " + user);
         
         user = srv.login(user);
 //        System.out.println("@" + clientIndex + ": login(User): " + user);

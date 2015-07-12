@@ -3,29 +3,25 @@ package net.apexes.wsonrpc.internal;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import net.apexes.jsonrpc.JsonContext;
+import net.apexes.jsonrpc.JsonRpcHandler;
+import net.apexes.jsonrpc.ServiceRegistry;
+import net.apexes.jsonrpc.SimpleServiceRegistry;
+import net.apexes.jsonrpc.message.JsonRpcMessage;
+import net.apexes.jsonrpc.message.JsonRpcNotification;
+import net.apexes.jsonrpc.message.JsonRpcRequest;
+import net.apexes.jsonrpc.message.JsonRpcResponse;
+import net.apexes.jsonrpc.message.JsonRpcResponseError;
+import net.apexes.jsonrpc.message.JsonRpcResponseResult;
 import net.apexes.wsonrpc.BinaryWrapper;
 import net.apexes.wsonrpc.ExceptionProcessor;
-import net.apexes.wsonrpc.JsonHandler;
-import net.apexes.wsonrpc.JsonHandler.MethodAndArgs;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.message.JsonRpcError;
-import net.apexes.wsonrpc.message.JsonRpcMessage;
-import net.apexes.wsonrpc.message.JsonRpcNotification;
-import net.apexes.wsonrpc.message.JsonRpcRequest;
-import net.apexes.wsonrpc.message.JsonRpcResponse;
 
 /**
  * 
@@ -36,18 +32,18 @@ public class WsonrpcDispatcher implements ICaller {
 
     private final ExecutorService execService;
     private final BinaryWrapper binaryProcessor;
-    private final JsonHandler jsonHandler;
+    private final JsonRpcHandler jsonRpcHandler;
     private final long timeout;
-    private final Map<String, Object> serviceFinder;
+    private final SimpleServiceRegistry serviceRegistry;
 
     private ExceptionProcessor exceptionProcessor;
     
     public WsonrpcDispatcher(WsonrpcConfig config) {
         this.execService = config.getExecutorService();
         this.binaryProcessor = config.getBinaryWrapper();
-        this.jsonHandler = config.getJsonHandler();
         this.timeout = config.getTimeout();
-        serviceFinder = new ConcurrentHashMap<String, Object>();
+        this.serviceRegistry = new SimpleServiceRegistry();
+        this.jsonRpcHandler = new JsonRpcHandler(config.getJsonContext(), serviceRegistry);
     }
     
     public ExecutorService getExecutorService() {
@@ -61,9 +57,9 @@ public class WsonrpcDispatcher implements ICaller {
     public ExceptionProcessor getExceptionProcessor() {
         return exceptionProcessor;
     }
-
-    public void addService(String name, Object service) {
-        serviceFinder.put(name, service);
+    
+    public ServiceRegistry getServiceRegistry() {
+        return serviceRegistry;
     }
 
     @Override
@@ -75,8 +71,9 @@ public class WsonrpcDispatcher implements ICaller {
     public void notify(WsonrpcSession session, String serviceName, String methodName, Object argument) 
             throws Exception {
         String method = serviceName + "." + methodName;
-        JsonRpcNotification notification = new JsonRpcNotification(method, argument);
-        writeAndFlushMessage(session, notification);
+        ByteArrayOutputStream ops = new ByteArrayOutputStream();
+        jsonRpcHandler.notify(method, argument, binaryProcessor.wrap(ops));
+        session.sendBinary(ops.toByteArray());
     }
 
     @Override
@@ -87,116 +84,64 @@ public class WsonrpcDispatcher implements ICaller {
         Futures.put(future);
         try {
             String method = serviceName + "." + methodName;
-            JsonRpcRequest request = new JsonRpcRequest(id, method, argument);
-            writeAndFlushMessage(session, request);
+            ByteArrayOutputStream ops = new ByteArrayOutputStream();
+            jsonRpcHandler.request(id, method, argument, binaryProcessor.wrap(ops));
+            session.sendBinary(ops.toByteArray());
             return future;
         } catch (Exception ex) {
             Futures.out(id);
             throw ex;
         }
     }
-    
-    private void writeAndFlushMessage(WsonrpcSession session, JsonRpcMessage message) throws Exception {
-        ByteArrayOutputStream ops = new ByteArrayOutputStream();
-        jsonHandler.write(message, binaryProcessor.wrap(ops));
-        session.sendBinary(ops.toByteArray());
-    }
 
-    public void handleMessage(WsonrpcSession session, byte[] bytes) throws Exception {
+    public void handleMessage(final WsonrpcSession session, final byte[] bytes) throws Exception {
         InputStream ips = binaryProcessor.wrap(new ByteArrayInputStream(bytes));
-        JsonRpcMessage message = jsonHandler.read(ips);
-        if (message != null) {
-            switch (message.type()) {
-                case NOTIFICATION:
-                    handleNotification(session, (JsonRpcNotification) message);
-                    break;
-                case REQUEST:
-                    handleRequest(session, (JsonRpcRequest) message);
-                    break;
-                case RESPONSE:
-                    JsonRpcResponse response = (JsonRpcResponse) message;
-                    WosonrpcFuture<Object> future = Futures.out(response.getId());
-                    if (future != null) {
-                        if (response.getError() != null) {
-                            Throwable throwable = jsonHandler.convertError(response.getError());
-                            future.setException(throwable);
-                        } else {
-                            Type returnType = future.returnType;
-                            Object result = jsonHandler.convertResult(response.getResult(), returnType);
-                            future.set(result);
-                        }
+        JsonRpcMessage message = jsonRpcHandler.getJsonContext().read(ips);
+        if (message == null) {
+            return;
+        }
+        if (message instanceof JsonRpcResponse) {
+            JsonRpcResponse response = (JsonRpcResponse) message;
+            String id = response.getId();
+            WosonrpcFuture<Object> future = Futures.out(id);
+            if (future != null) {
+                JsonContext jsonContex = jsonRpcHandler.getJsonContext();
+                if (response instanceof JsonRpcResponseResult) {
+                    JsonRpcResponseResult responseResult = (JsonRpcResponseResult) response;
+                    Type returnType = future.returnType;
+                    try {
+                        Object resultObject = jsonContex.convert(responseResult.getResult(), returnType);
+                        future.set(resultObject);
+                    } catch (Exception e) {
+                        future.setException(e);
                     }
-                    break;
+                } else {
+                    JsonRpcResponseError responseError = (JsonRpcResponseError) response;
+                    future.setException(jsonContex.convertError(responseError.getError()));
+                }
+            }
+        } else {
+            Class<?> classType = message.getClass();
+            if (classType == JsonRpcRequest.class){
+                JsonRpcRequest resquest = (JsonRpcRequest) message;
+                handle(session, resquest.getId(), resquest.getMethod(), resquest.getParams());
+            } else if (classType == JsonRpcNotification.class) {
+                JsonRpcNotification notification = (JsonRpcNotification) message;
+                handle(session, null, notification.getMethod(), notification.getParams());
             }
         }
     }
     
-    private void handleNotification(WsonrpcSession session, JsonRpcNotification notification) {
-        handle(session, notification.getMethod(), notification.getParams(), null);
-    }
-    
-    private void handleRequest(WsonrpcSession session, JsonRpcRequest request) {
-        handle(session, request.getMethod(), request.getParams(), request.getId());
-    }
-    
-    private void handle(final WsonrpcSession session, final String serviceMethod, final Object params,
-            final String id) {
+    private void handle(final WsonrpcSession session, final String id, final String method, final Object params) {
         execService.execute(new Runnable() {
 
             @Override
             public void run() {
                 Sessions.begin(session);
                 try {
-                    int index = serviceMethod.lastIndexOf(".");
-                    String serviceName = serviceMethod.substring(0, index);
-                    String methodName = serviceMethod.substring(index + 1);
-                    
-                    Object service = serviceFinder.get(serviceName);
-                    if (service == null) {
-                        JsonRpcError error = JsonRpcError.createMethodNoFound(serviceMethod);
-                        writeAndFlushMessage(session, new JsonRpcResponse(id, error));
-                        return;
-                    }
-                    
-                    Set<Method> methods = findMethods(service.getClass(), methodName);
-                    if (methods.isEmpty()) {
-                        JsonRpcError error = JsonRpcError.createMethodNoFound(serviceMethod);
-                        writeAndFlushMessage(session, new JsonRpcResponse(id, error));
-                        return;
-                    }
-                    MethodAndArgs methodAndArgs = null;
-                    try {
-                        methodAndArgs = jsonHandler.findMethod(methods, params);
-                    } catch (Exception ex) {
-                        JsonRpcError error = JsonRpcError.createInvalidParamsError(ex);
-                        writeAndFlushMessage(session, new JsonRpcResponse(id, error));
-                        return;
-                    }
-                    if (methodAndArgs == null) {
-                        JsonRpcError error = JsonRpcError.createMethodNoFound(serviceMethod);
-                        writeAndFlushMessage(session, new JsonRpcResponse(id, error));
-                        return;
-                    }
-                    
-                    Object result = null;
-                    try {
-                        Object[] args = methodAndArgs.getArguments();
-                        if (args == null) {
-                            result = methodAndArgs.getMethod().invoke(service);
-                        } else {
-                            result = methodAndArgs.getMethod().invoke(service, args);
-                        }
-                    } catch (Throwable ex) {
-                        ex.printStackTrace();
-                        if (id != null) {
-                            JsonRpcError error = new JsonRpcError(0, ex.getMessage());
-                            writeAndFlushMessage(session, new JsonRpcResponse(id, error));
-                            return;
-                        }
-                    }
-                    if (id != null) {
-                        writeAndFlushMessage(session, new JsonRpcResponse(id, result));
-                    }
+                    ByteArrayOutputStream ops = new ByteArrayOutputStream();
+                    jsonRpcHandler.handle(id, method, params, ops);
+                    session.sendBinary(ops.toByteArray());
                 } catch (Exception ex) {
                     if (exceptionProcessor != null) {
                         exceptionProcessor.onError(ex);
@@ -205,32 +150,7 @@ public class WsonrpcDispatcher implements ICaller {
                     Sessions.end();
                 }
             }
-
         });
-    }
-    
-    private static Map<String, Set<Method>> methodCache = new HashMap<String, Set<Method>>();
-    
-    /**
-     * Finds methods with the given name on the given class.
-     * @param clazz the class
-     * @param name the method name
-     * @return the methods
-     */
-    public static Set<Method> findMethods(Class<?> clazz, String name) {
-        String cacheKey = clazz.getName() + "." + name;
-        if (methodCache.containsKey(cacheKey)) {
-            return methodCache.get(cacheKey);
-        }
-        Set<Method> methods = new HashSet<Method>();
-        for (Method method : clazz.getMethods()) {
-            if (method.getName().equals(name)) {
-                methods.add(method);
-            }
-        }
-        methods = Collections.unmodifiableSet(methods);
-        methodCache.put(cacheKey, methods);
-        return methods;
     }
     
 }

@@ -1,11 +1,11 @@
-package net.apexes.wsonrpc.support;
+package net.apexes.jsonrpc;
 
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public interface JsonLogger {
+public interface JsonRpcLogger {
     
     void onRead(String json);
     

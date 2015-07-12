@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.apexes.jsonrpc.GsonJsonContext;
+import net.apexes.jsonrpc.JsonRpcLogger;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
@@ -11,8 +13,6 @@ import net.apexes.wsonrpc.demo.api.CallPosService;
 import net.apexes.wsonrpc.demo.api.User;
 import net.apexes.wsonrpc.server.Remotes;
 import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer;
-import net.apexes.wsonrpc.support.JacksonJsonHandler;
-import net.apexes.wsonrpc.support.JsonLogger;
 
 /**
  * 
@@ -30,8 +30,8 @@ public class WsonrpcServerDemo {
 
     public static void runServer() {
         InetSocketAddress address = new InetSocketAddress(8080);
-        JacksonJsonHandler jsonHandler = new JacksonJsonHandler();
-        jsonHandler.setLogger(new JsonLogger() {
+        GsonJsonContext jsonContext = new GsonJsonContext();
+        jsonContext.setLogger(new JsonRpcLogger() {
 
             @Override
             public void onRead(String json) {
@@ -44,7 +44,7 @@ public class WsonrpcServerDemo {
             }
         });
         execService = Executors.newCachedThreadPool();
-        WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonHandler(jsonHandler).build(execService);
+        WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonContext(jsonContext).build(execService);
         server = new JavaWebsocketWsonrpcServer(address, null, config);
         server.setExceptionProcessor(new ExceptionProcessor() {
 
@@ -55,7 +55,7 @@ public class WsonrpcServerDemo {
         });
         
         // 注册服务供Client调用
-        server.register(new RegisterServiceImpl());
+        server.getServiceRegistry().register(new RegisterServiceImpl());
         
         System.out.println("Server is running...");
         server.run();

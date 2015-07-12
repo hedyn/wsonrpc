@@ -14,7 +14,7 @@ interface IKey {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    static class StringKey implements IKey {
+    class StringKey implements IKey {
         private String id;
 
         StringKey(String id) {

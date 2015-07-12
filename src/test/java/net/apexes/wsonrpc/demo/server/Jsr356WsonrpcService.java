@@ -32,7 +32,7 @@ public class Jsr356WsonrpcService implements ExceptionProcessor {
     public Jsr356WsonrpcService() {
         endpoint = new WsonrpcServerEndpoint(Executors.newCachedThreadPool());
         endpoint.setExceptionProcessor(this);
-        endpoint.register(new LoginServiceImpl());
+        endpoint.getServiceRegistry().register(new LoginServiceImpl());
     }
 
     @Override

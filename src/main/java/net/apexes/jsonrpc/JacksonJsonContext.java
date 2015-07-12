@@ -1,4 +1,10 @@
-package net.apexes.wsonrpc.support;
+/**
+ * Copyright (C) 2015, Apexes Network Technology. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
+package net.apexes.jsonrpc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,13 +14,12 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 
-import net.apexes.wsonrpc.JsonHandler;
-import net.apexes.wsonrpc.WsonException;
-import net.apexes.wsonrpc.message.JsonRpcError;
-import net.apexes.wsonrpc.message.JsonRpcMessage;
-import net.apexes.wsonrpc.message.JsonRpcNotification;
-import net.apexes.wsonrpc.message.JsonRpcRequest;
-import net.apexes.wsonrpc.message.JsonRpcResponse;
+import net.apexes.jsonrpc.message.JsonRpcError;
+import net.apexes.jsonrpc.message.JsonRpcMessage;
+import net.apexes.jsonrpc.message.JsonRpcNotification;
+import net.apexes.jsonrpc.message.JsonRpcRequest;
+import net.apexes.jsonrpc.message.JsonRpcResponseError;
+import net.apexes.jsonrpc.message.JsonRpcResponseResult;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser;
@@ -24,127 +29,114 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-
 /**
- * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
+public class JacksonJsonContext extends AbstractJsonContext {
     
     private final ObjectMapper objectMapper;
-    
-    public JacksonJsonHandler() {
+
+    public JacksonJsonContext() {
         this(new NonNullObjectMapper());
     }
-    
-    public JacksonJsonHandler(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+            
+    public JacksonJsonContext(ObjectMapper mapper) {
+        this.objectMapper = mapper;
     }
-    
+
     @Override
-    public JsonRpcMessage read(InputStream ips) throws IOException, WsonException {
-        try {
-            JsonNode data = objectMapper.readTree(new NoCloseInputStream(ips));
-            if (getLogger() != null) {
-                getLogger().onRead(data.toString());
+    public JsonRpcMessage read(InputStream ips) throws Exception {
+        JsonNode jsonNode = objectMapper.readTree(new NoCloseInputStream(ips));
+        if (getLogger() != null) {
+            getLogger().onRead(jsonNode.toString());
+        }
+        if (!jsonNode.isObject()) {
+            throw new Exception("Invalid data.");
+        }
+        
+        ObjectNode objectNode = ObjectNode.class.cast(jsonNode);
+        
+        String id = null;
+        JsonNode idNode = objectNode.get("id");
+        if (idNode != null && idNode.isTextual()) {
+            id = idNode.textValue();
+        }
+        
+        if (objectNode.has("method")) {
+            JsonNode methodNode = objectNode.get("method");
+            if (!methodNode.isTextual()) {
+                throw new Exception("Invalid Request.");
             }
-            if (!data.isObject()) {
-                throw new WsonException("Invalid data.");
+            String method = methodNode.textValue();
+            Object params = null;
+            if (objectNode.has("params")) {
+                params = objectNode.get("params");
             }
-            
-            ObjectNode objectNode = ObjectNode.class.cast(data);
-            
-            String id = null;
-            JsonNode idNode = objectNode.get("id");
-            if (idNode != null && idNode.isTextual()) {
-                id = idNode.textValue();
+            if (id == null) {
+                return new JsonRpcNotification(method, params);
             }
-            
-            if (objectNode.has("method")) {
-                JsonNode methodNode = objectNode.get("method");
-                if (!methodNode.isTextual()) {
-                    throw new WsonException("Invalid Request.");
-                }
-                String method = methodNode.textValue();
-                Object params = null;
-                if (objectNode.has("params")) {
-                    params = objectNode.get("params");
-                }
-                if (id == null) {
-                    return new JsonRpcNotification(method, params);
-                }
-                return new JsonRpcRequest(id, method, params);
-            }
-            
-            if (id != null) {
-                if (objectNode.has("result")) {
-                    Object result = objectNode.get("result");
-                    return new JsonRpcResponse(id, result);
-                }
-                
-                if (objectNode.has("error")) {
-                    JsonNode errorNode = objectNode.get("error");
-                    JsonNode codeNode = errorNode.get("code");
-                    JsonNode messageNode = errorNode.get("message");
-                    int code = codeNode.asInt();
-                    String message = messageNode.asText();
-                    JsonRpcError error = new JsonRpcError(code, message);
-                    return new JsonRpcResponse(id, error);
-                }
+            return new JsonRpcRequest(id, method, params);
+        }
+        
+        if (id != null) {
+            if (objectNode.has("result")) {
+                Object result = objectNode.get("result");
+                return new JsonRpcResponseResult(id, result);
             }
             
-            throw new WsonException("Invalid data.");
-        } catch (IOException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new WsonException(ex.getMessage(), ex.getCause());
+            if (objectNode.has("error")) {
+                JsonNode errorNode = objectNode.get("error");
+                JsonNode codeNode = errorNode.get("code");
+                JsonNode messageNode = errorNode.get("message");
+                int code = codeNode.asInt();
+                String message = messageNode.asText();
+                JsonRpcError error = new JsonRpcError(code, message);
+                return new JsonRpcResponseError(id, error);
+            }
+        }
+        
+        throw new Exception("Invalid data.");
+    }
+
+    @Override
+    public void write(JsonRpcMessage message, OutputStream ops) throws Exception {
+        if (getLogger() != null) {
+            ByteArrayOutputStream bops = new ByteArrayOutputStream();
+            objectMapper.writeValue(bops, message);
+            
+            byte[] bytes = bops.toByteArray();
+            String json = new String(bytes);
+            getLogger().onWrite(json);
+            
+            ops.write(bytes);
+        } else {
+            objectMapper.writeValue(ops, message);
         }
     }
 
     @Override
-    public void write(JsonRpcMessage message, OutputStream ops) throws IOException, WsonException {
-        try {
-            if (getLogger() != null) {
-                ByteArrayOutputStream bops = new ByteArrayOutputStream();
-                objectMapper.writeValue(bops, message);
-                
-                byte[] bytes = bops.toByteArray();
-                String json = new String(bytes);
-                getLogger().onWrite(json);
-                
-                ops.write(bytes);
-            } else {
-                objectMapper.writeValue(ops, message);
-            }
-        } catch (IOException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new WsonException(ex.getMessage(), ex.getCause());
-        }
+    public JsonParams convertParams(Object params) {
+        return new JsonNodeParams((JsonNode)params);
     }
-
+    
     @Override
-    public Object convertObject(JsonNode node, Type type) throws Exception {
-        JsonParser jsonParser = objectMapper.treeAsTokens(node);
+    public <E> E convert(Object node, Type type) throws Exception {
+        JsonParser jsonParser = objectMapper.treeAsTokens((JsonNode)node);
         JavaType javaType = TypeFactory.defaultInstance().constructType(type);
         return objectMapper.readValue(jsonParser, javaType);
     }
-    
-    @Override
-    protected AbstractJsonHandler.IParams<JsonNode> convertParams(Object params) {
-        return new JsonNodeParams((JsonNode)params);
-    }
 
     @Override
-    protected boolean isMatchingType(JsonNode node, Class<?> classType) {
-        if (node.isNull()) {
+    public boolean isMatchingType(Object node, Class<?> classType) {
+        JsonNode jsonNode = (JsonNode) node;
+        if (jsonNode.isNull()) {
             return true;
 
-        } else if (node.isTextual()) {
+        } else if (jsonNode.isTextual()) {
             return String.class.isAssignableFrom(classType);
 
-        } else if (node.isNumber()) {
+        } else if (jsonNode.isNumber()) {
             return Number.class.isAssignableFrom(classType)
                 || short.class.isAssignableFrom(classType)
                 || int.class.isAssignableFrom(classType)
@@ -152,25 +144,25 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
                 || float.class.isAssignableFrom(classType)
                 || double.class.isAssignableFrom(classType);
 
-        } else if (node.isArray() && classType.isArray()) {
-            return (node.size()>0)
-                ? isMatchingType(node.get(0), classType.getComponentType())
+        } else if (jsonNode.isArray() && classType.isArray()) {
+            return (jsonNode.size()>0)
+                ? isMatchingType(jsonNode.get(0), classType.getComponentType())
                 : false;
 
-        } else if (node.isArray()) {
+        } else if (jsonNode.isArray()) {
             return classType.isArray() || Collection.class.isAssignableFrom(classType);
 
-        } else if (node.isBinary()) {
+        } else if (jsonNode.isBinary()) {
             return byte[].class.isAssignableFrom(classType)
                 || Byte[].class.isAssignableFrom(classType)
                 || char[].class.isAssignableFrom(classType)
                 || Character[].class.isAssignableFrom(classType);
 
-        } else if (node.isBoolean()) {
+        } else if (jsonNode.isBoolean()) {
             return boolean.class.isAssignableFrom(classType)
                 || Boolean.class.isAssignableFrom(classType);
 
-        } else if (node.isObject() || node.isPojo()) {
+        } else if (jsonNode.isObject() || jsonNode.isPojo()) {
             return !classType.isPrimitive()
                 && !String.class.isAssignableFrom(classType)
                 && !Number.class.isAssignableFrom(classType)
@@ -186,7 +178,7 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class JsonNodeParams implements IParams<JsonNode> {
+    private static class JsonNodeParams implements JsonParams {
         
         private final JsonNode node;
         private final int size;
@@ -217,7 +209,6 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
             }
             return node.get(index);
         }
-        
     }
     
     /**
@@ -231,10 +222,9 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
         
         public NonNullObjectMapper() {
             setSerializationInclusion(Include.NON_NULL);
-            setDateFormat(new SimpleDateFormat(JsonHandler.DEFAUAL_DATE_TIME_FORMAT));
+            setDateFormat(new SimpleDateFormat(AbstractJsonContext.DEFAUAL_DATE_TIME_FORMAT));
         }
     }
-    
     
     /**
      * 
@@ -303,5 +293,4 @@ public class JacksonJsonHandler extends AbstractJsonHandler<JsonNode> {
         }
 
     }
-
 }

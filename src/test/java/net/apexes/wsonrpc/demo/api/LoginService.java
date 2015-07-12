@@ -10,6 +10,8 @@ public interface LoginService {
     User login(String username, String password);
     
     User login(User user);
+    
+    User login(User user, User user1);
 
     String login1(String username, String password);
 

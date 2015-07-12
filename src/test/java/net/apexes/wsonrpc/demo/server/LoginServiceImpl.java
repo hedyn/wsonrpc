@@ -29,6 +29,11 @@ public class LoginServiceImpl implements LoginService {
         user.setLevel(user.getLevel()==null?10:12);
         return user;
     }
+    
+    @Override
+    public User login(User user, User user1) {
+        return user;
+    }
 
     public String login1(String username, String password) {
 //        System.out.println("login1(" + username + ", " + password + ")");

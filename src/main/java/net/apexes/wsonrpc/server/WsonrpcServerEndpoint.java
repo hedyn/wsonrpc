@@ -4,11 +4,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.apexes.jsonrpc.ServiceRegistry;
 import net.apexes.wsonrpc.ExceptionProcessor;
-import net.apexes.wsonrpc.ServiceRegistry;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.internal.AbstractServiceRegistry;
 import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
 
 /**
@@ -16,7 +15,7 @@ import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public class WsonrpcServerEndpoint extends AbstractServiceRegistry implements ServiceRegistry {
+public class WsonrpcServerEndpoint {
     
     private final WsonrpcDispatcher dispatcher;
     
@@ -33,6 +32,10 @@ public class WsonrpcServerEndpoint extends AbstractServiceRegistry implements Se
             config = WsonrpcConfig.Builder.create().build(Executors.newCachedThreadPool());
         }
         dispatcher = new WsonrpcDispatcher(config);
+    }
+    
+    public ServiceRegistry getServiceRegistry() {
+        return dispatcher.getServiceRegistry();
     }
 
     public void setExceptionProcessor(ExceptionProcessor processor) {
@@ -60,11 +63,6 @@ public class WsonrpcServerEndpoint extends AbstractServiceRegistry implements Se
                 dispatcher.getExceptionProcessor().onError(ex);
             }
         }
-    }
-
-    @Override
-    public void register(String name, Object handler) {
-        dispatcher.addService(name, handler);
     }
 
 }

@@ -4,7 +4,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutorService;
 
-import net.apexes.wsonrpc.support.JacksonJsonHandler;
+import net.apexes.jsonrpc.JacksonJsonContext;
+import net.apexes.jsonrpc.JsonContext;
 
 /**
  * 
@@ -15,7 +16,7 @@ public interface WsonrpcConfig {
 
     ExecutorService getExecutorService();
 
-    JsonHandler getJsonHandler();
+    JsonContext getJsonContext();
 
     BinaryWrapper getBinaryWrapper();
     
@@ -37,7 +38,7 @@ public interface WsonrpcConfig {
             return new Builder();
         }
 
-        private JsonHandler jsonHandler;
+        private JsonContext jsonContext;
         private BinaryWrapper binaryWrapper;
         private long timeout;
         
@@ -59,8 +60,8 @@ public interface WsonrpcConfig {
                     
                 };
             }
-            if (jsonHandler == null) {
-                jsonHandler = new JacksonJsonHandler();
+            if (jsonContext == null) {
+                jsonContext = new JacksonJsonContext();
             }
             return new WsonrpcConfig() {
 
@@ -70,8 +71,8 @@ public interface WsonrpcConfig {
                 }
 
                 @Override
-                public JsonHandler getJsonHandler() {
-                    return jsonHandler;
+                public JsonContext getJsonContext() {
+                    return jsonContext;
                 }
 
                 @Override
@@ -86,8 +87,8 @@ public interface WsonrpcConfig {
             };
         }
 
-        public Builder jsonHandler(JsonHandler jsonHandler) {
-            this.jsonHandler = jsonHandler;
+        public Builder jsonContext(JsonContext jsonContext) {
+            this.jsonContext = jsonContext;
             return this;
         }
 

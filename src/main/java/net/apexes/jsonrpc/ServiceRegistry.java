@@ -1,4 +1,4 @@
-package net.apexes.wsonrpc;
+package net.apexes.jsonrpc;
 
 /**
  * 
@@ -7,7 +7,7 @@ package net.apexes.wsonrpc;
  */
 public interface ServiceRegistry {
 
-    void register(String name, Object handler);
+    void register(String name, Object service);
     
-    void register(Object handler);
+    void register(Object service);
 }

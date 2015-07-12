@@ -7,14 +7,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import net.apexes.jsonrpc.GsonJsonContext;
+import net.apexes.jsonrpc.JsonRpcLogger;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.demo.api.RegisterService;
 import net.apexes.wsonrpc.demo.api.User;
-import net.apexes.wsonrpc.support.GsonJsonHandler;
-import net.apexes.wsonrpc.support.JsonLogger;
 
 /**
  * 
@@ -26,8 +26,8 @@ public class PosWsonrpcClientDemo {
     private static ExecutorService execService = Executors.newCachedThreadPool();
     
     public static void main(String[] args) throws Exception {
-        GsonJsonHandler jsonHandler = new GsonJsonHandler();
-        jsonHandler.setLogger(new JsonLogger() {
+        GsonJsonContext jsonContext = new GsonJsonContext();
+        jsonContext.setLogger(new JsonRpcLogger() {
 
             @Override
             public void onRead(String json) {
@@ -39,7 +39,7 @@ public class PosWsonrpcClientDemo {
                 System.err.println("onWrite: " + json);
             }
         });
-        WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonHandler(jsonHandler).build(execService);
+        WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonContext(jsonContext).build(execService);
         URI uri = new URI("ws://127.0.0.1:8080");
         WsonrpcClient client = WsonrpcClient.Builder.create(uri).build(config);
         client.setExceptionProcessor(new ExceptionProcessor() {
