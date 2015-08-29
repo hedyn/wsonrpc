@@ -56,6 +56,7 @@ public class WsonrpcServerDemo {
         
         // 注册服务供Client调用
         server.getServiceRegistry().register(new LoginServiceImpl());
+        server.getServiceRegistry().register(new RegisterServiceImpl());
         
         System.out.println("Server is running...");
         server.run();

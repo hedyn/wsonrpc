@@ -55,6 +55,7 @@ public class JavaWebsocketServerDemo {
             }
         });
         server.getServiceRegistry().register(new LoginServiceImpl());
+        server.getServiceRegistry().register(new RegisterServiceImpl());
         System.out.println("Server is running...");
         server.run();
     }

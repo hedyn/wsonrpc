@@ -141,7 +141,9 @@ public class WsonrpcDispatcher implements ICaller {
                 try {
                     ByteArrayOutputStream ops = new ByteArrayOutputStream();
                     jsonRpcHandler.handle(id, method, params, ops);
-                    session.sendBinary(ops.toByteArray());
+                    if (id != null) {
+                        session.sendBinary(ops.toByteArray());
+                    }
                 } catch (Exception ex) {
                     if (exceptionProcessor != null) {
                         exceptionProcessor.onError(ex);
