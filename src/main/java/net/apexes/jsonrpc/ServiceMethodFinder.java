@@ -13,7 +13,7 @@ import java.util.Set;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public interface MethodFinder {
+public interface ServiceMethodFinder extends ServiceRegistry {
     
     MethodHolder find(String methodName);
     

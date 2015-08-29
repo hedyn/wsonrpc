@@ -11,7 +11,6 @@ import java.util.concurrent.Future;
 import net.apexes.jsonrpc.JsonContext;
 import net.apexes.jsonrpc.JsonRpcHandler;
 import net.apexes.jsonrpc.ServiceRegistry;
-import net.apexes.jsonrpc.SimpleServiceRegistry;
 import net.apexes.jsonrpc.message.JsonRpcMessage;
 import net.apexes.jsonrpc.message.JsonRpcNotification;
 import net.apexes.jsonrpc.message.JsonRpcRequest;
@@ -34,7 +33,6 @@ public class WsonrpcDispatcher implements ICaller {
     private final BinaryWrapper binaryProcessor;
     private final JsonRpcHandler jsonRpcHandler;
     private final long timeout;
-    private final SimpleServiceRegistry serviceRegistry;
 
     private ExceptionProcessor exceptionProcessor;
     
@@ -42,8 +40,7 @@ public class WsonrpcDispatcher implements ICaller {
         this.execService = config.getExecutorService();
         this.binaryProcessor = config.getBinaryWrapper();
         this.timeout = config.getTimeout();
-        this.serviceRegistry = new SimpleServiceRegistry();
-        this.jsonRpcHandler = new JsonRpcHandler(config.getJsonContext(), serviceRegistry);
+        this.jsonRpcHandler = new JsonRpcHandler(config.getJsonContext());
     }
     
     public ExecutorService getExecutorService() {
@@ -59,7 +56,7 @@ public class WsonrpcDispatcher implements ICaller {
     }
     
     public ServiceRegistry getServiceRegistry() {
-        return serviceRegistry;
+        return jsonRpcHandler.getJsonContext().getServiceMethodFinder();
     }
 
     @Override

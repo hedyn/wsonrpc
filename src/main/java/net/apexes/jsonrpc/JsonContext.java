@@ -19,6 +19,8 @@ import net.apexes.jsonrpc.message.JsonRpcMessage;
  */
 public interface JsonContext {
     
+    ServiceMethodFinder getServiceMethodFinder();
+    
     JsonRpcMessage read(InputStream ips) throws Exception;
     
     void write(JsonRpcMessage message, OutputStream ops) throws Exception;

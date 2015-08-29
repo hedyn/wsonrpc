@@ -18,12 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class SimpleServiceRegistry implements ServiceRegistry, MethodFinder {
+public class SimpleServiceMethodFinder implements ServiceMethodFinder {
     
     private final Map<String, Object> serviceFinder;
     private final Map<String, Set<Method>> methodCache;
     
-    public SimpleServiceRegistry() {
+    protected SimpleServiceMethodFinder() {
         serviceFinder = new ConcurrentHashMap<String, Object>();
         methodCache = new HashMap<String, Set<Method>>();
     }

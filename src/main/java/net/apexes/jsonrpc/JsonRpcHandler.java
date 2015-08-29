@@ -25,11 +25,9 @@ import net.apexes.jsonrpc.message.JsonRpcResponseResult;
 public class JsonRpcHandler {
     
     private final JsonContext jsonContext;
-    private final MethodFinder methodFinder;
     
-    public JsonRpcHandler(JsonContext jsonContext, MethodFinder methodFinder) {
+    public JsonRpcHandler(JsonContext jsonContext) {
         this.jsonContext = jsonContext;
-        this.methodFinder = methodFinder;
     }
     
     public JsonContext getJsonContext() {
@@ -46,7 +44,7 @@ public class JsonRpcHandler {
     
     public void handle(String id, String method, Object params, OutputStream ops) throws Exception {
         MethodAndArgs methodAndArgs = null;
-        MethodFinder.MethodHolder holder = methodFinder.find(method);
+        ServiceMethodFinder.MethodHolder holder = jsonContext.getServiceMethodFinder().find(method);
         if (holder.hasMethod()) {
             try {
                 methodAndArgs = findMethod(holder.methods, params);
