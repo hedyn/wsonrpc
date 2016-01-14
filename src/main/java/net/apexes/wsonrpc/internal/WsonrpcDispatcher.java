@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -21,6 +20,7 @@ import net.apexes.wsonrpc.BinaryWrapper;
 import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
+import net.apexes.wsonrpc.util.IDs;
 
 /**
  * 
@@ -76,7 +76,7 @@ public class WsonrpcDispatcher implements ICaller {
     @Override
     public Future<Object> request(WsonrpcSession session, String serviceName, String methodName, 
             Object argument, Type returnType) throws Exception {
-        String id = UUID.randomUUID().toString();
+        String id = IDs.randomUUID();
         WosonrpcFuture<Object> future = new WosonrpcFuture<Object>(id, returnType);
         Futures.put(future);
         try {
