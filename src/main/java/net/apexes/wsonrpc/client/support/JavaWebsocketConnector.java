@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.client.support;
 
 import java.io.IOException;
@@ -7,15 +13,15 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.client.WebsocketConnector;
-import net.apexes.wsonrpc.client.WsonrpcClient;
-
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
-import org.java_websocket.framing.FramedataImpl1;
 import org.java_websocket.framing.Framedata.Opcode;
+import org.java_websocket.framing.FramedataImpl1;
 import org.java_websocket.handshake.ServerHandshake;
+
+import net.apexes.wsonrpc.WsonrpcSession;
+import net.apexes.wsonrpc.client.WebsocketConnector;
+import net.apexes.wsonrpc.client.WsonrpcClientEndpoint;
 
 /**
  * 基于 {@link org.java_websocket.client.WebSocketClient}的连接
@@ -26,16 +32,16 @@ import org.java_websocket.handshake.ServerHandshake;
 public class JavaWebsocketConnector implements WebsocketConnector {
     
     @Override
-    public void connectToServer(WsonrpcClient client, URI uri) throws Exception {
+    public void connectToServer(WsonrpcClientEndpoint endpoint, URI uri, long timeout) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
-        WebSocketClientAdapter clientAdapter = new WebSocketClientAdapter(uri, client, latch);
+        WebSocketClientAdapter clientAdapter = new WebSocketClientAdapter(uri, endpoint, latch);
         /*
          * connectBlocking()方法返回后才会触发onOpen(ServerHandshake)，
          * 所以要用CountDownLatch阻塞到onOpen(ServerHandshake)时
          */
         clientAdapter.connectBlocking();
-        if (client.getTimeout() > 0) {
-            latch.await(client.getTimeout(), TimeUnit.MILLISECONDS);
+        if (timeout > 0) {
+            latch.await(timeout, TimeUnit.MILLISECONDS);
         } else {
             latch.await();
         }
@@ -53,14 +59,14 @@ public class JavaWebsocketConnector implements WebsocketConnector {
             PING_FRAME.setFin(true);
         }
         
-        private final WsonrpcClient rpcClient;
+        private final WsonrpcClientEndpoint endpoint;
         private final CountDownLatch latch;
         private String id;
         private volatile boolean opened;
         
-        public WebSocketClientAdapter(URI uri, WsonrpcClient rpcClient, CountDownLatch latch) {
+        public WebSocketClientAdapter(URI uri, WsonrpcClientEndpoint endpoint, CountDownLatch latch) {
             super(uri, new Draft_17());
-            this.rpcClient = rpcClient;
+            this.endpoint = endpoint;
             this.latch = latch;
         }
 
@@ -68,29 +74,29 @@ public class JavaWebsocketConnector implements WebsocketConnector {
         public void onOpen(ServerHandshake handshakedata) {
             id = UUID.randomUUID().toString();
             opened = true;
-            rpcClient.onOpen(this);
+            endpoint.onOpen(this);
             latch.countDown();
         }
 
         @Override
         public void onMessage(String message) {
-            rpcClient.onMessage(message.getBytes());
+            endpoint.onMessage(message.getBytes());
         }
         
         @Override
         public void onMessage(ByteBuffer bytes) {
-            rpcClient.onMessage(bytes.array());
+            endpoint.onMessage(bytes.array());
         }
 
         @Override
         public void onClose(int code, String reason, boolean remote) {
             opened = false;
-            rpcClient.onClose(code, reason);
+            endpoint.onClose(code, reason);
         }
 
         @Override
         public void onError(Exception error) {
-            rpcClient.onError(error);
+            endpoint.onError(error);
         }
         
         @Override

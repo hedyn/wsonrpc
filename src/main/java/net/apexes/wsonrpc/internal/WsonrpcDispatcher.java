@@ -1,9 +1,16 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.internal;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -17,10 +24,9 @@ import net.apexes.jsonrpc.message.JsonRpcResponse;
 import net.apexes.jsonrpc.message.JsonRpcResponseError;
 import net.apexes.jsonrpc.message.JsonRpcResponseResult;
 import net.apexes.wsonrpc.BinaryWrapper;
-import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.ErrorProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.util.IDs;
 
 /**
  * 
@@ -34,7 +40,7 @@ public class WsonrpcDispatcher implements ICaller {
     private final JsonRpcHandler jsonRpcHandler;
     private final long timeout;
 
-    private ExceptionProcessor exceptionProcessor;
+    private ErrorProcessor errorProcessor;
     
     public WsonrpcDispatcher(WsonrpcConfig config) {
         this.execService = config.getExecutorService();
@@ -47,12 +53,12 @@ public class WsonrpcDispatcher implements ICaller {
         return execService;
     }
 
-    public void setExceptionProcessor(ExceptionProcessor processor) {
-        this.exceptionProcessor = processor;
+    public void setErrorProcessor(ErrorProcessor processor) {
+        this.errorProcessor = processor;
     }
 
-    public ExceptionProcessor getExceptionProcessor() {
-        return exceptionProcessor;
+    public ErrorProcessor getErrorProcessor() {
+        return errorProcessor;
     }
     
     public ServiceRegistry getServiceRegistry() {
@@ -76,7 +82,7 @@ public class WsonrpcDispatcher implements ICaller {
     @Override
     public Future<Object> request(WsonrpcSession session, String serviceName, String methodName, 
             Object argument, Type returnType) throws Exception {
-        String id = IDs.randomUUID();
+        String id = UUID.randomUUID().toString();
         WosonrpcFuture<Object> future = new WosonrpcFuture<Object>(id, returnType);
         Futures.put(future);
         try {
@@ -91,45 +97,57 @@ public class WsonrpcDispatcher implements ICaller {
         }
     }
 
+    /**
+     * 处理收到的消息
+     * @param session
+     * @param bytes
+     * @throws Exception
+     */
     public void handleMessage(final WsonrpcSession session, final byte[] bytes) throws Exception {
         InputStream ips = binaryProcessor.wrap(new ByteArrayInputStream(bytes));
         JsonRpcMessage message = jsonRpcHandler.getJsonContext().read(ips);
-        if (message == null) {
-            return;
-        }
-        if (message instanceof JsonRpcResponse) {
-            JsonRpcResponse response = (JsonRpcResponse) message;
-            String id = response.getId();
-            WosonrpcFuture<Object> future = Futures.out(id);
-            if (future != null) {
-                JsonContext jsonContex = jsonRpcHandler.getJsonContext();
-                if (response instanceof JsonRpcResponseResult) {
-                    JsonRpcResponseResult responseResult = (JsonRpcResponseResult) response;
-                    Type returnType = future.returnType;
-                    try {
-                        Object resultObject = jsonContex.convert(responseResult.getResult(), returnType);
-                        future.set(resultObject);
-                    } catch (Exception e) {
-                        future.setException(e);
-                    }
-                } else {
-                    JsonRpcResponseError responseError = (JsonRpcResponseError) response;
-                    future.setException(jsonContex.convertError(responseError.getError()));
-                }
-            }
-        } else {
-            Class<?> classType = message.getClass();
-            if (classType == JsonRpcRequest.class){
-                JsonRpcRequest resquest = (JsonRpcRequest) message;
-                handle(session, resquest.getId(), resquest.getMethod(), resquest.getParams());
-            } else if (classType == JsonRpcNotification.class) {
-                JsonRpcNotification notification = (JsonRpcNotification) message;
-                handle(session, null, notification.getMethod(), notification.getParams());
+        if (message != null) {
+            if (message instanceof JsonRpcResponse) {
+                handleResponse(session, (JsonRpcResponse) message);
+            } else if (message instanceof JsonRpcRequest){
+                handleRequest(session, (JsonRpcRequest) message);
+            } else if (message instanceof JsonRpcNotification) {
+                handleNotification(session, (JsonRpcNotification) message);
             }
         }
     }
     
-    private void handle(final WsonrpcSession session, final String id, final String method, final Object params) {
+    private void handleResponse(WsonrpcSession session, JsonRpcResponse response) throws Exception {
+        String id = response.getId();
+        WosonrpcFuture<Object> future = Futures.out(id);
+        if (future != null) {
+            JsonContext jsonContex = jsonRpcHandler.getJsonContext();
+            if (response instanceof JsonRpcResponseResult) {
+                JsonRpcResponseResult responseResult = (JsonRpcResponseResult) response;
+                Type returnType = future.returnType;
+                try {
+                    Object resultObject = jsonContex.convert(responseResult.getResult(), returnType);
+                    future.set(resultObject);
+                } catch (Exception e) {
+                    future.setException(e);
+                }
+            } else {
+                JsonRpcResponseError responseError = (JsonRpcResponseError) response;
+                future.setException(jsonContex.convertError(responseError.getError()));
+            }
+        }
+    }
+    
+    private void handleRequest(WsonrpcSession session, JsonRpcRequest resquest) {
+        handle(session, resquest.getId(), resquest.getMethod(), resquest.getParams());
+    }
+    
+    private void handleNotification(WsonrpcSession session, JsonRpcNotification notify) {
+        handle(session, null, notify.getMethod(), notify.getParams());
+    }
+    
+    private void handle(final WsonrpcSession session, 
+            final String id, final String method, final Object params) {
         execService.execute(new Runnable() {
 
             @Override
@@ -142,8 +160,8 @@ public class WsonrpcDispatcher implements ICaller {
                         session.sendBinary(ops.toByteArray());
                     }
                 } catch (Exception ex) {
-                    if (exceptionProcessor != null) {
-                        exceptionProcessor.onError(ex);
+                    if (errorProcessor != null) {
+                        errorProcessor.onError(session.getId(), ex);
                     }
                 } finally {
                     Sessions.end();

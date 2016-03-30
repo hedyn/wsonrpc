@@ -4,7 +4,7 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.client;
+package net.apexes.wsonrpc.server;
 
 import net.apexes.wsonrpc.WsonrpcSession;
 
@@ -13,14 +13,12 @@ import net.apexes.wsonrpc.WsonrpcSession;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public interface WsonrpcClientEndpoint {
-
+public interface WsonrpcServerListener {
+    
     void onOpen(WsonrpcSession session);
-
-    void onMessage(byte[] data);
-
-    void onError(Throwable error);
-
-    void onClose(int code, String reason);
-
+    
+    void onClose(String sessionId);
+    
+    void onMessage(String sessionId, byte[] bytes);
+    
 }

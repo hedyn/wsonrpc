@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.internal;
 
 import java.lang.ref.Reference;
@@ -17,9 +23,9 @@ final class Futures {
     
     private Futures() {}
     
-    private static final Map<IKey, WeakElement> map = new ConcurrentHashMap<IKey, WeakElement>();
+    private static final Map<IKey, WeakElement> map = new ConcurrentHashMap<>();
 
-    private static final ReferenceQueue<WosonrpcFuture<Object>> queue = new ReferenceQueue<WosonrpcFuture<Object>>();
+    private static final ReferenceQueue<WosonrpcFuture<Object>> queue = new ReferenceQueue<>();
 
     static void put(WosonrpcFuture<Object> future) {
         processQueue();

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.client.support;
 
 import java.net.URI;
@@ -11,12 +17,12 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
-import net.apexes.wsonrpc.client.WebsocketConnector;
-import net.apexes.wsonrpc.client.WsonrpcClient;
-import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
-
 import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.container.jdk.client.JdkClientContainer;
+
+import net.apexes.wsonrpc.client.WebsocketConnector;
+import net.apexes.wsonrpc.client.WsonrpcClientEndpoint;
+import net.apexes.wsonrpc.internal.WebSocketSessionAdapter;
 
 /**
  * 基于Tyrus jdk client {@link org.glassfish.tyrus.container.jdk.client.JdkClientContainer}的连接
@@ -27,10 +33,9 @@ import org.glassfish.tyrus.container.jdk.client.JdkClientContainer;
 public class TyrusWebsocketConnector implements WebsocketConnector {
 
     @Override
-    public void connectToServer(WsonrpcClient client, URI uri) throws Exception {
-        WebSocketEndpointAdapter endpoint = new WebSocketEndpointAdapter(client);
+    public void connectToServer(WsonrpcClientEndpoint endpoint, URI uri, long timeout) throws Exception {
         ClientManager mgr = ClientManager.createClient(JdkClientContainer.class.getName());
-        mgr.connectToServer(endpoint, uri);
+        mgr.connectToServer(new WebSocketEndpointAdapter(endpoint), uri);
     }
     
     /**
@@ -41,30 +46,30 @@ public class TyrusWebsocketConnector implements WebsocketConnector {
     @ClientEndpoint
     public static class WebSocketEndpointAdapter {
         
-        private final WsonrpcClient client;
+        private final WsonrpcClientEndpoint endpoint;
         
-        public WebSocketEndpointAdapter(WsonrpcClient client) {
-            this.client = client;
+        public WebSocketEndpointAdapter(WsonrpcClientEndpoint endpoint) {
+            this.endpoint = endpoint;
         }
         
         @OnOpen
         public void onOpen(Session session) {
-            client.onOpen(new WebSocketSessionAdapter(session));
+            endpoint.onOpen(new WebSocketSessionAdapter(session));
         }
 
         @OnMessage
         public void onMessage(ByteBuffer buffer) {
-            client.onMessage(buffer.array());
+            endpoint.onMessage(buffer.array());
         }
 
         @OnError
         public void onError(Throwable error) {
-            client.onError(error);
+            endpoint.onError(error);
         }
 
         @OnClose
         public void onClose(CloseReason closeReason) {
-            client.onClose(closeReason.getCloseCode().getCode(), closeReason.getReasonPhrase());
+            endpoint.onClose(closeReason.getCloseCode().getCode(), closeReason.getReasonPhrase());
         }
         
     }

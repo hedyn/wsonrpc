@@ -1,12 +1,16 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.client;
 
 import java.net.URI;
 
 import net.apexes.jsonrpc.ServiceRegistry;
-import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
-import net.apexes.wsonrpc.WsonrpcSession;
 import net.apexes.wsonrpc.client.support.SimpleWebsocketConnector;
 
 /**
@@ -18,25 +22,15 @@ public interface WsonrpcClient extends WsonrpcRemote {
     
     ServiceRegistry getServiceRegistry();
     
-    ExceptionProcessor getExceptionProcessor();
-    
-    void setExceptionProcessor(ExceptionProcessor processor);
-
-    void setStatusListener(ClientStatusListener listener);
+    void setClientListener(WsonrpcClientListener listener);
 
     /**
      * 连接服务端，在连接上之前调用此方法的线程都将阻塞
      */
     void connect() throws Exception;
     
-    void onOpen(WsonrpcSession session);
-
-    void onMessage(byte[] data);
-
-    void onError(Throwable error);
-
-    void onClose(int code, String reason);
-
+    void ping() throws Exception;
+    
     /**
      * 
      * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
@@ -64,7 +58,7 @@ public interface WsonrpcClient extends WsonrpcRemote {
             if (connector == null) {
                 connector = new SimpleWebsocketConnector();
             }
-            return new WsonrpcClientEndpoint(uri, config, connector);
+            return new WsonrpcClientImpl(uri, config, connector);
         }
         
     }

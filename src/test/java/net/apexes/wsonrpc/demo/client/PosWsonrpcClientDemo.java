@@ -9,9 +9,9 @@ import java.util.concurrent.TimeUnit;
 
 import net.apexes.jsonrpc.GsonJsonContext;
 import net.apexes.jsonrpc.JsonRpcLogger;
-import net.apexes.wsonrpc.ExceptionProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.client.WsonrpcClientListener;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.demo.api.RegisterService;
 import net.apexes.wsonrpc.demo.api.User;
@@ -42,11 +42,27 @@ public class PosWsonrpcClientDemo {
         WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonContext(jsonContext).build(execService);
         URI uri = new URI("ws://127.0.0.1:8080");
         WsonrpcClient client = WsonrpcClient.Builder.create(uri).build(config);
-        client.setExceptionProcessor(new ExceptionProcessor() {
+        client.setClientListener(new WsonrpcClientListener() {
 
             @Override
-            public void onError(Throwable error, Object... params) {
+            public void onError(Throwable error) {
                 error.printStackTrace();
+            }
+
+            @Override
+            public void onOpen(WsonrpcClient client) {
+            }
+
+            @Override
+            public void onClose(WsonrpcClient client, int code, String reason) {
+            }
+
+            @Override
+            public void onSentMessage(byte[] bytes) {
+            }
+
+            @Override
+            public void onSentPing() {
             }
         });
         

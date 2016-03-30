@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.server.support;
 
 import java.io.IOException;
@@ -5,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.server.WsonrpcServerBase;
+import net.apexes.wsonrpc.server.WsonrpcServerEndpoint;
 
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -21,7 +27,7 @@ import org.springframework.web.socket.WebSocketSession;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class SpringWsonrpcServerHandler extends WsonrpcServerBase implements WebSocketHandler {
+public class SpringWsonrpcServerHandler extends WsonrpcServerEndpoint implements WebSocketHandler {
     
     public SpringWsonrpcServerHandler() {
     }
@@ -36,7 +42,7 @@ public class SpringWsonrpcServerHandler extends WsonrpcServerBase implements Web
     
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        endpoint.onOpen(new SpringWebSocketSessionAdapter(session));
+        super.onOpen(new SpringWebSocketSessionAdapter(session));
     }
     
     @Override
@@ -50,19 +56,17 @@ public class SpringWsonrpcServerHandler extends WsonrpcServerBase implements Web
     }
 
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
-        endpoint.onMessage(session.getId(), message.getPayload());
+        super.onMessage(session.getId(), message.getPayload());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        endpoint.onClose(session.getId());
+        super.onClose(session.getId());
     }
     
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        if (getExceptionProcessor() != null) {
-            getExceptionProcessor().onError(exception);
-        }
+        super.onError(session.getId(), exception);
     }
     
     @Override

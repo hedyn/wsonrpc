@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.server;
 
 import java.util.Collection;
@@ -19,7 +25,7 @@ public final class Remotes {
     
     private Remotes() {}
 
-    private static final Map<String, WsonrpcServerEndpointProxy> remotes = new ConcurrentHashMap<String, WsonrpcServerEndpointProxy>();
+    private static final Map<String, WsonrpcServerEndpointProxy> remotes = new ConcurrentHashMap<>();
 
     static void addRemote(WsonrpcSession session, ICaller caller) {
         remotes.put(session.getId(), new WsonrpcServerEndpointProxy(session, caller));
@@ -86,6 +92,11 @@ public final class Remotes {
         @Override
         public long getTimeout() {
             return caller.getTimeout();
+        }
+
+        @Override
+        protected WsonrpcSession getSession() {
+            return super.getSession();
         }
 
     }

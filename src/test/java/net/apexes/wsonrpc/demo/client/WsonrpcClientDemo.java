@@ -11,9 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.apexes.jsonrpc.GsonJsonContext;
 import net.apexes.jsonrpc.JsonRpcLogger;
-import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.ErrorProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.client.WsonrpcClientListener;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.demo.api.LoginService;
 import net.apexes.wsonrpc.demo.api.User;
@@ -71,11 +72,27 @@ public class WsonrpcClientDemo {
         
         // 供Server端调用的接口
         client.getServiceRegistry().register(new CallClientServiceImpl());
-        client.setExceptionProcessor(new ExceptionProcessor() {
+        client.setClientListener(new WsonrpcClientListener() {
 
             @Override
-            public void onError(Throwable error, Object... params) {
+            public void onError(Throwable error) {
                 error.printStackTrace();
+            }
+
+            @Override
+            public void onOpen(WsonrpcClient client) {
+            }
+
+            @Override
+            public void onClose(WsonrpcClient client, int code, String reason) {
+            }
+
+            @Override
+            public void onSentMessage(byte[] bytes) {
+            }
+
+            @Override
+            public void onSentPing() {
             }
         });
         

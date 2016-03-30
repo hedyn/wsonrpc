@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 
 import net.apexes.jsonrpc.GsonJsonContext;
 import net.apexes.jsonrpc.JsonRpcLogger;
-import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.ErrorProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
 import net.apexes.wsonrpc.demo.api.CallPosService;
@@ -46,10 +46,10 @@ public class WsonrpcServerDemo {
         execService = Executors.newCachedThreadPool();
         WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonContext(jsonContext).build(execService);
         server = new JavaWebsocketWsonrpcServer(address, null, config);
-        server.setExceptionProcessor(new ExceptionProcessor() {
+        server.setErrorProcessor(new ErrorProcessor() {
 
             @Override
-            public void onError(Throwable error, Object... params) {
+            public void onError(String sessionId, Throwable error) {
                 error.printStackTrace();
             }
         });

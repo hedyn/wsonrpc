@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2015, Apexes Network Technology. All rights reserved.
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
  * 
  *        http://www.apexes.net
  * 
@@ -24,17 +24,18 @@ public class SimpleServiceMethodFinder implements ServiceMethodFinder {
     private final Map<String, Set<Method>> methodCache;
     
     protected SimpleServiceMethodFinder() {
-        serviceFinder = new ConcurrentHashMap<String, Object>();
-        methodCache = new HashMap<String, Set<Method>>();
+        serviceFinder = new ConcurrentHashMap<>();
+        methodCache = new HashMap<>();
     }
 
     @Override
-    public void register(String name, Object service) {
+    public ServiceRegistry register(String name, Object service) {
         serviceFinder.put(name, service);
+        return this;
     }
 
     @Override
-    public void register(Object service) {
+    public ServiceRegistry register(Object service) {
         if (service == null) {
             throw new IllegalArgumentException("The service must be not null.");
         }
@@ -46,6 +47,7 @@ public class SimpleServiceMethodFinder implements ServiceMethodFinder {
         } else {
             throw new IllegalArgumentException("The service must implements interface.");
         }
+        return this;
     }
 
     @Override

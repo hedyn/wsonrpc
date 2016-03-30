@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.internal;
 
 import java.lang.reflect.Type;
@@ -31,7 +37,7 @@ public abstract class WsonrpcEndpoint implements WsonrpcRemote {
         this.caller = null;
     }
     
-    public WsonrpcSession getSession() {
+    protected WsonrpcSession getSession() {
         return session;
     }
     
@@ -115,7 +121,12 @@ public abstract class WsonrpcEndpoint implements WsonrpcRemote {
         }
     }
     
-    private void verifyOnline() throws Exception {
+    public void ping() throws Exception {
+        verifyOnline();
+        session.ping();
+    }
+    
+    protected void verifyOnline() throws WsonException {
         if (!isOpen()) {
             throw new WsonException("Connection is closed.");
         }

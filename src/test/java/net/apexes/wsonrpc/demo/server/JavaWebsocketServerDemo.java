@@ -5,8 +5,10 @@ import java.util.concurrent.Executors;
 
 import net.apexes.jsonrpc.GsonJsonContext;
 import net.apexes.jsonrpc.JsonRpcLogger;
-import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.ErrorProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.WsonrpcSession;
+import net.apexes.wsonrpc.server.WsonrpcServerListener;
 import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer;
 import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer.PathStrategy;
 
@@ -47,11 +49,28 @@ public class JavaWebsocketServerDemo {
             
         };
         JavaWebsocketWsonrpcServer server = new JavaWebsocketWsonrpcServer(address, pathStrategy, config);
-        server.setExceptionProcessor(new ExceptionProcessor() {
+        server.setErrorProcessor(new ErrorProcessor() {
 
             @Override
-            public void onError(Throwable error, Object... params) {
+            public void onError(String sessionId, Throwable error) {
                 error.printStackTrace();
+            }
+        });
+        server.setServerListener(new WsonrpcServerListener() {
+
+            @Override
+            public void onOpen(WsonrpcSession session) {
+                System.out.println("::onOpen: " + session.getId());
+            }
+
+            @Override
+            public void onClose(String sessionId) {
+                System.out.println("::onClose: " + sessionId);
+            }
+
+            @Override
+            public void onMessage(String sessionId, byte[] bytes) {
+                System.out.println("::onMessage: " + sessionId + ", length=" + bytes.length);
             }
         });
         server.getServiceRegistry().register(new LoginServiceImpl());

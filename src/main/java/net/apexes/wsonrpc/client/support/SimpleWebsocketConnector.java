@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.client.support;
 
 import java.io.IOException;
@@ -6,7 +12,7 @@ import java.util.UUID;
 
 import net.apexes.wsonrpc.WsonrpcSession;
 import net.apexes.wsonrpc.client.WebsocketConnector;
-import net.apexes.wsonrpc.client.WsonrpcClient;
+import net.apexes.wsonrpc.client.WsonrpcClientEndpoint;
 import net.apexes.wsonrpc.client.support.websocket.WebSocketClient;
 
 /**
@@ -18,9 +24,9 @@ import net.apexes.wsonrpc.client.support.websocket.WebSocketClient;
 public class SimpleWebsocketConnector implements WebsocketConnector {
 
     @Override
-    public void connectToServer(WsonrpcClient client, URI uri) throws Exception {
+    public void connectToServer(WsonrpcClientEndpoint endpoint, URI uri, long timeout) throws Exception {
         WebSocketClient wsClient = new WebSocketClient(uri);
-        wsClient.connect(new WebSocketClientProxy(client, wsClient));
+        wsClient.connect(new WebSocketClientProxy(endpoint, wsClient));
     }
     
     /**
@@ -30,13 +36,13 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
      */
     private static class WebSocketClientProxy implements WsonrpcSession, WebSocketClient.Listener  {
         
-        private final WsonrpcClient rpcClient;
+        private final WsonrpcClientEndpoint endpoint;
         private final WebSocketClient wsClient;
         private String id;
         private volatile boolean opened;
         
-        WebSocketClientProxy(WsonrpcClient rpcClient, WebSocketClient wsClient) {
-            this.rpcClient = rpcClient;
+        WebSocketClientProxy(WsonrpcClientEndpoint endpoint, WebSocketClient wsClient) {
+            this.endpoint = endpoint;
             this.wsClient = wsClient;
             opened = false;
         }
@@ -45,7 +51,7 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
         public void onConnect() {
             id = UUID.randomUUID().toString();
             opened = true;
-            rpcClient.onOpen(this);
+            endpoint.onOpen(this);
         }
 
         @Override
@@ -55,18 +61,19 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
 
         @Override
         public void onMessage(byte[] data) {
-            rpcClient.onMessage(data);
+            endpoint.onMessage(data);
         }
 
         @Override
         public void onDisconnect(int code, String reason) {
             opened = false;
-            rpcClient.onClose(code, reason);
+            endpoint.onClose(code, reason);
         }
 
         @Override
         public void onError(Exception error) {
-            rpcClient.onError(error);
+            onDisconnect(1006, error.getMessage());
+            endpoint.onError(error);
         }
 
         @Override

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.jsonrpc;
 
 /**
@@ -7,7 +13,7 @@ package net.apexes.jsonrpc;
  */
 public interface ServiceRegistry {
 
-    void register(String name, Object service);
+    ServiceRegistry register(String name, Object service);
     
-    void register(Object service);
+    ServiceRegistry register(Object service);
 }

@@ -1,68 +1,83 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.server;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import net.apexes.jsonrpc.ServiceRegistry;
-import net.apexes.wsonrpc.ExceptionProcessor;
+import net.apexes.wsonrpc.ErrorProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.internal.WsonrpcDispatcher;
 
 /**
  * 
- * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
+ * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WsonrpcServerEndpoint {
+public abstract class WsonrpcServerEndpoint {
     
-    private final WsonrpcDispatcher dispatcher;
+    private final WsonrpcServerImpl impl;
     
-    public WsonrpcServerEndpoint() {
-        this(Executors.newCachedThreadPool());
-    }
-    
-    public WsonrpcServerEndpoint(ExecutorService execService) {
-        this(WsonrpcConfig.Builder.create().build(execService));
+    protected WsonrpcServerEndpoint() {
+        impl = new WsonrpcServerImpl();
     }
 
-    public WsonrpcServerEndpoint(WsonrpcConfig config) {
-        if (config == null) {
-            config = WsonrpcConfig.Builder.create().build(Executors.newCachedThreadPool());
-        }
-        dispatcher = new WsonrpcDispatcher(config);
+    protected WsonrpcServerEndpoint(ExecutorService execService) {
+        impl = new WsonrpcServerImpl(execService);
+    }
+    
+    protected WsonrpcServerEndpoint(WsonrpcConfig config) {
+        impl = new WsonrpcServerImpl(config);
     }
     
     public ServiceRegistry getServiceRegistry() {
-        return dispatcher.getServiceRegistry();
-    }
-
-    public void setExceptionProcessor(ExceptionProcessor processor) {
-        dispatcher.setExceptionProcessor(processor);
+        return impl.getServiceRegistry();
     }
     
-    public ExceptionProcessor getExceptionProcessor() {
-        return dispatcher.getExceptionProcessor();
+    public void setErrorProcessor(ErrorProcessor processor) {
+        impl.setErrorProcessor(processor);
+    }
+    
+    public ErrorProcessor getErrorProcessor() {
+        return impl.getErrorProcessor();
+    }
+    
+    public void setServerListener(WsonrpcServerListener listener) {
+        impl.setServerListener(listener);
+    }
+    
+    /**
+     * Client端已经连接上
+     * @param session
+     */
+    protected void onOpen(WsonrpcSession session) {
+        impl.onOpen(session);
     }
 
-    public void onOpen(WsonrpcSession session) {
-        Remotes.addRemote(session, dispatcher);
+    /**
+     * Client端被关闭了
+     * @param sessionId
+     */
+    protected void onClose(String sessionId) {
+        impl.onClose(sessionId);
     }
 
-    public void onClose(String sessionId) {
-        Remotes.removeRemote(sessionId);
+    /**
+     * 收到Client端发来的数据
+     * @param sessionId
+     * @param buffer
+     */
+    protected void onMessage(String sessionId, ByteBuffer buffer) {
+        impl.onMessage(sessionId, buffer);
     }
-
-    public void onMessage(String sessionId, ByteBuffer buffer) {
-        try {
-            WsonrpcSession wsonrpcSession = Remotes.getSession(sessionId);
-            dispatcher.handleMessage(wsonrpcSession, buffer.array());
-        } catch (Exception ex) {
-            if (dispatcher.getExceptionProcessor() != null) {
-                dispatcher.getExceptionProcessor().onError(ex);
-            }
-        }
+    
+    protected void onError(String sessionId, Throwable error) {
+        impl.onError(sessionId, error);
     }
 
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.client;
 
 import java.net.URI;
@@ -9,6 +15,6 @@ import java.net.URI;
  */
 public interface WebsocketConnector {
 
-    void connectToServer(WsonrpcClient client, URI uri) throws Exception;
+    void connectToServer(WsonrpcClientEndpoint endpoint, URI uri, long timeout) throws Exception;
 
 }

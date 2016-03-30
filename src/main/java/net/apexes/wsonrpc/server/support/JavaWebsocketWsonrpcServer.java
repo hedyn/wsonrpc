@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2015, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.server.support;
 
 import java.io.IOException;
@@ -7,11 +13,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-
-import net.apexes.wsonrpc.WsonrpcConfig;
-import net.apexes.wsonrpc.WsonrpcSession;
-import net.apexes.wsonrpc.server.WsonrpcServerBase;
-import net.apexes.wsonrpc.server.WsonrpcServerEndpoint;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocketAdapter;
@@ -28,13 +29,17 @@ import org.java_websocket.server.DefaultWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 import org.java_websocket.server.WebSocketServer.WebSocketServerFactory;
 
+import net.apexes.wsonrpc.WsonrpcConfig;
+import net.apexes.wsonrpc.WsonrpcSession;
+import net.apexes.wsonrpc.server.WsonrpcServerEndpoint;
+
 /**
  * 基于 {@link org.java_websocket.server.WebSocketServer}的服务端
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
+public class JavaWebsocketWsonrpcServer extends WsonrpcServerEndpoint {
     
     protected final WebSocketServer wsServer;
     
@@ -42,29 +47,29 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
 
         @Override
         public WebSocketImpl createWebSocket(WebSocketAdapter a, Draft d, Socket s) {
-            return new SessionWebSocketImpl(a, d);
+            return new SessionWebSocket(a, d);
         }
 
         @Override
         public WebSocketImpl createWebSocket(WebSocketAdapter a, List<Draft> d, Socket s) {
-            return new SessionWebSocketImpl(a, d);
+            return new SessionWebSocket(a, d);
         }
     };
 
     public JavaWebsocketWsonrpcServer(InetSocketAddress address, PathStrategy pathStrategy) {
-        wsServer = new WebSocketServerProxy(address, pathStrategy, endpoint);
+        wsServer = new WebSocketServerAdapter(address, pathStrategy, this);
         wsServer.setWebSocketFactory(wsf);
     }
     
     public JavaWebsocketWsonrpcServer(InetSocketAddress address, PathStrategy pathStrategy, ExecutorService execService) {
         super(execService);
-        wsServer = new WebSocketServerProxy(address, pathStrategy, endpoint);
+        wsServer = new WebSocketServerAdapter(address, pathStrategy, this);
         wsServer.setWebSocketFactory(wsf);
     }
     
     public JavaWebsocketWsonrpcServer(InetSocketAddress address, PathStrategy pathStrategy, WsonrpcConfig config) {
         super(config);
-        wsServer = new WebSocketServerProxy(address, pathStrategy, endpoint);
+        wsServer = new WebSocketServerAdapter(address, pathStrategy, this);
         wsServer.setWebSocketFactory(wsf);
     }
     
@@ -78,8 +83,8 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
     
     private static String toSessionId(WebSocket websocket) {
         String id;
-        if (websocket instanceof SessionWebSocketImpl) {
-            id = ((SessionWebSocketImpl) websocket).getId();
+        if (websocket instanceof SessionWebSocket) {
+            id = ((SessionWebSocket) websocket).getId();
         } else {
             id = websocket.getRemoteSocketAddress().toString();
         }
@@ -102,18 +107,16 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class SessionWebSocketImpl extends WebSocketImpl {
+    private static class SessionWebSocket extends WebSocketImpl {
         
-        private final String id;
+        private final String id = UUID.randomUUID().toString();
         
-        public SessionWebSocketImpl(WebSocketListener listener , Draft draft) {
+        public SessionWebSocket(WebSocketListener listener , Draft draft) {
             super(listener, draft);
-            id = UUID.randomUUID().toString();
         }
         
-        public SessionWebSocketImpl(WebSocketListener listener , List<Draft> drafts) {
+        public SessionWebSocket(WebSocketListener listener , List<Draft> drafts) {
             super(listener, drafts);
-            id = UUID.randomUUID().toString();
         }
 
         String getId() {
@@ -127,53 +130,52 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class WebSocketServerProxy extends WebSocketServer {
+    private class WebSocketServerAdapter extends WebSocketServer {
         
-        private final WsonrpcServerEndpoint endpoint;
+        private final JavaWebsocketWsonrpcServer server;
         private final PathStrategy pathStrategy;
         
-        public WebSocketServerProxy(InetSocketAddress address, PathStrategy pathStrategy, WsonrpcServerEndpoint endpoint) {
+        public WebSocketServerAdapter(InetSocketAddress address, PathStrategy pathStrategy,
+                JavaWebsocketWsonrpcServer server) {
             super(address);
             this.pathStrategy = pathStrategy;
-            this.endpoint = endpoint;
+            this.server = server;
         }
         
         @Override
-        public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(WebSocket conn, Draft draft,
+        public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(WebSocket websockt, Draft draft,
                 ClientHandshake request) throws InvalidDataException {
             if (pathStrategy != null) {
                 if (!pathStrategy.accept(request.getResourceDescriptor())) {
                     throw new InvalidDataException(CloseFrame.TLS_ERROR, request.getResourceDescriptor());
                 }
             }
-            return super.onWebsocketHandshakeReceivedAsServer(conn, draft, request);
+            return super.onWebsocketHandshakeReceivedAsServer(websockt, draft, request);
         }
 
         @Override
-        public void onOpen(WebSocket conn, ClientHandshake handshake) {
-            endpoint.onOpen(new JavaWebSocketSessionAdapter(conn));
+        public void onOpen(WebSocket websockt, ClientHandshake handshake) {
+            server.onOpen(new JavaWebSocketSessionAdapter(websockt));
         }
 
         @Override
-        public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-            endpoint.onClose(toSessionId(conn));
+        public void onClose(WebSocket websockt, int code, String reason, boolean remote) {
+            server.onClose(toSessionId(websockt));
         }
 
         @Override
-        public void onMessage(WebSocket conn, String message) {
-            endpoint.onMessage(toSessionId(conn), ByteBuffer.wrap(message.getBytes()));
+        public void onMessage(WebSocket websockt, String message) {
+            server.onMessage(toSessionId(websockt), ByteBuffer.wrap(message.getBytes()));
         }
         
         @Override
-        public void onMessage( WebSocket conn, ByteBuffer message ) {
-            endpoint.onMessage(toSessionId(conn), message);
+        public void onMessage(WebSocket websockt, ByteBuffer message ) {
+            server.onMessage(toSessionId(websockt), message);
         }
         
         @Override
-        public void onError(WebSocket conn, Exception ex) {
-            if (endpoint.getExceptionProcessor() != null) {
-                endpoint.getExceptionProcessor().onError(ex);
-            }
+        public void onError(WebSocket websockt, Exception ex) {
+            server.onError(toSessionId(websockt), ex);
         }
         
     }
@@ -185,7 +187,7 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
      */
     private static class JavaWebSocketSessionAdapter implements WsonrpcSession {
         
-        private static FramedataImpl1 PING_FRAME = new FramedataImpl1(Opcode.PING);
+        private static final FramedataImpl1 PING_FRAME = new FramedataImpl1(Opcode.PING);
         static {
             PING_FRAME.setFin(true);
         }
