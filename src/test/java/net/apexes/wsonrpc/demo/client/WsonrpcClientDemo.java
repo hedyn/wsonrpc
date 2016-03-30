@@ -27,9 +27,9 @@ import net.apexes.wsonrpc.demo.api.User;
 @SuppressWarnings("unused")
 public class WsonrpcClientDemo {
 
-    static final int CLIENT_COUNT = 1;
-    static final int THREAD_COUNT = 1;//实际为 THREAD_COUNT * 3
-    static final int LOOP_COUNT = 1;
+    static final int CLIENT_COUNT = 20;
+    static final int THREAD_COUNT = 50;//实际为 THREAD_COUNT * 3
+    static final int LOOP_COUNT = 50;
     private static CountDownLatch clientDownLatch;
     private static ExecutorService execService = Executors.newCachedThreadPool();
     
@@ -55,12 +55,12 @@ public class WsonrpcClientDemo {
 
             @Override
             public void onRead(String json) {
-                System.err.println("onRead: " + json);
+//                System.err.println("onRead: " + json);
             }
 
             @Override
             public void onWrite(String json) {
-                System.err.println("onWrite: " + json);
+//                System.err.println("onWrite: " + json);
             }
         });
         WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonContext(jsonContext).build(execService);
@@ -81,18 +81,24 @@ public class WsonrpcClientDemo {
 
             @Override
             public void onOpen(WsonrpcClient client) {
+                System.out.println("::onOpen");
+                
             }
 
             @Override
             public void onClose(WsonrpcClient client, int code, String reason) {
+                // 1006: Closed abnormally.
+                System.out.println("::onClose: " + code + ": " + reason);
             }
 
             @Override
             public void onSentMessage(byte[] bytes) {
+//                System.out.println("::onSentMessage: length=" + bytes.length);
             }
 
             @Override
             public void onSentPing() {
+//                System.out.println("::onSentPing");
             }
         });
         

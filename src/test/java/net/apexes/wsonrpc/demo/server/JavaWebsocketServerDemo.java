@@ -30,12 +30,12 @@ public class JavaWebsocketServerDemo {
 
             @Override
             public void onRead(String json) {
-                System.err.println("onRead: " + json);
+//                System.err.println("onRead: " + json);
             }
 
             @Override
             public void onWrite(String json) {
-                System.err.println("onWrite: " + json);
+//                System.err.println("onWrite: " + json);
             }
         });
         WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonContext(jsonContext)
@@ -70,7 +70,7 @@ public class JavaWebsocketServerDemo {
 
             @Override
             public void onMessage(String sessionId, byte[] bytes) {
-                System.out.println("::onMessage: " + sessionId + ", length=" + bytes.length);
+//                System.out.println("::onMessage: " + sessionId + ", length=" + bytes.length);
             }
         });
         server.getServiceRegistry().register(new LoginServiceImpl());
