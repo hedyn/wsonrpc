@@ -89,7 +89,7 @@ public class PosWsonrpcClientDemo {
         
         Thread.sleep(1000);
         
-        client.close();
+        client.disconnect();
         execService.shutdownNow();
         System.out.println("Over!");
     }

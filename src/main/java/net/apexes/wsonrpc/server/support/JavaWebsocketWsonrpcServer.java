@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocketAdapter;
@@ -42,6 +43,8 @@ import net.apexes.wsonrpc.server.WsonrpcServerEndpoint;
 public class JavaWebsocketWsonrpcServer extends WsonrpcServerEndpoint {
     
     protected final WebSocketServer wsServer;
+    
+    private volatile AtomicBoolean isclosed = new AtomicBoolean(false);
     
     private final WebSocketServerFactory wsf = new DefaultWebSocketServerFactory() {
 
@@ -73,15 +76,28 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerEndpoint {
         wsServer.setWebSocketFactory(wsf);
     }
     
-    public void run() {
-        wsServer.run();
+    public void start() {
+        isclosed.set(false);
+        try {
+            wsServer.run();
+        } finally {
+            isclosed.set(true);
+        }
     }
     
     public void stop() throws IOException, InterruptedException {
+        isclosed.set(true);
         wsServer.stop();
     }
     
+    public boolean isRunning() {
+        return !isclosed.get();
+    }
+    
     private static String toSessionId(WebSocket websocket) {
+        if (websocket == null) {
+            return null;
+        }
         String id;
         if (websocket instanceof SessionWebSocket) {
             id = ((SessionWebSocket) websocket).getId();
@@ -130,7 +146,7 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerEndpoint {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private class WebSocketServerAdapter extends WebSocketServer {
+    private static class WebSocketServerAdapter extends WebSocketServer {
         
         private final JavaWebsocketWsonrpcServer server;
         private final PathStrategy pathStrategy;
@@ -175,7 +191,9 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerEndpoint {
         
         @Override
         public void onError(WebSocket websockt, Exception ex) {
-            server.onError(toSessionId(websockt), ex);
+            if (server.isRunning()) {
+                server.onError(toSessionId(websockt), ex);
+            }
         }
         
     }

@@ -42,7 +42,7 @@ public abstract class WsonrpcEndpoint implements WsonrpcRemote {
     }
     
     @Override
-    public boolean isOpen() {
+    public boolean isConnected() {
         return session != null && session.isOpen();
     }
 
@@ -55,11 +55,17 @@ public abstract class WsonrpcEndpoint implements WsonrpcRemote {
     }
 
     @Override
-    public void close() throws Exception {
+    public void disconnect() throws Exception {
         if (session != null) {
             session.close();
             session = null;
         }
+    }
+    
+    @Override
+    public void ping() throws Exception {
+        verifyOnline();
+        session.ping();
     }
     
     @Override
@@ -121,13 +127,8 @@ public abstract class WsonrpcEndpoint implements WsonrpcRemote {
         }
     }
     
-    public void ping() throws Exception {
-        verifyOnline();
-        session.ping();
-    }
-    
     protected void verifyOnline() throws WsonException {
-        if (!isOpen()) {
+        if (!isConnected()) {
             throw new WsonException("Connection is closed.");
         }
     }

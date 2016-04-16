@@ -57,7 +57,7 @@ class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient, Wsonrp
 
     @Override
     public void connect() throws Exception {
-        if (!isOpen()) {
+        if (!isConnected()) {
             connector.connectToServer(this, uri, getTimeout());
         }
     }

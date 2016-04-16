@@ -8,6 +8,7 @@ import java.net.ConnectException;
 import java.net.HttpRetryException;
 import java.net.ProtocolException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.MessageDigest;
@@ -123,6 +124,8 @@ public class WebSocketClient {
                         mParser.start(stream);
                     } catch (EOFException ex) {
                         mListener.onDisconnect(0, "EOF");
+                    } catch (SocketException ex) {
+                        mListener.onDisconnect(1006, ex.getMessage());
                     } catch (IOException ex) {
                         if (disconnect) {
                             mListener.onDisconnect(0, "EOF");

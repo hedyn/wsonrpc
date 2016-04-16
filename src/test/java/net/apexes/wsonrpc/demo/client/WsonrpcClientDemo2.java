@@ -25,14 +25,18 @@ public class WsonrpcClientDemo2 {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         WsonrpcClientDemo2 client = new WsonrpcClientDemo2();
         try {
-            client.connect();
             while (true) {
                 System.out.print(">");
                 String command = reader.readLine();
                 if (command.isEmpty()) {
                     continue;
                 }
-                if ("exit".equalsIgnoreCase(command)) {
+                if ("connect".equalsIgnoreCase(command)) {
+                    client.connect();
+                } else if ("disconnect".equalsIgnoreCase(command)) {
+                    client.disconnect();
+                } else if ("exit".equalsIgnoreCase(command)) {
+                    client.close();
                     break;
                 } else if ("login".equalsIgnoreCase(command)) {
                     client.login("admin", "admin123");
@@ -106,23 +110,41 @@ public class WsonrpcClientDemo2 {
         });
     }
     
+    public boolean isConnected() {
+        return client.isConnected();
+    }
+    
     public void connect() throws Exception {
-        client.connect();
+        if (!client.isConnected()) {
+            client.connect();
+        }
+    }
+    
+    public void disconnect() throws Exception {
+        if (client.isConnected()) {
+            client.disconnect();
+        }
     }
     
     public void close() throws Exception {
-        client.close();
+        if (client.isConnected()) {
+            client.disconnect();
+        }
         execService.shutdownNow();
     }
     
     public void login(String username, String password) {
-        LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
-        User user = srv.login(username, password);
-        System.out.println("::login(" + username + ", " + password + "): " + user);
+        if (client.isConnected()) {
+            LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
+            User user = srv.login(username, password);
+            System.out.println("::login(" + username + ", " + password + "): " + user);
+        }
     }
     
     public void ping() throws Exception {
-        client.ping();
+        if (client.isConnected()) {
+            client.ping();
+        }
     }
 
 }

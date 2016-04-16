@@ -59,7 +59,7 @@ public class WsonrpcServerDemo {
         server.getServiceRegistry().register(new RegisterServiceImpl());
         
         System.out.println("Server is running...");
-        server.run();
+        server.start();
     }
     
     public static void stopServer() {
