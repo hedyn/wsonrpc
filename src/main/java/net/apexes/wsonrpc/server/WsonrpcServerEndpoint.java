@@ -51,6 +51,10 @@ public abstract class WsonrpcServerEndpoint {
         impl.setServerListener(listener);
     }
     
+    protected void onError(String sessionId, Throwable error) {
+        impl.onError(sessionId, error);
+    }
+    
     /**
      * Client端已经连接上
      * @param session
@@ -74,10 +78,6 @@ public abstract class WsonrpcServerEndpoint {
      */
     protected void onMessage(String sessionId, ByteBuffer buffer) {
         impl.onMessage(sessionId, buffer);
-    }
-    
-    protected void onError(String sessionId, Throwable error) {
-        impl.onError(sessionId, error);
     }
 
 }

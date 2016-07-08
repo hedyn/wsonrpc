@@ -21,9 +21,11 @@ public interface WsonrpcRemote {
 
     String getSessionId();
     
-    boolean isOpen();
+    boolean isConnected();
 
-    void close() throws Exception;
+    void disconnect() throws Exception;
+    
+    void ping() throws Exception;
     
     /**
      * 返回超时时间，0表示永不超时。单位为TimeUnit.MILLISECONDS

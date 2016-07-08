@@ -66,7 +66,11 @@ public class SpringWsonrpcServerHandler extends WsonrpcServerEndpoint implements
     
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        super.onError(session.getId(), exception);
+        if (session == null) {
+            onError(null, exception);
+        } else{
+            onError(session.getId(), exception);
+        }
     }
     
     @Override

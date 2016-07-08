@@ -1,18 +1,37 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
 	<version>0.5.0</version>
 	
+	<name>wsonrpc</name>
+    <description>Wsonrpc</description>
+    <url>http://git.oschina.net/apexes/wsonrpc</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>hedyn</name>
+            <email>hedyn@foxmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@git.oschina.net:apexes/wsonrpc.git</connection>
+        <developerConnection>scm:git:git@git.oschina.net:apexes/wsonrpc.git</developerConnection>
+        <url>git@git.oschina.net:apexes/wsonrpc.git</url>
+    </scm>
+	
 	<repositories>
         <repository>
-            <id>oschina</id>
-            <url>http://maven.oschina.net/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>maven2</id>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
+            <id>oss</id>
+            <url>https://oss.sonatype.org/content/groups/public</url>
         </repository>
     </repositories>
 
@@ -39,7 +58,10 @@
 		<!-- plugin -->
 		<version.maven-compiler-plugin>3.1</version.maven-compiler-plugin>
         <version.maven-jar-plugin>2.4</version.maven-jar-plugin>
-        <version.maven-source-plugin>2.2.1</version.maven-source-plugin>
+        <version.maven-source-plugin>2.4</version.maven-source-plugin>
+        <version.maven-javadoc-plugin>2.9.1</version.maven-javadoc-plugin>
+        <version.maven-surefire-plugin>2.17</version.maven-surefire-plugin>
+        <version.maven-gpg-plugin>1.5</version.maven-gpg-plugin>
 	</properties>
 
 	<dependencies>
@@ -105,116 +127,90 @@
 	</dependencies>
 	
 	<build>
-
         <plugins>
-	       <plugin>
+            <!-- Compile -->
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${version.maven-jar-plugin}</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.maven-compiler-plugin}</version>
                 <configuration>
-                    <finalName>wsonrpc-${project.version}</finalName>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <encoding>UTF-8</encoding>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>false</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>false</addDefaultSpecificationEntries>
-                        </manifest>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
                 </configuration>
-                <executions>
-                    <!-- client -->
-                    <execution>
-                        <id>wsonrpc-client</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <finalName>wsonrpc-client-${project.version}</finalName>
-                            <excludes>
-                                <exclude>**/server/**</exclude>            
-                            </excludes>
-                        </configuration>
-                    </execution>
-                    <!-- service -->
-                    <execution>
-                        <id>wsonrpc-service</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <finalName>wsonrpc-service-${project.version}</finalName>
-                            <excludes>
-                                <exclude>**/client/**</exclude>            
-                            </excludes>
-                        </configuration>
-                    </execution>
-                    <!-- all -->
-                    <execution>
-                        <id>wsonrpc-all</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
             </plugin>
-            
+            <!-- Test -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${version.maven-source-plugin}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                    <!-- client -->
-                    <execution>
-                        <id>wsonrpc-client</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <finalName>wsonrpc-client-${project.version}</finalName>
-                            <excludes>
-                                <exclude>**/service/**</exclude>            
-                            </excludes>
-                        </configuration>
-                    </execution>
-                    <!-- service -->
-                    <execution>
-                        <id>wsonrpc-service</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <finalName>wsonrpc-service-${project.version}</finalName>
-                            <excludes>
-                                <exclude>**/client/**</exclude>            
-                            </excludes>
-                        </configuration>
-                    </execution>
-                    <!-- all -->
-                    <execution>
-                        <id>wsonrpc-all</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${version.maven-surefire-plugin}</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
             </plugin>
-            
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Source -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${version.maven-source-plugin}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${version.maven-javadoc-plugin}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- GPG -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${version.maven-gpg-plugin}</version>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>oss</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                </snapshotRepository>
+                <repository>
+                    <id>oss</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+    
 </project>

@@ -109,7 +109,7 @@ public class WsonrpcClientDemo {
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            client.close();
+            client.disconnect();
             clientDownLatch.countDown();
         }
     }

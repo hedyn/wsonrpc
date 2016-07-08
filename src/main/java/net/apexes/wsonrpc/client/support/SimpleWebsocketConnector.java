@@ -72,7 +72,6 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
 
         @Override
         public void onError(Exception error) {
-            onDisconnect(1006, error.getMessage());
             endpoint.onError(error);
         }
 
