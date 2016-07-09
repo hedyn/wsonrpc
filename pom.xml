@@ -2,10 +2,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
-	<version>0.6.0-SNAPSHOT</version>
+	<version>0.6.0</version>
 	
 	<name>wsonrpc</name>
-    <description>Wsonrpc</description>
+    <description>JSON-RPC over websocket</description>
     <url>http://git.oschina.net/apexes/wsonrpc</url>
 
     <licenses>
