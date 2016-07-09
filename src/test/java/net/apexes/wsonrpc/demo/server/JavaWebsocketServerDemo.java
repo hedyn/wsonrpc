@@ -26,12 +26,6 @@ import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer.PathStrategy
 public class JavaWebsocketServerDemo {
     
     public static void main(String[] args) throws Exception {
-        JavaWebsocketWsonrpcServer server = createServer();
-        try {
-            
-        } finally {
-            stop(server);
-        }
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             System.out.print(">");
@@ -39,11 +33,10 @@ public class JavaWebsocketServerDemo {
             if (command.isEmpty()) {
                 continue;
             }
-            if ("start".equalsIgnoreCase(command)) {
-                start(server);
-            } else if ("stop".equalsIgnoreCase(command)) {
-                stop(server);
-            } else if ("exit".equalsIgnoreCase(command)) {
+            if ("startup".equalsIgnoreCase(command)) {
+                start();
+            } else if ("shutdown".equalsIgnoreCase(command)) {
+                stop();
                 break;
             } else if ("call".equalsIgnoreCase(command)) {
                 call();
@@ -53,9 +46,12 @@ public class JavaWebsocketServerDemo {
         }
     }
     
-    private static ExecutorService execService = Executors.newCachedThreadPool();
+    private static JavaWebsocketWsonrpcServer server;
+    private static ExecutorService execService = null;
     
-    static void start(final JavaWebsocketWsonrpcServer server) {
+    static void start() {
+        execService = Executors.newCachedThreadPool();
+        server = createServer(execService);
         execService.execute(new Runnable() {
             @Override
             public void run() {
@@ -64,13 +60,15 @@ public class JavaWebsocketServerDemo {
         });
     }
     
-    static void stop(JavaWebsocketWsonrpcServer server) {
-        try {
-            server.stop();
-        } catch (Exception e) {
-            e.printStackTrace();
+    static void stop() {
+        if (server != null) {
+            try {
+                server.stop();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            execService.shutdownNow();
         }
-        execService.shutdownNow();
     }
     
     static void call() {
@@ -96,7 +94,7 @@ public class JavaWebsocketServerDemo {
         }
     }
 
-    static JavaWebsocketWsonrpcServer createServer() {
+    static JavaWebsocketWsonrpcServer createServer(ExecutorService execService) {
         InetSocketAddress address = new InetSocketAddress(8080);
         GsonJsonContext jsonContext = new GsonJsonContext();
         jsonContext.setLogger(new JsonRpcLogger() {

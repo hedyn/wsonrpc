@@ -21,6 +21,10 @@ public class LoginServiceImpl implements LoginService {
         user.setPassword(password);
         user.setLevel(10);
         callClient(username, password);
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//        }
         return user;
     }
     

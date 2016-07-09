@@ -146,8 +146,7 @@ public class WsonrpcDispatcher implements ICaller {
         handle(session, null, notify.getMethod(), notify.getParams());
     }
     
-    private void handle(final WsonrpcSession session, 
-            final String id, final String method, final Object params) {
+    private void handle(final WsonrpcSession session, final String id, final String method, final Object params) {
         execService.execute(new Runnable() {
 
             @Override
