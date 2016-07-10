@@ -1,5 +1,7 @@
 package net.apexes.wsonrpc.demo.server;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,10 +11,12 @@ import net.apexes.jsonrpc.JsonRpcLogger;
 import net.apexes.wsonrpc.ErrorProcessor;
 import net.apexes.wsonrpc.WsonrpcConfig;
 import net.apexes.wsonrpc.WsonrpcRemote;
+import net.apexes.wsonrpc.demo.api.CallClientService;
 import net.apexes.wsonrpc.demo.api.CallPosService;
 import net.apexes.wsonrpc.demo.api.User;
 import net.apexes.wsonrpc.server.Remotes;
 import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer;
+import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer.PathStrategy;
 
 /**
  * 
@@ -21,14 +25,33 @@ import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer;
  */
 public class WsonrpcServerDemo {
     
-    public static void main(String[] args) {
-        runServer();
+    public static void main(String[] args) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            System.out.print(">");
+            String command = reader.readLine();
+            if (command.isEmpty()) {
+                continue;
+            }
+            if ("startup".equalsIgnoreCase(command)) {
+                start();
+            } else if ("shutdown".equalsIgnoreCase(command)) {
+                stop();
+                System.out.println("Server is shutdown");
+                System.exit(0);
+                break;
+            } else if ("call".equalsIgnoreCase(command)) {
+                call();
+            } else if ("ping".equalsIgnoreCase(command)) {
+                ping();
+            }
+        }
     }
     
     private static ExecutorService execService;
     private static JavaWebsocketWsonrpcServer server;
 
-    public static void runServer() {
+    static void start() {
         InetSocketAddress address = new InetSocketAddress(8080);
         GsonJsonContext jsonContext = new GsonJsonContext();
         jsonContext.setLogger(new JsonRpcLogger() {
@@ -45,7 +68,15 @@ public class WsonrpcServerDemo {
         });
         execService = Executors.newCachedThreadPool();
         WsonrpcConfig config = WsonrpcConfig.Builder.create().jsonContext(jsonContext).build(execService);
-        server = new JavaWebsocketWsonrpcServer(address, null, config);
+        PathStrategy pathStrategy = new PathStrategy() {
+
+            @Override
+            public boolean accept(String path) {
+                return path.startsWith("/wsonrpc/");
+            }
+            
+        };
+        server = new JavaWebsocketWsonrpcServer(address, pathStrategy, config);
         server.setErrorProcessor(new ErrorProcessor() {
 
             @Override
@@ -59,15 +90,22 @@ public class WsonrpcServerDemo {
         server.getServiceRegistry().register(new RegisterServiceImpl());
         
         System.out.println("Server is running...");
-        server.start();
+        execService.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                server.start();
+            }
+            
+        });
     }
     
-    public static void stopServer() {
+    static void stop() {
         if (server != null) {
             try {
                 server.stop();
             } catch (Exception e) {
-                //e.printStackTrace();
+                e.printStackTrace();
             }
             server = null;
         }
@@ -77,6 +115,29 @@ public class WsonrpcServerDemo {
         }
     }
 
+    static void call() {
+        for (WsonrpcRemote remote : Remotes.getRemotes()) {
+            if (remote != null) {
+                CallClientService callClientSrv = WsonrpcRemote.Executor.create(remote)
+                        .getService(CallClientService.class);
+                String result = callClientSrv.callClient("server");
+                System.out.println("result: " + result);
+            }
+        }
+    }
+    
+    static void ping() {
+        for (WsonrpcRemote remote : Remotes.getRemotes()) {
+            if (remote != null) {
+                try {
+                    remote.ping();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
     /**
      * 向指定的POS发送通知
      * 

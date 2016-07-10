@@ -4,7 +4,7 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.server.support;
+package net.apexes.wsonrpc.demo.server;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
