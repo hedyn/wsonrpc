@@ -25,18 +25,18 @@ final class Futures {
     
     private static final Map<IKey, WeakElement> map = new ConcurrentHashMap<>();
 
-    private static final ReferenceQueue<WosonrpcFuture<Object>> queue = new ReferenceQueue<>();
+    private static final ReferenceQueue<WsonrpcFuture<Object>> queue = new ReferenceQueue<>();
 
-    static void put(WosonrpcFuture<Object> future) {
+    static void put(WsonrpcFuture<Object> future) {
         processQueue();
         map.put(future.key, new WeakElement(future, queue));
     }
 
-    static WosonrpcFuture<Object> out(String id) {
+    static WsonrpcFuture<Object> out(String id) {
         return out(new StringKey(id));
     }
 
-    static WosonrpcFuture<Object> out(Object key) {
+    static WsonrpcFuture<Object> out(Object key) {
         processQueue();
         WeakElement ref = map.remove(key);
         if (ref != null) {
@@ -46,7 +46,7 @@ final class Futures {
     }
 
     static final void processQueue() {
-        Reference<? extends WosonrpcFuture<Object>> ref = null;
+        Reference<? extends WsonrpcFuture<Object>> ref = null;
         while ((ref = queue.poll()) != null) {
             map.remove(ref);
         }
@@ -57,11 +57,11 @@ final class Futures {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class WeakElement extends WeakReference<WosonrpcFuture<Object>> implements IKey {
+    private static class WeakElement extends WeakReference<WsonrpcFuture<Object>> implements IKey {
 
         private IKey key;
 
-        WeakElement(WosonrpcFuture<Object> future, ReferenceQueue<WosonrpcFuture<Object>> queue) {
+        WeakElement(WsonrpcFuture<Object> future, ReferenceQueue<WsonrpcFuture<Object>> queue) {
             super(future, queue);
             this.key = future.key;
         }

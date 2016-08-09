@@ -16,12 +16,12 @@ import net.apexes.wsonrpc.util.AbstractFuture;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-class WosonrpcFuture<V> extends AbstractFuture<V> {
+class WsonrpcFuture<V> extends AbstractFuture<V> {
 
     final IKey key;
     final Type returnType;
 
-    WosonrpcFuture(String id, Type returnType) {
+    WsonrpcFuture(String id, Type returnType) {
         if (id == null) {
             throw new IllegalArgumentException("The id must be not null.");
         }
@@ -59,7 +59,7 @@ class WosonrpcFuture<V> extends AbstractFuture<V> {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        WosonrpcFuture<?> other = (WosonrpcFuture<?>) obj;
+        WsonrpcFuture<?> other = (WsonrpcFuture<?>) obj;
         if (other.key.id() == null) {
             return false;
         }

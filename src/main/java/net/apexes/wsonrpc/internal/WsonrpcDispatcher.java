@@ -83,7 +83,7 @@ public class WsonrpcDispatcher implements ICaller {
     public Future<Object> request(WsonrpcSession session, String serviceName, String methodName, 
             Object argument, Type returnType) throws Exception {
         String id = UUID.randomUUID().toString();
-        WosonrpcFuture<Object> future = new WosonrpcFuture<Object>(id, returnType);
+        WsonrpcFuture<Object> future = new WsonrpcFuture<Object>(id, returnType);
         Futures.put(future);
         try {
             String method = serviceName + "." + methodName;
@@ -119,7 +119,7 @@ public class WsonrpcDispatcher implements ICaller {
     
     private void handleResponse(WsonrpcSession session, JsonRpcResponse response) throws Exception {
         String id = response.getId();
-        WosonrpcFuture<Object> future = Futures.out(id);
+        WsonrpcFuture<Object> future = Futures.out(id);
         if (future != null) {
             JsonContext jsonContex = jsonRpcHandler.getJsonContext();
             if (response instanceof JsonRpcResponseResult) {

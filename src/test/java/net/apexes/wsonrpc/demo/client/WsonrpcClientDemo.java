@@ -136,7 +136,13 @@ public class WsonrpcClientDemo {
     public void login(String username, String password) {
         if (client.isConnected()) {
             LoginService srv = WsonrpcRemote.Executor.create(client).getService(LoginService.class);
-            User user = srv.login(username, password);
+            User user1 = new User();
+            user1.setUsername(username);
+            user1.setPassword(password);
+            User user2 = new User();
+            user2.setUsername("user2");
+            user2.setPassword("user2.password");
+            User user = srv.login(user1, user2);
             System.out.println("::login(" + username + ", " + password + "): " + user);
         }
     }
