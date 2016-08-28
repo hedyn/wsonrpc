@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.apexes.wsonrpc</groupId>
+		<artifactId>wsonrpc</artifactId>
+		<version>1.0.0</version>
+	</parent>
+	<artifactId>wsonrpc-client</artifactId>
+	
+	<dependencies>
+		<!-- wsonrpc -->
+		<dependency>
+			<groupId>net.apexes.wsonrpc</groupId>
+            <artifactId>wsonrpc-core</artifactId>
+            <version>${project.version}</version>
+		</dependency>
+		
+		<!-- tyrus-client -->
+		<dependency>
+			<groupId>org.glassfish.tyrus.bundles</groupId>
+			<artifactId>tyrus-standalone-client-jdk</artifactId>
+			<version>${version.org.glassfish.tyrus}</version>
+		</dependency>
+
+		<!-- Java-WebSocket -->
+		<dependency>
+			<groupId>org.java-websocket</groupId>
+			<artifactId>Java-WebSocket</artifactId>
+			<version>${version.org.java-websocket}</version>
+		</dependency>
+	</dependencies>
+</project>

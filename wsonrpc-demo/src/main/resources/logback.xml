@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- http://www.slf4j.org/manual.html -->
+<configuration>
+	<!-- <timestamp key="byYearMonth" datePattern="yyyyMM" timeReference="contextBirth" /> -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>DEBUG</level>
+		</filter>
+		<encoder> <!-- [%caller{1}] -->
+			<pattern><![CDATA[%d{HH:mm:ss.SSS} [%-5level] [%C.%M\(\):%L] %msg%n]]></pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+	</appender>
+
+	<!-- Application -->
+	<logger name="net.apexes.wsonrpc" level="DEBUG" />
+
+	<!-- *** -->
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>
