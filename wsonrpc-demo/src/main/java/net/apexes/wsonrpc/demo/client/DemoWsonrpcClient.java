@@ -2,6 +2,7 @@ package net.apexes.wsonrpc.demo.client;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import net.apexes.wsonrpc.client.Wsonrpc;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.client.WsonrpcClientListener;
+import net.apexes.wsonrpc.demo.api.DemoHandler;
 import net.apexes.wsonrpc.demo.api.PushHandler;
 import net.apexes.wsonrpc.demo.api.RegisterHandler;
 import net.apexes.wsonrpc.demo.api.model.User;
@@ -22,45 +24,15 @@ public class DemoWsonrpcClient {
     
     private static final Logger LOG = LoggerFactory.getLogger(DemoWsonrpcClient.class);
     
-    public static void main(String[] args) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        DemoWsonrpcClient client = new DemoWsonrpcClient();
-        try {
-            while (true) {
-                System.out.print(">");
-                String command = reader.readLine();
-                if (command.isEmpty()) {
-                    continue;
-                }
-                if (command.startsWith("connect ")) {
-                    String clientId = command.substring("connect ".length());
-                    if (clientId != null && clientId.length() > 0) {
-                        client.connect(clientId);
-                    }
-                } else if ("disconnect".equalsIgnoreCase(command)) {
-                    client.disconnect();
-                } else if ("exit".equalsIgnoreCase(command)) {
-                    client.close();
-                    break;
-                } else if ("login".equalsIgnoreCase(command)) {
-                    client.login("admin", "admin123");
-                } else if ("ping".equalsIgnoreCase(command)) {
-                    client.ping();
-                }
-            }
-        } finally {
-            reader.close();
-            client.close();
-        }
-        LOG.info("closed");
-    }
-    
     private final WsonrpcClient client;
     private String clientId;
     
     DemoWsonrpcClient() throws Exception {
         String url = "ws://127.0.0.1:8080/wsonrpc";
-        client = Wsonrpc.client(url)
+        client = Wsonrpc
+//                .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
+//                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
+                .client(url)
 //                .connector(new net.apexes.wsonrpc.client.support.JavaWebsocketConnector())
 //                .connector(new net.apexes.wsonrpc.client.support.TyrusWebsocketConnector())
                 .build();
@@ -75,7 +47,7 @@ public class DemoWsonrpcClient {
             @Override
             public void onOpen(WsonrpcClient client) {
                 LOG.info("...");
-                RegisterHandler handler = Wsonrpc.wsonrpc(client).handleName("register").get(RegisterHandler.class);
+                RegisterHandler handler = Wsonrpc.invoker(client).handleName("register").get(RegisterHandler.class);
                 handler.register(clientId);
             }
 
@@ -125,7 +97,7 @@ public class DemoWsonrpcClient {
     
     public void login(String username, String password) {
         if (client.isConnected()) {
-            RegisterHandler handler = Wsonrpc.wsonrpc(client).handleName("register").get(RegisterHandler.class);
+            RegisterHandler handler = Wsonrpc.invoker(client).handleName("register").get(RegisterHandler.class);
             User user = handler.login(username, password);
             LOG.info("{}", user);
         }
@@ -135,6 +107,51 @@ public class DemoWsonrpcClient {
         if (client.isConnected()) {
             client.ping();
         }
+    }
+    
+    public void demo() {
+        DemoHandler demoHandler = Wsonrpc.invoker(client).handleName("demo").get(DemoHandler.class);
+        LOG.info("{}", demoHandler.echo("Hello wsonrpc!"));
+        LOG.info("{}", demoHandler.login("admin", "admin"));
+        LOG.info("{}", demoHandler.getRoleList());
+        LOG.info("{}", demoHandler.getDept("1"));
+        LOG.info("{}", demoHandler.getDeptList());
+        LOG.info("{}", demoHandler.listUser(Arrays.asList("admin", "1001")));
+    }
+    
+    public static void main(String[] args) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        DemoWsonrpcClient client = new DemoWsonrpcClient();
+        try {
+            while (true) {
+                System.out.print(">");
+                String command = reader.readLine();
+                if (command.isEmpty()) {
+                    continue;
+                }
+                if (command.startsWith("connect ")) {
+                    String clientId = command.substring("connect ".length());
+                    if (clientId != null && clientId.length() > 0) {
+                        client.connect(clientId);
+                    }
+                } else if ("disconnect".equalsIgnoreCase(command)) {
+                    client.disconnect();
+                } else if ("exit".equalsIgnoreCase(command)) {
+                    client.close();
+                    break;
+                } else if ("login".equalsIgnoreCase(command)) {
+                    client.login("admin", "admin123");
+                } else if ("ping".equalsIgnoreCase(command)) {
+                    client.ping();
+                } else if ("demo".equalsIgnoreCase(command)) {
+                    client.demo();
+                }
+            }
+        } finally {
+            reader.close();
+            client.close();
+        }
+        LOG.info("closed");
     }
 
 }

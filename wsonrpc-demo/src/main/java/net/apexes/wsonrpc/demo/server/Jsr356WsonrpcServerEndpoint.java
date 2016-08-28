@@ -17,6 +17,7 @@ import net.apexes.wsonrpc.demo.api.DemoHandler;
 import net.apexes.wsonrpc.demo.api.RegisterHandler;
 import net.apexes.wsonrpc.demo.server.handler.DemoHandlerImpl;
 import net.apexes.wsonrpc.demo.server.handler.RegisterHandlerImpl;
+import net.apexes.wsonrpc.json.support.JacksonImplementor;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
 import net.apexes.wsonrpc.server.WsonrpcServerConfigBuilder;
 
@@ -30,7 +31,10 @@ import net.apexes.wsonrpc.server.WsonrpcServerConfigBuilder;
 public class Jsr356WsonrpcServerEndpoint extends WsonrpcServerBase implements WsonrpcErrorProcessor {
 
     public Jsr356WsonrpcServerEndpoint() {
-        super(WsonrpcServerConfigBuilder.create().build());
+        super(WsonrpcServerConfigBuilder.create()
+                .json(new JacksonImplementor())
+//                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
+                .build());
         setErrorProcessor(this);
         getRegistry()
             .register("demo", new DemoHandlerImpl() , DemoHandler.class)

@@ -6,10 +6,8 @@
  */
 package net.apexes.wsonrpc.client;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import net.apexes.wsonrpc.core.BinaryWrapper;
 import net.apexes.wsonrpc.core.RemoteInvoker;
@@ -22,24 +20,23 @@ import net.apexes.wsonrpc.json.support.GsonImplementor;
  *
  */
 public final class Wsonrpc {
-    private Wsonrpc() {
+    private Wsonrpc() {}
+
+    /**
+     * 
+     * @param jsonImpl
+     * @return
+     */
+    public static Config json(JsonImplementor jsonImpl) {
+        return new Config(jsonImpl, null);
     }
 
     /**
      * 
      * @return
      */
-    public static Config config(BinaryWrapper binaryWrapper) {
+    public static Config binaryWrapper(BinaryWrapper binaryWrapper) {
         return new Config(new GsonImplementor(), binaryWrapper);
-    }
-
-    /**
-     * 
-     * @param jsonSupport
-     * @return
-     */
-    public static Config config(JsonImplementor jsonSupport) {
-        return new Config(jsonSupport, null);
     }
 
     /**
@@ -54,34 +51,10 @@ public final class Wsonrpc {
 
     /**
      * 
-     * @param url
-     * @return
-     * @throws Exception
-     */
-    public static RemoteInvoker jsonrpc(String url) throws Exception {
-        return jsonrpc(url, 0);
-    }
-
-    /**
-     * 
-     * @param url
-     * @param connectTimeout
-     * @return
-     * @throws MalformedURLException
-     * @throws Exception
-     */
-    public static RemoteInvoker jsonrpc(String url, int connectTimeout) throws MalformedURLException {
-        JsonRpcHttpRemote remote = new JsonRpcHttpRemote(new URL(url), new GsonImplementor(), null);
-        remote.setConnectTimeout(connectTimeout);
-        return RemoteInvoker.create(remote);
-    }
-
-    /**
-     * 
      * @param client
      * @return
      */
-    public static RemoteInvoker wsonrpc(WsonrpcClient client) {
+    public static RemoteInvoker invoker(WsonrpcClient client) {
         return RemoteInvoker.create(client);
     }
 
@@ -119,24 +92,10 @@ public final class Wsonrpc {
          * 
          * @param url
          * @return
-         * @throws Exception
+         * @throws URISyntaxException
          */
-        public RemoteInvoker jsonrpc(String url) throws Exception {
-            return jsonrpc(url, 0);
-        }
-
-        /**
-         * 
-         * @param url
-         * @param connectTimeout
-         * @return
-         * @throws MalformedURLException
-         * @throws Exception
-         */
-        public RemoteInvoker jsonrpc(String url, int connectTimeout) throws MalformedURLException {
-            JsonRpcHttpRemote remote = new JsonRpcHttpRemote(new URL(url), jsonImpl, binaryWrapper);
-            remote.setConnectTimeout(connectTimeout);
-            return RemoteInvoker.create(remote);
+        public WsonrpcClientBuilder client(String url) throws URISyntaxException {
+            return new WsonrpcClientBuilder(new URI(url), jsonImpl, binaryWrapper);
         }
 
         /**
@@ -144,19 +103,8 @@ public final class Wsonrpc {
          * @param client
          * @return
          */
-        public RemoteInvoker wsonrpc(WsonrpcClient client) {
+        public RemoteInvoker invoker(WsonrpcClient client) {
             return RemoteInvoker.create(client);
         }
-
-        /**
-         * 
-         * @param url
-         * @return
-         * @throws URISyntaxException
-         */
-        public WsonrpcClientBuilder client(String url) throws URISyntaxException {
-            return new WsonrpcClientBuilder(new URI(url), jsonImpl, binaryWrapper);
-        }
-
     }
 }

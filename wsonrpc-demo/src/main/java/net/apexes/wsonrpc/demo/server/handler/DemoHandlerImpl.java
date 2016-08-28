@@ -6,6 +6,7 @@
  */
 package net.apexes.wsonrpc.demo.server.handler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.apexes.wsonrpc.demo.api.DemoHandler;
@@ -45,6 +46,18 @@ public class DemoHandlerImpl implements DemoHandler {
     @Override
     public List<Dept> getDeptList() {
         return DemoDatas.deptList;
+    }
+
+    @Override
+    public List<User> listUser(List<String> usernames) {
+        List<User> userList = new ArrayList<>();
+        for (String username : usernames) {
+            User user = DemoDatas.userFinder.get(username);
+            if (user != null) {
+                userList.add(user);
+            }
+        }
+        return userList;
     }
     
 }

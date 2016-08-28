@@ -28,4 +28,6 @@ public interface DemoHandler {
     Dept getDept(String name);
     
     List<Dept> getDeptList();
+    
+    List<User> listUser(List<String> usernames);
 }

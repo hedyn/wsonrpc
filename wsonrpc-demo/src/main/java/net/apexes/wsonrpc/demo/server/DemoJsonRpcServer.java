@@ -20,7 +20,6 @@ import net.apexes.wsonrpc.core.JsonRpcKernel;
 import net.apexes.wsonrpc.core.Transport;
 import net.apexes.wsonrpc.demo.api.DemoHandler;
 import net.apexes.wsonrpc.demo.server.handler.DemoHandlerImpl;
-import net.apexes.wsonrpc.json.support.JacksonImplementor;
 
 /**
  * 
@@ -40,7 +39,8 @@ public class DemoJsonRpcServer extends NanoHTTPD {
 
     public DemoJsonRpcServer() {
         super(8080);
-        jsonRpcKernel = new JsonRpcKernel(new JacksonImplementor());
+//        jsonRpcKernel = new JsonRpcKernel(new net.apexes.wsonrpc.json.support.JacksonImplementor());
+        jsonRpcKernel = new JsonRpcKernel(new net.apexes.wsonrpc.json.support.GsonImplementor());
         jsonRpcKernel.register("demo", new DemoHandlerImpl(), DemoHandler.class);
     }
 

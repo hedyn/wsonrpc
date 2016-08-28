@@ -9,7 +9,6 @@ package net.apexes.wsonrpc.core;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -51,7 +50,7 @@ public class JsonRpcKernel implements HandlerRegistry {
      * @param jsonImpl
      * @param binaryWrapper
      */
-    public JsonRpcKernel(JsonImplementor jsonImpl, BinaryWrapper binaryWrapper) {
+    protected JsonRpcKernel(JsonImplementor jsonImpl, BinaryWrapper binaryWrapper) {
         if (jsonImpl == null) {
             throw new NullPointerException("jsonImpl");
         }
@@ -314,10 +313,9 @@ public class JsonRpcKernel implements HandlerRegistry {
         
         byte[] bytes = json.getBytes("UTF-8");
         if (binaryWrapper != null) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            OutputStream ops = binaryWrapper.wrap(out);
-            ops.write(bytes);
-            bytes = out.toByteArray();
+            LOG.debug("1.length={}", bytes.length);
+            bytes = binaryWrapper.write(bytes);
+            LOG.debug("2.length={}", bytes.length);
         }
 
         transport.sendBinary(bytes);
@@ -331,17 +329,19 @@ public class JsonRpcKernel implements HandlerRegistry {
      * @throws WsonrpcException
      */
     protected JsonRpcMessage receive(InputStream in) throws IOException, WsonrpcException {
-        if (binaryWrapper != null) {
-            in = binaryWrapper.wrap(in);
-        }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
         int len;
         while ((len = in.read(buf)) != -1) {
             out.write(buf, 0, len);
         }
+        
+        byte[] bytes = out.toByteArray();
+        if (binaryWrapper != null) {
+            bytes = binaryWrapper.read(bytes);
+        }
 
-        String json = new String(out.toByteArray(), "UTF-8");
+        String json = new String(bytes, "UTF-8");
 
         LOG.debug("WSONRPC <<  {}", json);
 

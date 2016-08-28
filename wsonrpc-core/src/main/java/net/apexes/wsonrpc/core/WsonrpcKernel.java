@@ -34,7 +34,7 @@ public class WsonrpcKernel implements HandlerRegistry {
             throw new NullPointerException("config");
         }
         this.config = config;
-        jsonRpcKernel = new JsonRpcKernel(config.getJsonImplementor());
+        jsonRpcKernel = new JsonRpcKernel(config.getJsonImplementor(), config.getBinaryWrapper());
     }
     
     public final WsonrpcConfig getConfig() {

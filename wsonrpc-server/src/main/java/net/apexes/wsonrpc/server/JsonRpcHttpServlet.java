@@ -33,15 +33,7 @@ public abstract class JsonRpcHttpServlet extends HttpServlet {
      * @param jsonImpl
      */
     public JsonRpcHttpServlet(JsonImplementor jsonImpl) {
-        this(new JsonRpcKernel(jsonImpl));
-    }
-    
-    /**
-     * 
-     * @param jsonRpcKernel
-     */
-    public JsonRpcHttpServlet(JsonRpcKernel jsonRpcKernel) {
-        this.jsonRpcKernel = jsonRpcKernel;
+        this.jsonRpcKernel = new JsonRpcKernel(jsonImpl);
     }
     
     /**

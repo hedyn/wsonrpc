@@ -43,7 +43,7 @@
 
 		<!-- gson -->
 		<version.com.google.code.gson>2.7</version.com.google.code.gson>
-
+		
 		<!-- javax.websocket -->
 		<version.javax.websocket>1.1</version.javax.websocket>
 

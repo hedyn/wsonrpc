@@ -18,7 +18,6 @@ import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.zip.GZIPInputStream;
 
-import net.apexes.wsonrpc.core.BinaryWrapper;
 import net.apexes.wsonrpc.core.JsonRpcKernel;
 import net.apexes.wsonrpc.core.Remote;
 import net.apexes.wsonrpc.core.Transport;
@@ -43,12 +42,11 @@ public class JsonRpcHttpRemote implements Remote {
      * 
      * @param url
      * @param jsonImpl
-     * @param binaryWrapper
      */
-    public JsonRpcHttpRemote(URL url, JsonImplementor jsonImpl, BinaryWrapper binaryWrapper) {
+    public JsonRpcHttpRemote(URL url, JsonImplementor jsonImpl) {
         this.url = url;
         this.headers = new HashMap<String, String>();
-        this.jsonRpcKernel = new JsonRpcKernel(jsonImpl, binaryWrapper);
+        this.jsonRpcKernel = new JsonRpcKernel(jsonImpl);
         rand = new Random();
     }
 

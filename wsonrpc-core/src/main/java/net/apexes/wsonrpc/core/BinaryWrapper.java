@@ -7,8 +7,6 @@
 package net.apexes.wsonrpc.core;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * 
@@ -17,8 +15,8 @@ import java.io.OutputStream;
  */
 public interface BinaryWrapper {
     
-    InputStream wrap(InputStream in) throws IOException;
+    byte[] read(byte[] bytes) throws IOException;
 
-    OutputStream wrap(OutputStream out) throws IOException;
+    byte[] write(byte[] bytes) throws IOException;
 
 }
