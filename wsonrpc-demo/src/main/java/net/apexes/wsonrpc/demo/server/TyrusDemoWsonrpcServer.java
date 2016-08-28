@@ -12,7 +12,7 @@ import net.apexes.wsonrpc.server.WsonrpcServerBase;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public class TyrusWsonrpcServerDemo extends AbstractWsonrpcServerDemo {
+public class TyrusDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
 
     private Server server;
     

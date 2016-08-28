@@ -18,13 +18,13 @@ import net.apexes.wsonrpc.demo.client.handler.PushHandlerImpl;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WsonrpcClientDemo {
+public class DemoWsonrpcClient {
     
-    private static final Logger LOG = LoggerFactory.getLogger(WsonrpcClientDemo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DemoWsonrpcClient.class);
     
     public static void main(String[] args) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        WsonrpcClientDemo client = new WsonrpcClientDemo();
+        DemoWsonrpcClient client = new DemoWsonrpcClient();
         try {
             while (true) {
                 System.out.print(">");
@@ -58,7 +58,7 @@ public class WsonrpcClientDemo {
     private final WsonrpcClient client;
     private String clientId;
     
-    WsonrpcClientDemo() throws Exception {
+    DemoWsonrpcClient() throws Exception {
         String url = "ws://127.0.0.1:8080/wsonrpc";
         client = Wsonrpc.client(url)
 //                .connector(new net.apexes.wsonrpc.client.support.JavaWebsocketConnector())

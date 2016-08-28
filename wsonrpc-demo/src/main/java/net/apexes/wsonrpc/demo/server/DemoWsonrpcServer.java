@@ -26,18 +26,18 @@ import net.apexes.wsonrpc.server.WsonrpcServerListener;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WsonrpcServerDemo {
-    private static final Logger LOG = LoggerFactory.getLogger(WsonrpcServerDemo.class);
+public class DemoWsonrpcServer {
+    private static final Logger LOG = LoggerFactory.getLogger(DemoWsonrpcServer.class);
     
     public static void main(String[] args) throws Exception {
-        IServerDemo serverDemo = null;
-//        serverDemo = new JavaWebsocketWsonrpcServerDemo();
-        serverDemo = new TyrusWsonrpcServerDemo();
-        runServer(serverDemo);
+        DemoServer demoServer = null;
+        demoServer = new JwsDemoWsonrpcServer();
+        demoServer = new TyrusDemoWsonrpcServer();
+        runServer(demoServer);
     }
     
-    protected static void runServer(IServerDemo serverDemo) throws Exception {
-        WsonrpcServerBase serverBase = serverDemo.create();
+    protected static void runServer(DemoServer demoServer) throws Exception {
+        WsonrpcServerBase serverBase = demoServer.create();
         if (serverBase != null) {
             setupServer(serverBase);
         }
@@ -50,27 +50,27 @@ public class WsonrpcServerDemo {
                 continue;
             }
             if ("startup".equalsIgnoreCase(command)) {
-                serverDemo.startup();
+                demoServer.startup();
             } else if ("shutdown".equalsIgnoreCase(command)) {
-                serverDemo.shutdown();
+                demoServer.shutdown();
                 LOG.info("Server is shutdown");
                 System.exit(0);
                 break;
             } else if (command.startsWith("call ")) {
                 String[] cmds = command.split(" ");
-                serverDemo.call(cmds[1]);
+                demoServer.call(cmds[1]);
             } else if (command.startsWith("notice ")) {
                 String[] cmds = command.split(" ");
                 if (cmds.length >= 3) {
-                    serverDemo.notice(cmds[1], cmds[2]);
+                    demoServer.notice(cmds[1], cmds[2]);
                 } else {
-                    serverDemo.notice(cmds[1], null);
+                    demoServer.notice(cmds[1], null);
                 }
             } else if (command.equals("ping")) {
-                serverDemo.ping(null);
+                demoServer.ping(null);
             } else if (command.startsWith("ping ")) {
                 String[] cmds = command.split(" ");
-                serverDemo.ping(cmds[1]);
+                demoServer.ping(cmds[1]);
             }
         }
     }

@@ -21,8 +21,8 @@ import net.apexes.wsonrpc.server.WsonrpcRemotes;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public abstract class AbstractWsonrpcServerDemo implements IServerDemo {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractWsonrpcServerDemo.class);
+public abstract class AbstractDemoWsonrpcServer implements DemoServer {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDemoWsonrpcServer.class);
     
     @Override
     public void ping(String clientId) {

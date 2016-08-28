@@ -17,9 +17,9 @@ import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class JavaWebsocketWsonrpcServerDemo extends AbstractWsonrpcServerDemo {
+public class JwsDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
     
-    private static final Logger LOG = LoggerFactory.getLogger(JavaWebsocketWsonrpcServerDemo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JwsDemoWsonrpcServer.class);
     
     private ExecutorService execService;
     private JavaWebsocketWsonrpcServer server;

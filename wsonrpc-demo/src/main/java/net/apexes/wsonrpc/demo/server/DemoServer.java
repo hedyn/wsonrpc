@@ -13,7 +13,7 @@ import net.apexes.wsonrpc.server.WsonrpcServerBase;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public interface IServerDemo {
+public interface DemoServer {
     
     WsonrpcServerBase create();
     
