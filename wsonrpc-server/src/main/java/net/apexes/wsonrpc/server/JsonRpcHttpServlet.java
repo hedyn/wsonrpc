@@ -6,7 +6,9 @@
  */
 package net.apexes.wsonrpc.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.servlet.ServletException;
@@ -58,7 +60,14 @@ public abstract class JsonRpcHttpServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         try {
-            jsonRpcKernel.receiveRequest(req.getInputStream(), new HttpServletTransport(resp));
+            InputStream in = req.getInputStream();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) != -1) {
+                out.write(buf, 0, len);
+            }
+            jsonRpcKernel.receiveRequest(out.toByteArray(), new HttpServletTransport(resp));
         } catch (WsonrpcException e) {
             throw new ServletException(e);
         }

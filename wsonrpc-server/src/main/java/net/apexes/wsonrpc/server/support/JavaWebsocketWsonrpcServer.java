@@ -29,10 +29,10 @@ import org.java_websocket.server.DefaultWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 import org.java_websocket.server.WebSocketServer.WebSocketServerFactory;
 
+import net.apexes.wsonrpc.core.WsonrpcConfig;
+import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.core.WsonrpcSession;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
-import net.apexes.wsonrpc.server.WsonrpcServerConfig;
-import net.apexes.wsonrpc.server.WsonrpcServerConfigBuilder;
 
 /**
  * 基于 {@link org.java_websocket.server.WebSocketServer}的服务端
@@ -60,10 +60,10 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
     private volatile AtomicBoolean isclose = new AtomicBoolean(false);
     
     public JavaWebsocketWsonrpcServer(int port, PathStrategy pathStrategy) {
-        this(port, pathStrategy, WsonrpcServerConfigBuilder.create().build());
+        this(port, pathStrategy, WsonrpcConfigBuilder.defaultConfig());
     }
 
-    public JavaWebsocketWsonrpcServer(int port, PathStrategy pathStrategy, WsonrpcServerConfig config) {
+    public JavaWebsocketWsonrpcServer(int port, PathStrategy pathStrategy, WsonrpcConfig config) {
         super(config);
         websocketServer = new WebSocketServerAdapter(new InetSocketAddress(port), pathStrategy, this);
         websocketServer.setWebSocketFactory(wsf);

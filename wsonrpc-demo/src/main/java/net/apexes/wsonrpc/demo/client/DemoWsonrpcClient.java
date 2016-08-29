@@ -29,13 +29,12 @@ public class DemoWsonrpcClient {
     
     DemoWsonrpcClient() throws Exception {
         String url = "ws://127.0.0.1:8080/wsonrpc";
-        client = Wsonrpc
+        client = Wsonrpc.config()
 //                .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
 //                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
-                .client(url)
 //                .connector(new net.apexes.wsonrpc.client.support.JavaWebsocketConnector())
 //                .connector(new net.apexes.wsonrpc.client.support.TyrusWebsocketConnector())
-                .build();
+                .client(url);
         
         client.setClientListener(new WsonrpcClientListener() {
             

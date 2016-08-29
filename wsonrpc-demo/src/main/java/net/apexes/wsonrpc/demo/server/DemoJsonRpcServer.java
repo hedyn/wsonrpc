@@ -6,7 +6,6 @@
  */
 package net.apexes.wsonrpc.demo.server;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,8 +60,7 @@ public class DemoJsonRpcServer extends NanoHTTPD {
             String json = session.getParms().keySet().iterator().next();
             try {
                 TransportImpl transport = new TransportImpl();
-                ByteArrayInputStream in = new ByteArrayInputStream(json.getBytes("UTF-8"));
-                jsonRpcKernel.receiveRequest(in, transport);
+                jsonRpcKernel.receiveRequest(json.getBytes("UTF-8"), transport);
                 return newFixedLengthResponse(transport.json);
             } catch (Exception e) {
                 e.printStackTrace();

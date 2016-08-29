@@ -6,9 +6,7 @@
  */
 package net.apexes.wsonrpc.core;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -90,12 +88,13 @@ public class JsonRpcKernel implements HandlerRegistry {
     /**
      * 接收远端的调用请求，并将回复执行结果。
      * 
-     * @param in
+     * @param bytes
+     * @param transport
      * @throws IOException
      * @throws WsonrpcException
      */
-    public void receiveRequest(InputStream in, Transport transport) throws IOException, WsonrpcException {
-        JsonRpcMessage msg = receive(in);
+    public void receiveRequest(byte[] bytes, Transport transport) throws IOException, WsonrpcException {
+        JsonRpcMessage msg = receive(bytes);
         if (msg instanceof JsonRpcRequest) {
             JsonRpcRequest req = (JsonRpcRequest) msg;
             JsonRpcResponse resp = execute(req);
@@ -108,16 +107,16 @@ public class JsonRpcKernel implements HandlerRegistry {
     /**
      * 接收远程调用得到的回复，从回复中返回指定类型的对象。
      * 
-     * @param in
+     * @param bytes
      * @param returnType
      * @return
      * @throws IOException
      * @throws WsonrpcException
      * @throws RemoteException
      */
-    public <T> T receiveResponse(InputStream in, Class<T> returnType)
+    public <T> T receiveResponse(byte[] bytes, Class<T> returnType)
             throws IOException, WsonrpcException, RemoteException {
-        JsonRpcMessage msg = receive(in);
+        JsonRpcMessage msg = receive(bytes);
         if (msg instanceof JsonRpcResponse) {
             return convertResponse((JsonRpcResponse) msg, returnType);
         } else {
@@ -323,20 +322,12 @@ public class JsonRpcKernel implements HandlerRegistry {
 
     /**
      * 
-     * @param in
+     * @param bytes
      * @return
      * @throws IOException
      * @throws WsonrpcException
      */
-    protected JsonRpcMessage receive(InputStream in) throws IOException, WsonrpcException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) != -1) {
-            out.write(buf, 0, len);
-        }
-        
-        byte[] bytes = out.toByteArray();
+    protected JsonRpcMessage receive(byte[] bytes) throws IOException, WsonrpcException {
         if (binaryWrapper != null) {
             bytes = binaryWrapper.read(bytes);
         }

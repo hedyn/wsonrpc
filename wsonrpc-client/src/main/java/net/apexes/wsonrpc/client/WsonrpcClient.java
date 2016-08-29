@@ -7,6 +7,7 @@
 package net.apexes.wsonrpc.client;
 
 import net.apexes.wsonrpc.core.HandlerRegistry;
+import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcRemote;
 
 /**
@@ -27,6 +28,12 @@ public interface WsonrpcClient extends WsonrpcRemote {
      * @param listener
      */
     void setClientListener(WsonrpcClientListener listener);
+    
+    /**
+     * 
+     * @param errorProcessor
+     */
+    void setErrorProcessor(WsonrpcErrorProcessor errorProcessor);
 
     /**
      * 连接服务端，在连接上之前调用此方法的线程都将阻塞

@@ -11,6 +11,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.glassfish.tyrus.core.MaxSessions;
 
+import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.websocket.WebSockets;
 import net.apexes.wsonrpc.demo.api.DemoHandler;
@@ -19,7 +20,6 @@ import net.apexes.wsonrpc.demo.server.handler.DemoHandlerImpl;
 import net.apexes.wsonrpc.demo.server.handler.RegisterHandlerImpl;
 import net.apexes.wsonrpc.json.support.JacksonImplementor;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
-import net.apexes.wsonrpc.server.WsonrpcServerConfigBuilder;
 
 /**
  * 
@@ -31,7 +31,7 @@ import net.apexes.wsonrpc.server.WsonrpcServerConfigBuilder;
 public class Jsr356WsonrpcServerEndpoint extends WsonrpcServerBase implements WsonrpcErrorProcessor {
 
     public Jsr356WsonrpcServerEndpoint() {
-        super(WsonrpcServerConfigBuilder.create()
+        super(WsonrpcConfigBuilder.create()
                 .json(new JacksonImplementor())
 //                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
                 .build());

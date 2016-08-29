@@ -19,18 +19,9 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
     
     protected final WsonrpcKernel wsonrpcKernal;
     private WsonrpcSession session;
-    private WsonrpcErrorProcessor errorProcessor;
 
     protected WsonrpcEndpoint(WsonrpcConfig config) {
         wsonrpcKernal = new WsonrpcKernel(config);
-    }
-
-    public WsonrpcErrorProcessor getErrorProcessor() {
-        return errorProcessor;
-    }
-
-    public void setErrorProcessor(WsonrpcErrorProcessor errorProcessor) {
-        this.errorProcessor = errorProcessor;
     }
 
     protected final void online(WsonrpcSession session) {

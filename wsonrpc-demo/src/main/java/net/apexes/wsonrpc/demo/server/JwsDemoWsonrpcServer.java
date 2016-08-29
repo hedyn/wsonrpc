@@ -6,10 +6,10 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.apexes.wsonrpc.core.WsonrpcConfig;
+import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.json.support.JacksonImplementor;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
-import net.apexes.wsonrpc.server.WsonrpcServerConfig;
-import net.apexes.wsonrpc.server.WsonrpcServerConfigBuilder;
 import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer;
 
 /**
@@ -27,7 +27,7 @@ public class JwsDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
     @Override
     public WsonrpcServerBase create() {
         execService = Executors.newCachedThreadPool();
-        WsonrpcServerConfig config = WsonrpcServerConfigBuilder.create()
+        WsonrpcConfig config = WsonrpcConfigBuilder.create()
                 .json(new JacksonImplementor())
 //                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
                 .executor(execService)
@@ -38,6 +38,7 @@ public class JwsDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
     
     @Override
     public void startup() throws Exception {
+        LOG.info("Startup...");
         execService.execute(new Runnable() {
 
             @Override

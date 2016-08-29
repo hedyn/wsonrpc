@@ -31,7 +31,7 @@ public class DemoWsonrpcServer {
     
     public static void main(String[] args) throws Exception {
         DemoServer demoServer = null;
-        demoServer = new JwsDemoWsonrpcServer();
+//        demoServer = new JwsDemoWsonrpcServer();
         demoServer = new TyrusDemoWsonrpcServer();
         runServer(demoServer);
     }

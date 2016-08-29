@@ -6,11 +6,11 @@
  */
 package net.apexes.wsonrpc.client;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import net.apexes.wsonrpc.core.HandlerRegistry;
 import net.apexes.wsonrpc.core.WsonrpcEndpoint;
+import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcSession;
 
 /**
@@ -22,6 +22,7 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     
     private final WsonrpcClientConfig config;
     private WsonrpcClientListener clientListener;
+    private WsonrpcErrorProcessor errorProcessor;
     
     protected WsonrpcClientImpl(WsonrpcClientConfig config) {
         super(config);
@@ -66,9 +67,9 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     }
 
     @Override
-    public void onMessage(byte[] data) {
+    public void onMessage(byte[] bytes) {
         try {
-            wsonrpcKernal.handle(getSession(), new ByteArrayInputStream(data));
+            wsonrpcKernal.handle(getSession(), bytes, errorProcessor);
         } catch (Throwable throwable) {
             onError(throwable);
         }
@@ -76,8 +77,8 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
 
     @Override
     public void onError(Throwable error) {
-        if (getErrorProcessor() != null) {
-            getErrorProcessor().onError(getSessionId(), error);
+        if (errorProcessor != null) {
+            errorProcessor.onError(getSessionId(), error);
         }
     }
 
@@ -100,6 +101,11 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     @Override
     public void setClientListener(WsonrpcClientListener listener) {
         this.clientListener = listener;
+    }
+
+    @Override
+    public void setErrorProcessor(WsonrpcErrorProcessor errorProcessor) {
+        this.errorProcessor = errorProcessor;
     }
 
     /**

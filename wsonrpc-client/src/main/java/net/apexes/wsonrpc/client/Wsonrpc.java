@@ -8,11 +8,14 @@ package net.apexes.wsonrpc.client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Executor;
 
+import net.apexes.wsonrpc.client.support.SimpleWebsocketConnector;
 import net.apexes.wsonrpc.core.BinaryWrapper;
 import net.apexes.wsonrpc.core.RemoteInvoker;
+import net.apexes.wsonrpc.core.WsonrpcConfig;
+import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.json.JsonImplementor;
-import net.apexes.wsonrpc.json.support.GsonImplementor;
 
 /**
  * 
@@ -21,22 +24,13 @@ import net.apexes.wsonrpc.json.support.GsonImplementor;
  */
 public final class Wsonrpc {
     private Wsonrpc() {}
-
-    /**
-     * 
-     * @param jsonImpl
-     * @return
-     */
-    public static Config json(JsonImplementor jsonImpl) {
-        return new Config(jsonImpl, null);
-    }
-
+    
     /**
      * 
      * @return
      */
-    public static Config binaryWrapper(BinaryWrapper binaryWrapper) {
-        return new Config(new GsonImplementor(), binaryWrapper);
+    public static WsonrpcClientConfigBuilder config() {
+        return new WsonrpcClientConfigBuilder();
     }
 
     /**
@@ -45,8 +39,8 @@ public final class Wsonrpc {
      * @return
      * @throws URISyntaxException
      */
-    public static WsonrpcClientBuilder client(String url) throws URISyntaxException {
-        return new WsonrpcClientBuilder(new URI(url), new GsonImplementor(), null);
+    public static WsonrpcClient client(String url) throws URISyntaxException {
+        return config().client(url);
     }
 
     /**
@@ -57,25 +51,30 @@ public final class Wsonrpc {
     public static RemoteInvoker invoker(WsonrpcClient client) {
         return RemoteInvoker.create(client);
     }
-
+    
     /**
      * 
-     * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
+     * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    public static class Config {
-
-        private JsonImplementor jsonImpl;
-        private BinaryWrapper binaryWrapper;
-
+    public static class WsonrpcClientConfigBuilder {
+        
+        private final WsonrpcConfigBuilder builder;
+        private WebsocketConnector connector;
+        private int connectTimeout;
+        
+        private WsonrpcClientConfigBuilder() {
+            builder = WsonrpcConfigBuilder.create();
+        }
+        
         /**
          * 
          * @param jsonImpl
-         * @param binaryWrapper
+         * @return
          */
-        private Config(JsonImplementor jsonImpl, BinaryWrapper binaryWrapper) {
-            this.jsonImpl = jsonImpl;
-            this.binaryWrapper = binaryWrapper;
+        public WsonrpcClientConfigBuilder json(JsonImplementor jsonImpl) {
+            builder.json(jsonImpl);
+            return this;
         }
 
         /**
@@ -83,8 +82,38 @@ public final class Wsonrpc {
          * @param binaryWrapper
          * @return
          */
-        public Config binaryWrapper(BinaryWrapper binaryWrapper) {
-            this.binaryWrapper = binaryWrapper;
+        public WsonrpcClientConfigBuilder binaryWrapper(BinaryWrapper binaryWrapper) {
+            builder.binaryWrapper(binaryWrapper);
+            return this;
+        }
+
+        /**
+         * 
+         * @param executor
+         * @return
+         */
+        public WsonrpcClientConfigBuilder executor(Executor executor) {
+            builder.executor(executor);
+            return this;
+        }
+        
+        /**
+         * 
+         * @param connector
+         * @return
+         */
+        public WsonrpcClientConfigBuilder connector(WebsocketConnector connector) {
+            this.connector = connector;
+            return this;
+        }
+
+        /**
+         * 
+         * @param connectTimeout
+         * @return
+         */
+        public WsonrpcClientConfigBuilder connectTimeout(int connectTimeout) {
+            this.connectTimeout = connectTimeout;
             return this;
         }
 
@@ -94,8 +123,12 @@ public final class Wsonrpc {
          * @return
          * @throws URISyntaxException
          */
-        public WsonrpcClientBuilder client(String url) throws URISyntaxException {
-            return new WsonrpcClientBuilder(new URI(url), jsonImpl, binaryWrapper);
+        public WsonrpcClient client(String url) throws URISyntaxException {
+            if (connector == null) {
+                connector = new SimpleWebsocketConnector();
+            }
+            return new WsonrpcClientImpl(
+                    new WsonrpcClientConfigImpl(builder.build(), new URI(url), connector, connectTimeout));
         }
 
         /**
@@ -107,4 +140,56 @@ public final class Wsonrpc {
             return RemoteInvoker.create(client);
         }
     }
+    
+    /**
+     * 
+     * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
+     *
+     */
+    private static class WsonrpcClientConfigImpl implements WsonrpcClientConfig {
+
+        private final WsonrpcConfig config;
+        private final URI uri;
+        private final WebsocketConnector connector;
+        private final int connectTimeout;
+
+        private WsonrpcClientConfigImpl(WsonrpcConfig config, URI uri, WebsocketConnector connector, int connectTimeout) {
+            this.config = config;
+            this.uri = uri;
+            this.connector = connector;
+            this.connectTimeout = connectTimeout;
+        }
+
+        @Override
+        public JsonImplementor getJsonImplementor() {
+            return config.getJsonImplementor();
+        }
+
+        @Override
+        public BinaryWrapper getBinaryWrapper() {
+            return config.getBinaryWrapper();
+        }
+
+        @Override
+        public Executor getExecutor() {
+            return config.getExecutor();
+        }
+
+        @Override
+        public URI getURI() {
+            return uri;
+        }
+
+        @Override
+        public WebsocketConnector getWebsocketConnector() {
+            return connector;
+        }
+
+        @Override
+        public int getConnectTimeout() {
+            return connectTimeout;
+        }
+
+    }
+
 }

@@ -7,6 +7,7 @@
 package net.apexes.wsonrpc.client;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -81,7 +82,7 @@ public class JsonRpcHttpRemote implements Remote {
         try {
             int id = rand.nextInt(Integer.MAX_VALUE);
             jsonRpcKernel.invoke(handlerName, methodName, args, String.valueOf(id), transport);
-            return jsonRpcKernel.receiveResponse(transport.getInputStream(), returnType);
+            return jsonRpcKernel.receiveResponse(transport.readBinary(), returnType);
         } finally {
             transport.close();
         }
@@ -126,7 +127,7 @@ public class JsonRpcHttpRemote implements Remote {
             out.flush();
         }
 
-        public InputStream getInputStream() throws IOException {
+        public byte[] readBinary() throws IOException {
             int statusCode = conn.getResponseCode();
             if (statusCode != HttpURLConnection.HTTP_OK) {
                 throw new IOException("unexpected status code returned : " + statusCode);
@@ -140,7 +141,14 @@ public class JsonRpcHttpRemote implements Remote {
             } else {
                 in = new BufferedInputStream(conn.getInputStream());
             }
-            return in;
+            
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) != -1) {
+                out.write(buf, 0, len);
+            }
+            return out.toByteArray();
         }
 
         public void close() {

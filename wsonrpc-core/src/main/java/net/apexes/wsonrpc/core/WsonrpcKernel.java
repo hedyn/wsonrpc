@@ -7,7 +7,6 @@
 package net.apexes.wsonrpc.core;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
@@ -36,7 +35,7 @@ public class WsonrpcKernel implements HandlerRegistry {
         this.config = config;
         jsonRpcKernel = new JsonRpcKernel(config.getJsonImplementor(), config.getBinaryWrapper());
     }
-    
+
     public final WsonrpcConfig getConfig() {
         return config;
     }
@@ -57,7 +56,7 @@ public class WsonrpcKernel implements HandlerRegistry {
         if (session == null) {
             throw new NullPointerException("session");
         }
-        
+
         String id = UUID.randomUUID().toString().replaceAll("-", "");
 
         WsonrpcFuture<Object> future = new WsonrpcFuture<>(id, returnType);
@@ -90,7 +89,7 @@ public class WsonrpcKernel implements HandlerRegistry {
         if (session == null) {
             throw new NullPointerException("session");
         }
-        
+
         jsonRpcKernel.invoke(handleName, methodName, args, null, session);
     }
 
@@ -98,18 +97,32 @@ public class WsonrpcKernel implements HandlerRegistry {
      * 处理收到的JSON数据
      * 
      * @param session
-     * @param in
-     * @throws Exception
+     * @param bytes
+     * @param errorProcessor
+     * @throws IOException
+     * @throws WsonrpcException
      */
-    public void handle(WsonrpcSession session, InputStream in) throws IOException, WsonrpcException {
+    public void handle(final WsonrpcSession session, byte[] bytes, final WsonrpcErrorProcessor errorProcessor) 
+            throws IOException, WsonrpcException {
         if (session == null) {
             throw new NullPointerException("session");
         }
-        
-        JsonRpcMessage msg = jsonRpcKernel.receive(in);
+
+        final JsonRpcMessage msg = jsonRpcKernel.receive(bytes);
 
         if (msg instanceof JsonRpcRequest) {
-            handleRequest(session, (JsonRpcRequest) msg);
+            config.getExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        handleRequest(session, (JsonRpcRequest) msg);
+                    } catch (Exception e) {
+                        if (errorProcessor != null) {
+                            errorProcessor.onError(session.getId(), e);
+                        }
+                    }
+                }
+            });
 
         } else if (msg instanceof JsonRpcResponse) {
             JsonRpcResponse resp = (JsonRpcResponse) msg;
@@ -128,21 +141,22 @@ public class WsonrpcKernel implements HandlerRegistry {
             }
         }
     }
-    
+
     /**
      * 
      * @param session
      * @param request
-     * @throws IOException
      * @throws WsonrpcException
+     * @throws IOException
      */
-    protected void handleRequest(WsonrpcSession session, JsonRpcRequest request) throws IOException, WsonrpcException {
+    protected void handleRequest(WsonrpcSession session, JsonRpcRequest request)
+            throws IOException, WsonrpcException {
         JsonRpcResponse resp = jsonRpcKernel.execute(request);
         if (resp != null) {
             jsonRpcKernel.transmit(session, resp);
         }
     }
-    
+
     @Override
     public <T> HandlerRegistry register(String name, T handler, Class<?>... classes) {
         return jsonRpcKernel.register(name, handler, classes);

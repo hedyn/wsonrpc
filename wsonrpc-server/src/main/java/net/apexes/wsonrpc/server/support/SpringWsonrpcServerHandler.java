@@ -16,10 +16,10 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import net.apexes.wsonrpc.core.WsonrpcConfig;
+import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.core.WsonrpcSession;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
-import net.apexes.wsonrpc.server.WsonrpcServerConfig;
-import net.apexes.wsonrpc.server.WsonrpcServerConfigBuilder;
 
 /**
  * 基于Spring WebSocket 的服务端
@@ -30,10 +30,10 @@ import net.apexes.wsonrpc.server.WsonrpcServerConfigBuilder;
 public class SpringWsonrpcServerHandler extends WsonrpcServerBase implements WebSocketHandler {
     
     public SpringWsonrpcServerHandler() {
-        this(WsonrpcServerConfigBuilder.create().build());
+        this(WsonrpcConfigBuilder.defaultConfig());
     }
     
-    public SpringWsonrpcServerHandler(WsonrpcServerConfig config) {
+    public SpringWsonrpcServerHandler(WsonrpcConfig config) {
         super(config);
     }
     

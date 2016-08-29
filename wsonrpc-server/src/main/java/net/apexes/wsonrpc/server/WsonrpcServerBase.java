@@ -6,13 +6,14 @@
  */
 package net.apexes.wsonrpc.server;
 
-import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 
 import net.apexes.wsonrpc.core.HandlerRegistry;
+import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcKernel;
 import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.message.JsonRpcRequest;
 
 /**
  * 
@@ -21,26 +22,18 @@ import net.apexes.wsonrpc.core.WsonrpcSession;
  */
 public class WsonrpcServerBase {
     
-    protected final WsonrpcServerConfig config;
+    protected final WsonrpcConfig config;
     private final WsonrpcKernel wsonrpcKernal;
     private WsonrpcServerListener serverListener;
     private WsonrpcErrorProcessor errorProcessor;
     
-    protected WsonrpcServerBase(WsonrpcServerConfig config) {
+    protected WsonrpcServerBase(WsonrpcConfig config) {
         this.config = config;
-        wsonrpcKernal = new WsonrpcKernel(config);
+        wsonrpcKernal = new WsonrpcKernelProxy(config);
     }
     
     public HandlerRegistry getRegistry() {
         return wsonrpcKernal;
-    }
-
-    public WsonrpcErrorProcessor getErrorProcessor() {
-        return errorProcessor;
-    }
-
-    public void setErrorProcessor(WsonrpcErrorProcessor errorProcessor) {
-        this.errorProcessor = errorProcessor;
     }
     
     public WsonrpcServerListener getServerListener() {
@@ -51,6 +44,14 @@ public class WsonrpcServerBase {
         this.serverListener = listener;
     }
     
+    public WsonrpcErrorProcessor getErrorProcessor() {
+        return errorProcessor;
+    }
+
+    public void setErrorProcessor(WsonrpcErrorProcessor errorProcessor) {
+        this.errorProcessor = errorProcessor;
+    }
+
     /**
      * Client端已经连接上
      * @param session
@@ -76,12 +77,19 @@ public class WsonrpcServerBase {
      */
     protected void onMessage(String sessionId, ByteBuffer buffer) {
         WsonrpcSession session = WsonrpcRemotes.getSession(sessionId);
-        config.getExecutor().execute(new ExecCallback(session, buffer.array()));
+        byte[] bytes = buffer.array();
+        try {
+            wsonrpcKernal.handle(session, bytes, errorProcessor);
+        } catch (Exception ex) {
+            onError(session.getId(), ex);
+        } finally {
+            fireMessage(session.getId(), bytes);
+        }
     }
     
     protected void onError(String sessionId, Throwable error) {
-        if (getErrorProcessor() != null) {
-            getErrorProcessor().onError(sessionId, error);
+        if (errorProcessor != null) {
+            errorProcessor.onError(sessionId, error);
         }
     }
     
@@ -105,32 +113,26 @@ public class WsonrpcServerBase {
     
     /**
      * 
-     * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
+     * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private class ExecCallback implements Runnable {
+    private class WsonrpcKernelProxy extends WsonrpcKernel {
         
-        private final WsonrpcSession session;
-        private final byte[] bytes;
-        
-        private ExecCallback(WsonrpcSession session, byte[] bytes) {
-            this.session = session;
-            this.bytes = bytes;
+        public WsonrpcKernelProxy(WsonrpcConfig config) {
+            super(config);
         }
         
         @Override
-        public void run() {
+        protected void handleRequest(WsonrpcSession session, JsonRpcRequest request) {
             WsonrpcSessions.begin(session);
             try {
-                wsonrpcKernal.handle(session, new ByteArrayInputStream(bytes));
+                super.handleRequest(session, request);
             } catch (Exception ex) {
                 onError(session.getId(), ex);
             } finally {
-                fireMessage(session.getId(), bytes);
                 WsonrpcSessions.end();
             }
         }
         
     }
-
 }

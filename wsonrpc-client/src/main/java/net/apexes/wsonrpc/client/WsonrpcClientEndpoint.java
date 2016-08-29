@@ -19,7 +19,7 @@ public interface WsonrpcClientEndpoint {
 
     void onOpen(WsonrpcSession session);
 
-    void onMessage(byte[] data);
+    void onMessage(byte[] bytes);
 
     void onError(Throwable error);
 

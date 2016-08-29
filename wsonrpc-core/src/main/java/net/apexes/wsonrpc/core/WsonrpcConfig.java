@@ -6,6 +6,8 @@
  */
 package net.apexes.wsonrpc.core;
 
+import java.util.concurrent.Executor;
+
 import net.apexes.wsonrpc.json.JsonImplementor;
 
 /**
@@ -19,4 +21,6 @@ public interface WsonrpcConfig {
     
     BinaryWrapper getBinaryWrapper();
     
+    Executor getExecutor();
+        
 }
