@@ -33,7 +33,6 @@ public class Jsr356WsonrpcServerEndpoint extends WsonrpcServerBase implements Ws
     public Jsr356WsonrpcServerEndpoint() {
         super(WsonrpcConfigBuilder.create()
                 .json(new JacksonImplementor())
-//                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
                 .build());
         setErrorProcessor(this);
         getRegistry()

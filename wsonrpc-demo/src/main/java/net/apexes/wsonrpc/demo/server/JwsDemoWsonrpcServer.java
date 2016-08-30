@@ -29,7 +29,6 @@ public class JwsDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
         execService = Executors.newCachedThreadPool();
         WsonrpcConfig config = WsonrpcConfigBuilder.create()
                 .json(new JacksonImplementor())
-//                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
                 .executor(execService)
                 .build();
         server = new JavaWebsocketWsonrpcServer(8080, JavaWebsocketWsonrpcServer.startWithPath("/wsonrpc/"), config);

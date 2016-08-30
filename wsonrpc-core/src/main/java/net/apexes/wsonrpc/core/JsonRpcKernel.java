@@ -32,7 +32,6 @@ public class JsonRpcKernel implements HandlerRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(JsonRpcKernel.class);
 
     private final JsonImplementor jsonImpl;
-    private final BinaryWrapper binaryWrapper;
     private final Map<String, HandlerEntry<?>> handlers;
     
     /**
@@ -40,20 +39,10 @@ public class JsonRpcKernel implements HandlerRegistry {
      * @param jsonContext
      */
     public JsonRpcKernel(JsonImplementor jsonImpl) {
-        this(jsonImpl, null);
-    }
-    
-    /**
-     * 
-     * @param jsonImpl
-     * @param binaryWrapper
-     */
-    protected JsonRpcKernel(JsonImplementor jsonImpl, BinaryWrapper binaryWrapper) {
         if (jsonImpl == null) {
             throw new NullPointerException("jsonImpl");
         }
         this.jsonImpl = jsonImpl;
-        this.binaryWrapper = binaryWrapper;
         handlers = new HashMap<>();
     }
 
@@ -311,12 +300,6 @@ public class JsonRpcKernel implements HandlerRegistry {
         LOG.debug("WSONRPC >>  {}", json);
         
         byte[] bytes = json.getBytes("UTF-8");
-        if (binaryWrapper != null) {
-            LOG.debug("1.length={}", bytes.length);
-            bytes = binaryWrapper.write(bytes);
-            LOG.debug("2.length={}", bytes.length);
-        }
-
         transport.sendBinary(bytes);
     }
 
@@ -328,10 +311,6 @@ public class JsonRpcKernel implements HandlerRegistry {
      * @throws WsonrpcException
      */
     protected JsonRpcMessage receive(byte[] bytes) throws IOException, WsonrpcException {
-        if (binaryWrapper != null) {
-            bytes = binaryWrapper.read(bytes);
-        }
-
         String json = new String(bytes, "UTF-8");
 
         LOG.debug("WSONRPC <<  {}", json);

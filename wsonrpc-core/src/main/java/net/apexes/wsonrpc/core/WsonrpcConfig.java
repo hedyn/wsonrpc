@@ -19,8 +19,6 @@ public interface WsonrpcConfig {
 
     JsonImplementor getJsonImplementor();
     
-    BinaryWrapper getBinaryWrapper();
-    
     Executor getExecutor();
         
 }

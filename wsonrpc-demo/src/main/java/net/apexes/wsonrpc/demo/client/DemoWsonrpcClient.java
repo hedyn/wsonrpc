@@ -31,7 +31,6 @@ public class DemoWsonrpcClient {
         String url = "ws://127.0.0.1:8080/wsonrpc";
         client = Wsonrpc.config()
 //                .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
-//                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
 //                .connector(new net.apexes.wsonrpc.client.support.JavaWebsocketConnector())
 //                .connector(new net.apexes.wsonrpc.client.support.TyrusWebsocketConnector())
                 .client(url);

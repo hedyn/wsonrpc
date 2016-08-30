@@ -27,7 +27,6 @@ public final class WsonrpcConfigBuilder {
     }
     
     private JsonImplementor jsonImpl;
-    private BinaryWrapper binaryWrapper;
     private Executor executor;
     
     private WsonrpcConfigBuilder() {}
@@ -54,11 +53,6 @@ public final class WsonrpcConfigBuilder {
             }
 
             @Override
-            public BinaryWrapper getBinaryWrapper() {
-                return binaryWrapper;
-            }
-
-            @Override
             public Executor getExecutor() {
                 return executor;
             }
@@ -73,16 +67,6 @@ public final class WsonrpcConfigBuilder {
      */
     public WsonrpcConfigBuilder json(JsonImplementor jsonImpl) {
         this.jsonImpl = jsonImpl;
-        return this;
-    }
-
-    /**
-     * 
-     * @param binaryWrapper
-     * @return
-     */
-    public WsonrpcConfigBuilder binaryWrapper(BinaryWrapper binaryWrapper) {
-        this.binaryWrapper = binaryWrapper;
         return this;
     }
 
