@@ -4,13 +4,13 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.demo.server.handler;
+package net.apexes.wsonrpc.demo.server.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.apexes.wsonrpc.core.WsonrpcRemote;
-import net.apexes.wsonrpc.demo.api.RegisterHandler;
+import net.apexes.wsonrpc.demo.api.RegisterService;
 import net.apexes.wsonrpc.demo.api.model.User;
 import net.apexes.wsonrpc.demo.server.OnlineClientHolder;
 import net.apexes.wsonrpc.server.WsonrpcRemotes;
@@ -20,8 +20,8 @@ import net.apexes.wsonrpc.server.WsonrpcRemotes;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class RegisterHandlerImpl implements RegisterHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(RegisterHandlerImpl.class);
+public class RegisterServiceImpl implements RegisterService {
+    private static final Logger LOG = LoggerFactory.getLogger(RegisterServiceImpl.class);
 
     @Override
     public void register(String clientId) {

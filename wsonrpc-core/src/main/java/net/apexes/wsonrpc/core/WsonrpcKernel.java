@@ -19,7 +19,7 @@ import net.apexes.wsonrpc.core.message.JsonRpcResponse;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WsonrpcKernel implements HandlerRegistry {
+public class WsonrpcKernel implements ServiceRegistry {
 
     protected final WsonrpcConfig config;
     protected final JsonRpcKernel jsonRpcKernel;
@@ -43,7 +43,7 @@ public class WsonrpcKernel implements HandlerRegistry {
     /**
      * 
      * @param session
-     * @param handleName
+     * @param serviceName
      * @param methodName
      * @param args
      * @param returnType
@@ -51,7 +51,7 @@ public class WsonrpcKernel implements HandlerRegistry {
      * @throws IOException
      * @throws WsonrpcException
      */
-    public Future<Object> invoke(WsonrpcSession session, String handleName, String methodName, Object[] args,
+    public Future<Object> invoke(WsonrpcSession session, String serviceName, String methodName, Object[] args,
             Class<?> returnType) throws IOException, WsonrpcException {
         if (session == null) {
             throw new NullPointerException("session");
@@ -62,7 +62,7 @@ public class WsonrpcKernel implements HandlerRegistry {
         WsonrpcFuture<Object> future = new WsonrpcFuture<>(id, returnType);
         Futures.put(future);
         try {
-            jsonRpcKernel.invoke(handleName, methodName, args, id, session);
+            jsonRpcKernel.invoke(serviceName, methodName, args, id, session);
             return future;
         } catch (Throwable t) {
             Futures.out(id);
@@ -78,19 +78,19 @@ public class WsonrpcKernel implements HandlerRegistry {
     /**
      * 
      * @param session
-     * @param handleName
+     * @param serviceName
      * @param methodName
      * @param args
      * @throws IOException
      * @throws WsonrpcException
      */
-    public void invoke(WsonrpcSession session, String handleName, String methodName, Object[] args)
+    public void invoke(WsonrpcSession session, String serviceName, String methodName, Object[] args)
             throws IOException, WsonrpcException {
         if (session == null) {
             throw new NullPointerException("session");
         }
 
-        jsonRpcKernel.invoke(handleName, methodName, args, null, session);
+        jsonRpcKernel.invoke(serviceName, methodName, args, null, session);
     }
 
     /**
@@ -158,12 +158,12 @@ public class WsonrpcKernel implements HandlerRegistry {
     }
 
     @Override
-    public <T> HandlerRegistry register(String name, T handler, Class<?>... classes) {
-        return jsonRpcKernel.register(name, handler, classes);
+    public <T> ServiceRegistry register(String name, T service, Class<?>... classes) {
+        return jsonRpcKernel.register(name, service, classes);
     }
 
     @Override
-    public <T> HandlerRegistry unregister(String name) {
+    public <T> ServiceRegistry unregister(String name) {
         return jsonRpcKernel.unregister(name);
     }
 

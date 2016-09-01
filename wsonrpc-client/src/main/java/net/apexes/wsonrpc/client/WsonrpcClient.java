@@ -6,7 +6,7 @@
  */
 package net.apexes.wsonrpc.client;
 
-import net.apexes.wsonrpc.core.HandlerRegistry;
+import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcRemote;
 
@@ -21,7 +21,7 @@ public interface WsonrpcClient extends WsonrpcRemote {
      * 
      * @return
      */
-    HandlerRegistry getRegistry();
+    ServiceRegistry getRegistry();
         
     /**
      * 

@@ -4,12 +4,12 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.demo.server.handler;
+package net.apexes.wsonrpc.demo.server.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.apexes.wsonrpc.demo.api.DemoHandler;
+import net.apexes.wsonrpc.demo.api.DemoService;
 import net.apexes.wsonrpc.demo.api.model.Dept;
 import net.apexes.wsonrpc.demo.api.model.Role;
 import net.apexes.wsonrpc.demo.api.model.User;
@@ -18,9 +18,9 @@ import net.apexes.wsonrpc.demo.api.model.User;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class DemoHandlerImpl implements DemoHandler {
+public class DemoServiceImpl implements DemoService {
 
-    public DemoHandlerImpl() {
+    public DemoServiceImpl() {
     }
 
     @Override

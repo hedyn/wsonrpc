@@ -8,7 +8,7 @@ package net.apexes.wsonrpc.server;
 
 import java.nio.ByteBuffer;
 
-import net.apexes.wsonrpc.core.HandlerRegistry;
+import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcKernel;
@@ -32,7 +32,7 @@ public class WsonrpcServerBase {
         wsonrpcKernal = new WsonrpcKernelProxy(config);
     }
     
-    public HandlerRegistry getRegistry() {
+    public ServiceRegistry getRegistry() {
         return wsonrpcKernal;
     }
     

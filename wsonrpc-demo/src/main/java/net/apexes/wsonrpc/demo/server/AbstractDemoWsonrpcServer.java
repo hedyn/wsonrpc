@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import net.apexes.wsonrpc.core.RemoteInvoker;
 import net.apexes.wsonrpc.core.WsonrpcRemote;
-import net.apexes.wsonrpc.demo.api.PushHandler;
+import net.apexes.wsonrpc.demo.api.PushService;
 import net.apexes.wsonrpc.server.WsonrpcRemotes;
 
 /**
@@ -58,7 +58,7 @@ public abstract class AbstractDemoWsonrpcServer implements DemoServer {
     
     private void call(WsonrpcRemote remote) {
         if (remote != null) {
-            PushHandler pushHandler = RemoteInvoker.create(remote).handleName("push").get(PushHandler.class);
+            PushService pushHandler = RemoteInvoker.create(remote).handleName("push").get(PushService.class);
             String callParam = UUID.randomUUID().toString();
             LOG.info("callParam={}", callParam);
             String callValue = pushHandler.setupStatus(callParam);
@@ -80,7 +80,7 @@ public abstract class AbstractDemoWsonrpcServer implements DemoServer {
     
     private void notice(WsonrpcRemote remote, String message) {
         if (remote != null) {
-            PushHandler pushHandler = RemoteInvoker.create(remote).handleName("push").get(PushHandler.class);
+            PushService pushHandler = RemoteInvoker.create(remote).handleName("push").get(PushService.class);
             pushHandler.notice(message);
         }
     }

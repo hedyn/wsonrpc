@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcSession;
-import net.apexes.wsonrpc.demo.api.DemoHandler;
-import net.apexes.wsonrpc.demo.api.RegisterHandler;
-import net.apexes.wsonrpc.demo.server.handler.DemoHandlerImpl;
-import net.apexes.wsonrpc.demo.server.handler.RegisterHandlerImpl;
+import net.apexes.wsonrpc.demo.api.DemoService;
+import net.apexes.wsonrpc.demo.api.RegisterService;
+import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
+import net.apexes.wsonrpc.demo.server.service.RegisterServiceImpl;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
 import net.apexes.wsonrpc.server.WsonrpcServerListener;
 
@@ -104,8 +104,8 @@ public class DemoWsonrpcServer {
         });
         
         // 注册服务供Client调用
-        serverBase.getRegistry().register("demo", new DemoHandlerImpl(), DemoHandler.class);
-        serverBase.getRegistry().register("register", new RegisterHandlerImpl(), RegisterHandler.class);
+        serverBase.getRegistry().register("demo", new DemoServiceImpl(), DemoService.class);
+        serverBase.getRegistry().register("register", new RegisterServiceImpl(), RegisterService.class);
     }
 
 }

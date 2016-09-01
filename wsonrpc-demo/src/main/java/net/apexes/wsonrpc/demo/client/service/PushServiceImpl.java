@@ -4,21 +4,21 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.demo.client.handler;
+package net.apexes.wsonrpc.demo.client.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.apexes.wsonrpc.demo.api.PushHandler;
+import net.apexes.wsonrpc.demo.api.PushService;
 
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class PushHandlerImpl implements PushHandler {
+public class PushServiceImpl implements PushService {
     
-    private static final Logger LOG = LoggerFactory.getLogger(PushHandlerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PushServiceImpl.class);
 
     @Override
     public String setupStatus(String value) {

@@ -28,11 +28,11 @@ import net.apexes.wsonrpc.json.JsonImplementor.Node;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class JsonRpcKernel implements HandlerRegistry {
+public class JsonRpcKernel implements ServiceRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(JsonRpcKernel.class);
 
     private final JsonImplementor jsonImpl;
-    private final Map<String, HandlerEntry<?>> handlers;
+    private final Map<String, ServiceEntry<?>> services;
     
     /**
      * 
@@ -43,7 +43,7 @@ public class JsonRpcKernel implements HandlerRegistry {
             throw new NullPointerException("jsonImpl");
         }
         this.jsonImpl = jsonImpl;
-        handlers = new HashMap<>();
+        services = new HashMap<>();
     }
 
     /**
@@ -55,21 +55,21 @@ public class JsonRpcKernel implements HandlerRegistry {
     }
 
     @Override
-    public <T> HandlerRegistry register(String name, T handler, Class<?>... classes) {
-        HandlerEntry<T> handleEntry = new HandlerEntry<>(handler, classes);
-        synchronized (handlers) {
-            if (handlers.containsKey(name)) {
-                throw new IllegalArgumentException("handler already exists");
+    public <T> ServiceRegistry register(String name, T service, Class<?>... classes) {
+        ServiceEntry<T> serviceEntry = new ServiceEntry<>(service, classes);
+        synchronized (services) {
+            if (services.containsKey(name)) {
+                throw new IllegalArgumentException("service already exists");
             }
-            handlers.put(name, handleEntry);
+            services.put(name, serviceEntry);
         }
         return this;
     }
 
     @Override
-    public <T> HandlerRegistry unregister(String name) {
-        synchronized (handlers) {
-            handlers.remove(name);
+    public <T> ServiceRegistry unregister(String name) {
+        synchronized (services) {
+            services.remove(name);
         }
         return this;
     }
@@ -116,7 +116,7 @@ public class JsonRpcKernel implements HandlerRegistry {
     /**
      * 远程调用方法。
      * 
-     * @param handleName
+     * @param serviceName
      * @param methodName
      * @param args
      * @param id
@@ -124,17 +124,17 @@ public class JsonRpcKernel implements HandlerRegistry {
      * @throws IOException
      * @throws WsonrpcException
      */
-    public void invoke(String handleName, String methodName, Object[] args, String id, Transport transport)
+    public void invoke(String serviceName, String methodName, Object[] args, String id, Transport transport)
             throws IOException, WsonrpcException {
         if (methodName == null) {
             throw new NullPointerException("methodName");
         }
 
         String method;
-        if (handleName == null) {
+        if (serviceName == null) {
             method = methodName;
         } else {
-            method = handleName + "." + methodName;
+            method = serviceName + "." + methodName;
         }
         Node[] params = null;
         if (args != null) {
@@ -158,22 +158,22 @@ public class JsonRpcKernel implements HandlerRegistry {
             return new JsonRpcResponse(null, JsonRpcError.parseError(null));
         }
 
-        String handleName = "";
+        String serviceName = "";
         String methodName = request.getMethod();
         int lastIndex = methodName.lastIndexOf('.');
         if (lastIndex >= 0) {
-            handleName = methodName.substring(0, lastIndex);
+            serviceName = methodName.substring(0, lastIndex);
             methodName = methodName.substring(lastIndex + 1);
         }
 
-        HandlerEntry<?> handlerEntry;
-        synchronized (handlers) {
-            handlerEntry = handlers.get(handleName);
+        ServiceEntry<?> serviceEntry;
+        synchronized (services) {
+            serviceEntry = services.get(serviceName);
         }
-        if (handlerEntry == null) {
+        if (serviceEntry == null) {
             return new JsonRpcResponse(null, JsonRpcError.methodNotFoundError(null));
         }
-        Set<Method> methods = handlerEntry.getMethods(methodName);
+        Set<Method> methods = serviceEntry.getMethods(methodName);
         if (methods == null || methods.isEmpty()) {
             return new JsonRpcResponse(null, JsonRpcError.methodNotFoundError(null));
         }
@@ -186,7 +186,7 @@ public class JsonRpcKernel implements HandlerRegistry {
 
         try {
             Object[] args = getParameters(method, params);
-            Object invokeValue = method.invoke(handlerEntry.getHandler(), args);
+            Object invokeValue = method.invoke(serviceEntry.getService(), args);
 
             if (request.isNotice()) {
                 return null;

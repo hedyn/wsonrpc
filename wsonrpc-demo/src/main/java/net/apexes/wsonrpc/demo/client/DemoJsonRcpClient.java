@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import net.apexes.wsonrpc.client.Jsonrpc;
 import net.apexes.wsonrpc.core.RemoteInvoker;
-import net.apexes.wsonrpc.demo.api.DemoHandler;
+import net.apexes.wsonrpc.demo.api.DemoService;
 
 /**
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
@@ -22,7 +22,7 @@ public class DemoJsonRcpClient {
         RemoteInvoker invoker = Jsonrpc.url("http://127.0.0.1:8080")
                 .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
                 .invoker();
-        DemoHandler demoHandler = invoker.handleName("demo").get(DemoHandler.class);
+        DemoService demoHandler = invoker.handleName("demo").get(DemoService.class);
         System.out.println(demoHandler.echo("Hello wsonrpc!"));
         System.out.println(demoHandler.login("admin", "admin"));
         System.out.println(demoHandler.getRoleList());

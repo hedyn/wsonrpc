@@ -4,7 +4,7 @@
  *        http://www.apexes.net
  * 
  */
-package net.apexes.wsonrpc.demo.server.handler;
+package net.apexes.wsonrpc.demo.server.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

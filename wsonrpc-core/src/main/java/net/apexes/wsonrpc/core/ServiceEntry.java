@@ -19,25 +19,25 @@ import java.util.Set;
  *
  * @param <T>
  */
-class HandlerEntry<T> {
+class ServiceEntry<T> {
 
-    private final T handler;
+    private final T service;
     private final Map<String, Set<Method>> methods;
 
-    public HandlerEntry(T handler, Class<?>... classes) {
-        if (handler == null) {
-            throw new NullPointerException("handler");
+    public ServiceEntry(T service, Class<?>... classes) {
+        if (service == null) {
+            throw new NullPointerException("service");
         }
 
         if (classes.length == 0) {
             throw new IllegalArgumentException("none interface");
         }
 
-        this.handler = handler;
+        this.service = service;
 
         Map<String, Set<Method>> map = new HashMap<>();
 
-        Class<?> handlerClass = handler.getClass();
+        Class<?> serviceClass = service.getClass();
         for (Class<?> clazz : classes) {
             if (!clazz.isInterface()) {
                 throw new IllegalArgumentException("class should be an interface : " + clazz);
@@ -49,7 +49,7 @@ class HandlerEntry<T> {
 
                 Method method;
                 try {
-                    method = handlerClass.getMethod(methodName, params);
+                    method = serviceClass.getMethod(methodName, params);
                 } catch (NoSuchMethodException e) {
                     throw new IllegalArgumentException(
                             "not implements method : " + methodName + argumentTypesToString(params));
@@ -69,8 +69,8 @@ class HandlerEntry<T> {
         this.methods = Collections.unmodifiableMap(map);
     }
 
-    public T getHandler() {
-        return handler;
+    public T getService() {
+        return service;
     }
 
     public Set<Method> getMethods(String methodName) {

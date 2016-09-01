@@ -14,10 +14,10 @@ import org.glassfish.tyrus.core.MaxSessions;
 import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.websocket.WebSockets;
-import net.apexes.wsonrpc.demo.api.DemoHandler;
-import net.apexes.wsonrpc.demo.api.RegisterHandler;
-import net.apexes.wsonrpc.demo.server.handler.DemoHandlerImpl;
-import net.apexes.wsonrpc.demo.server.handler.RegisterHandlerImpl;
+import net.apexes.wsonrpc.demo.api.DemoService;
+import net.apexes.wsonrpc.demo.api.RegisterService;
+import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
+import net.apexes.wsonrpc.demo.server.service.RegisterServiceImpl;
 import net.apexes.wsonrpc.json.support.JacksonImplementor;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
 
@@ -36,8 +36,8 @@ public class Jsr356WsonrpcServerEndpoint extends WsonrpcServerBase implements Ws
                 .build());
         setErrorProcessor(this);
         getRegistry()
-            .register("demo", new DemoHandlerImpl() , DemoHandler.class)
-            .register("register", new RegisterHandlerImpl() , RegisterHandler.class);
+            .register("demo", new DemoServiceImpl() , DemoService.class)
+            .register("register", new RegisterServiceImpl() , RegisterService.class);
     }
 
     @Override

@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 import net.apexes.wsonrpc.client.Wsonrpc;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.client.WsonrpcClientListener;
-import net.apexes.wsonrpc.demo.api.DemoHandler;
-import net.apexes.wsonrpc.demo.api.PushHandler;
-import net.apexes.wsonrpc.demo.api.RegisterHandler;
+import net.apexes.wsonrpc.demo.api.DemoService;
+import net.apexes.wsonrpc.demo.api.PushService;
+import net.apexes.wsonrpc.demo.api.RegisterService;
 import net.apexes.wsonrpc.demo.api.model.User;
-import net.apexes.wsonrpc.demo.client.handler.PushHandlerImpl;
+import net.apexes.wsonrpc.demo.client.service.PushServiceImpl;
 
 /**
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
@@ -45,7 +45,7 @@ public class DemoWsonrpcClient {
             @Override
             public void onOpen(WsonrpcClient client) {
                 LOG.info("...");
-                RegisterHandler handler = Wsonrpc.invoker(client).handleName("register").get(RegisterHandler.class);
+                RegisterService handler = Wsonrpc.invoker(client).handleName("register").get(RegisterService.class);
                 handler.register(clientId);
             }
 
@@ -67,7 +67,7 @@ public class DemoWsonrpcClient {
             
         });
     
-        client.getRegistry().register("push", new PushHandlerImpl(), PushHandler.class);
+        client.getRegistry().register("push", new PushServiceImpl(), PushService.class);
     }
     
     public boolean isConnected() {
@@ -95,7 +95,7 @@ public class DemoWsonrpcClient {
     
     public void login(String username, String password) {
         if (client.isConnected()) {
-            RegisterHandler handler = Wsonrpc.invoker(client).handleName("register").get(RegisterHandler.class);
+            RegisterService handler = Wsonrpc.invoker(client).handleName("register").get(RegisterService.class);
             User user = handler.login(username, password);
             LOG.info("{}", user);
         }
@@ -108,7 +108,7 @@ public class DemoWsonrpcClient {
     }
     
     public void demo() {
-        DemoHandler demoHandler = Wsonrpc.invoker(client).handleName("demo").get(DemoHandler.class);
+        DemoService demoHandler = Wsonrpc.invoker(client).handleName("demo").get(DemoService.class);
         LOG.info("{}", demoHandler.echo("Hello wsonrpc!"));
         LOG.info("{}", demoHandler.login("admin", "admin"));
         LOG.info("{}", demoHandler.getRoleList());

@@ -11,10 +11,10 @@ package net.apexes.wsonrpc.core;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public interface HandlerRegistry {
+public interface ServiceRegistry {
     
-    <T> HandlerRegistry register(String name, T handler, Class<?>... classes);
+    <T> ServiceRegistry register(String name, T service, Class<?>... classes);
     
-    <T> HandlerRegistry unregister(String name);
+    <T> ServiceRegistry unregister(String name);
 
 }

@@ -8,7 +8,7 @@ package net.apexes.wsonrpc.client;
 
 import java.io.IOException;
 
-import net.apexes.wsonrpc.core.HandlerRegistry;
+import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcEndpoint;
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcSession;
@@ -89,7 +89,7 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     }
 
     @Override
-    public HandlerRegistry getRegistry() {
+    public ServiceRegistry getRegistry() {
         return wsonrpcKernal;
     }
     

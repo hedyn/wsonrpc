@@ -17,8 +17,8 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.util.ServerRunner;
 import net.apexes.wsonrpc.core.JsonRpcKernel;
 import net.apexes.wsonrpc.core.Transport;
-import net.apexes.wsonrpc.demo.api.DemoHandler;
-import net.apexes.wsonrpc.demo.server.handler.DemoHandlerImpl;
+import net.apexes.wsonrpc.demo.api.DemoService;
+import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class DemoJsonRpcServer extends NanoHTTPD {
         super(8080);
 //        jsonRpcKernel = new JsonRpcKernel(new net.apexes.wsonrpc.json.support.JacksonImplementor());
         jsonRpcKernel = new JsonRpcKernel(new net.apexes.wsonrpc.json.support.GsonImplementor());
-        jsonRpcKernel.register("demo", new DemoHandlerImpl(), DemoHandler.class);
+        jsonRpcKernel.register("demo", new DemoServiceImpl(), DemoService.class);
     }
 
     @Override

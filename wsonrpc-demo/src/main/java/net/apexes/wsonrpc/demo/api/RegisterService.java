@@ -6,14 +6,17 @@
  */
 package net.apexes.wsonrpc.demo.api;
 
+import net.apexes.wsonrpc.demo.api.model.User;
+
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public interface PushHandler {
+public interface RegisterService {
     
-    String setupStatus(String value);
+    void register(String clientId);
+    
+    User login(String username, String password);
 
-    void notice(String message);
 }
