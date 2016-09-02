@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import net.apexes.wsonrpc.client.Wsonrpc;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.client.WsonrpcClientListener;
+import net.apexes.wsonrpc.core.GZIPBinaryWrapper;
 import net.apexes.wsonrpc.demo.api.DemoService;
 import net.apexes.wsonrpc.demo.api.PushService;
 import net.apexes.wsonrpc.demo.api.RegisterService;
@@ -31,6 +32,7 @@ public class DemoWsonrpcClient {
         String url = "ws://127.0.0.1:8080/wsonrpc";
         client = Wsonrpc.config()
 //                .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
+                .binaryWrapper(new GZIPBinaryWrapper())
 //                .connector(new net.apexes.wsonrpc.client.support.JavaWebsocketConnector())
 //                .connector(new net.apexes.wsonrpc.client.support.TyrusWebsocketConnector())
                 .client(url);

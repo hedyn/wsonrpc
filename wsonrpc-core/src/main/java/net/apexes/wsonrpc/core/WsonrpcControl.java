@@ -19,21 +19,21 @@ import net.apexes.wsonrpc.core.message.JsonRpcResponse;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WsonrpcKernel implements ServiceRegistry {
+public class WsonrpcControl implements ServiceRegistry {
 
     protected final WsonrpcConfig config;
-    protected final JsonRpcKernel jsonRpcKernel;
+    protected final JsonRpcControl jsonRpcControl;
 
     /**
      * 
      * @param config
      */
-    public WsonrpcKernel(WsonrpcConfig config) {
+    public WsonrpcControl(WsonrpcConfig config) {
         if (config == null) {
             throw new NullPointerException("config");
         }
         this.config = config;
-        jsonRpcKernel = new JsonRpcKernel(config.getJsonImplementor());
+        jsonRpcControl = new JsonRpcControl(config.getJsonImplementor(), config.getBinaryWrapper());
     }
 
     public final WsonrpcConfig getConfig() {
@@ -62,7 +62,7 @@ public class WsonrpcKernel implements ServiceRegistry {
         WsonrpcFuture<Object> future = new WsonrpcFuture<>(id, returnType);
         Futures.put(future);
         try {
-            jsonRpcKernel.invoke(serviceName, methodName, args, id, session);
+            jsonRpcControl.invoke(serviceName, methodName, args, id, session);
             return future;
         } catch (Throwable t) {
             Futures.out(id);
@@ -90,7 +90,7 @@ public class WsonrpcKernel implements ServiceRegistry {
             throw new NullPointerException("session");
         }
 
-        jsonRpcKernel.invoke(serviceName, methodName, args, null, session);
+        jsonRpcControl.invoke(serviceName, methodName, args, null, session);
     }
 
     /**
@@ -108,7 +108,7 @@ public class WsonrpcKernel implements ServiceRegistry {
             throw new NullPointerException("session");
         }
 
-        final JsonRpcMessage msg = jsonRpcKernel.receive(bytes);
+        final JsonRpcMessage msg = jsonRpcControl.receive(bytes);
 
         if (msg instanceof JsonRpcRequest) {
             config.getExecutor().execute(new Runnable() {
@@ -134,7 +134,7 @@ public class WsonrpcKernel implements ServiceRegistry {
 
             WsonrpcFuture<Object> future = Futures.out(id);
             try {
-                Object value = jsonRpcKernel.convertResponse(resp, future.returnType);
+                Object value = jsonRpcControl.convertResponse(resp, future.returnType);
                 future.set(value);
             } catch (Throwable t) {
                 future.setException(t);
@@ -151,20 +151,20 @@ public class WsonrpcKernel implements ServiceRegistry {
      */
     protected void handleRequest(WsonrpcSession session, JsonRpcRequest request)
             throws IOException, WsonrpcException {
-        JsonRpcResponse resp = jsonRpcKernel.execute(request);
+        JsonRpcResponse resp = jsonRpcControl.execute(request);
         if (resp != null) {
-            jsonRpcKernel.transmit(session, resp);
+            jsonRpcControl.transmit(session, resp);
         }
     }
 
     @Override
     public <T> ServiceRegistry register(String name, T service, Class<?>... classes) {
-        return jsonRpcKernel.register(name, service, classes);
+        return jsonRpcControl.register(name, service, classes);
     }
 
     @Override
     public <T> ServiceRegistry unregister(String name) {
-        return jsonRpcKernel.unregister(name);
+        return jsonRpcControl.unregister(name);
     }
 
 }

@@ -69,7 +69,7 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     @Override
     public void onMessage(byte[] bytes) {
         try {
-            wsonrpcKernal.handle(getSession(), bytes, errorProcessor);
+            wsonrpcControl.handle(getSession(), bytes, errorProcessor);
         } catch (Throwable throwable) {
             onError(throwable);
         }
@@ -90,7 +90,7 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
 
     @Override
     public ServiceRegistry getRegistry() {
-        return wsonrpcKernal;
+        return wsonrpcControl;
     }
     
     @Override

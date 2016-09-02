@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.Executor;
 
 import net.apexes.wsonrpc.client.support.SimpleWebsocketConnector;
+import net.apexes.wsonrpc.core.BinaryWrapper;
 import net.apexes.wsonrpc.core.RemoteInvoker;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
@@ -73,6 +74,16 @@ public final class Wsonrpc {
          */
         public WsonrpcClientConfigBuilder json(JsonImplementor jsonImpl) {
             builder.json(jsonImpl);
+            return this;
+        }
+        
+        /**
+         * 
+         * @param binaryWrapper
+         * @return
+         */
+        public WsonrpcClientConfigBuilder binaryWrapper(BinaryWrapper binaryWrapper) {
+            builder.binaryWrapper(binaryWrapper);
             return this;
         }
 
@@ -152,6 +163,11 @@ public final class Wsonrpc {
         @Override
         public JsonImplementor getJsonImplementor() {
             return config.getJsonImplementor();
+        }
+
+        @Override
+        public BinaryWrapper getBinaryWrapper() {
+            return config.getBinaryWrapper();
         }
 
         @Override

@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.apexes.wsonrpc.core.JsonRpcKernel;
+import net.apexes.wsonrpc.core.JsonRpcControl;
 import net.apexes.wsonrpc.core.Transport;
 import net.apexes.wsonrpc.core.WsonrpcException;
 import net.apexes.wsonrpc.json.JsonImplementor;
@@ -28,14 +28,14 @@ import net.apexes.wsonrpc.json.JsonImplementor;
 public abstract class JsonRpcHttpServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     
-    protected final JsonRpcKernel jsonRpcKernel;
+    protected final JsonRpcControl jsonRpcControl;
     
     /**
      * 
      * @param jsonImpl
      */
     public JsonRpcHttpServlet(JsonImplementor jsonImpl) {
-        this.jsonRpcKernel = new JsonRpcKernel(jsonImpl);
+        this.jsonRpcControl = new JsonRpcControl(jsonImpl);
     }
     
     /**
@@ -45,7 +45,7 @@ public abstract class JsonRpcHttpServlet extends HttpServlet {
      * @param classes
      */
     public <T> void register(String name, T handler, Class<?>... classes) {
-        jsonRpcKernel.register(name, handler, classes);
+        jsonRpcControl.register(name, handler, classes);
     }
     
     /**
@@ -53,7 +53,7 @@ public abstract class JsonRpcHttpServlet extends HttpServlet {
      * @param name
      */
     public <T> void unregister(String name) {
-        jsonRpcKernel.unregister(name);
+        jsonRpcControl.unregister(name);
     }
     
     @Override
@@ -67,7 +67,7 @@ public abstract class JsonRpcHttpServlet extends HttpServlet {
             while ((len = in.read(buf)) != -1) {
                 out.write(buf, 0, len);
             }
-            jsonRpcKernel.receiveRequest(out.toByteArray(), new HttpServletTransport(resp));
+            jsonRpcControl.receiveRequest(out.toByteArray(), new HttpServletTransport(resp));
         } catch (WsonrpcException e) {
             throw new ServletException(e);
         }

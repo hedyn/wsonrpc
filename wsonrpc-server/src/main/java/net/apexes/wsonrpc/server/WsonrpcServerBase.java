@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
-import net.apexes.wsonrpc.core.WsonrpcKernel;
+import net.apexes.wsonrpc.core.WsonrpcControl;
 import net.apexes.wsonrpc.core.WsonrpcSession;
 import net.apexes.wsonrpc.core.message.JsonRpcRequest;
 
@@ -23,17 +23,17 @@ import net.apexes.wsonrpc.core.message.JsonRpcRequest;
 public class WsonrpcServerBase {
     
     protected final WsonrpcConfig config;
-    private final WsonrpcKernel wsonrpcKernal;
+    private final WsonrpcControl wsonrpcControl;
     private WsonrpcServerListener serverListener;
     private WsonrpcErrorProcessor errorProcessor;
     
     protected WsonrpcServerBase(WsonrpcConfig config) {
         this.config = config;
-        wsonrpcKernal = new WsonrpcKernelProxy(config);
+        wsonrpcControl = new InnerWsonrpcControl(config);
     }
     
     public ServiceRegistry getRegistry() {
-        return wsonrpcKernal;
+        return wsonrpcControl;
     }
     
     public WsonrpcServerListener getServerListener() {
@@ -57,7 +57,7 @@ public class WsonrpcServerBase {
      * @param session
      */
     protected void onOpen(WsonrpcSession session) {
-        WsonrpcRemotes.addRemote(session, wsonrpcKernal.getConfig());
+        WsonrpcRemotes.addRemote(session, wsonrpcControl.getConfig());
         fireOpen(session);
     }
 
@@ -79,7 +79,7 @@ public class WsonrpcServerBase {
         WsonrpcSession session = WsonrpcRemotes.getSession(sessionId);
         byte[] bytes = buffer.array();
         try {
-            wsonrpcKernal.handle(session, bytes, errorProcessor);
+            wsonrpcControl.handle(session, bytes, errorProcessor);
         } catch (Exception ex) {
             onError(session.getId(), ex);
         } finally {
@@ -116,9 +116,9 @@ public class WsonrpcServerBase {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private class WsonrpcKernelProxy extends WsonrpcKernel {
+    private class InnerWsonrpcControl extends WsonrpcControl {
         
-        public WsonrpcKernelProxy(WsonrpcConfig config) {
+        public InnerWsonrpcControl(WsonrpcConfig config) {
             super(config);
         }
         

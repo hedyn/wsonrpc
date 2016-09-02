@@ -19,7 +19,7 @@ import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.zip.GZIPInputStream;
 
-import net.apexes.wsonrpc.core.JsonRpcKernel;
+import net.apexes.wsonrpc.core.JsonRpcControl;
 import net.apexes.wsonrpc.core.Remote;
 import net.apexes.wsonrpc.core.Transport;
 import net.apexes.wsonrpc.core.WsonrpcException;
@@ -34,7 +34,7 @@ public class JsonRpcHttpRemote implements Remote {
 
     protected final URL url;
     protected final Map<String, String> headers;
-    protected final JsonRpcKernel jsonRpcKernel;
+    protected final JsonRpcControl jsonRpcControl;
     protected final Random rand;
 
     private int connectTimeout;
@@ -47,7 +47,7 @@ public class JsonRpcHttpRemote implements Remote {
     public JsonRpcHttpRemote(URL url, JsonImplementor jsonImpl) {
         this.url = url;
         this.headers = new HashMap<String, String>();
-        this.jsonRpcKernel = new JsonRpcKernel(jsonImpl);
+        this.jsonRpcControl = new JsonRpcControl(jsonImpl);
         rand = new Random();
     }
 
@@ -69,7 +69,7 @@ public class JsonRpcHttpRemote implements Remote {
             throws IOException, WsonrpcException {
         TransportImpl transport = new TransportImpl(url, headers, connectTimeout, 1);
         try {
-            jsonRpcKernel.invoke(handlerName, methodName, args, null, transport);
+            jsonRpcControl.invoke(handlerName, methodName, args, null, transport);
         } finally {
             transport.close();
         }
@@ -81,8 +81,8 @@ public class JsonRpcHttpRemote implements Remote {
         TransportImpl transport = new TransportImpl(url, headers, connectTimeout, timeout);
         try {
             int id = rand.nextInt(Integer.MAX_VALUE);
-            jsonRpcKernel.invoke(handlerName, methodName, args, String.valueOf(id), transport);
-            return jsonRpcKernel.receiveResponse(transport.readBinary(), returnType);
+            jsonRpcControl.invoke(handlerName, methodName, args, String.valueOf(id), transport);
+            return jsonRpcControl.receiveResponse(transport.readBinary(), returnType);
         } finally {
             transport.close();
         }

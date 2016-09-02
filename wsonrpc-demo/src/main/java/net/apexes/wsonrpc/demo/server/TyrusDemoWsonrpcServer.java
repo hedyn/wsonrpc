@@ -20,7 +20,7 @@ public class TyrusDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
     public WsonrpcServerBase create() {
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("org.glassfish.tyrus.maxSessionsPerRemoteAddr", 10000);
-        server = new Server("localhost", 8080, null, properties, Jsr356WsonrpcServerEndpoint.class);
+        server = new Server("localhost", 8080, null, properties, Jsr356DemoWsonrpcServer.class);
         return null;
     }
 

@@ -17,11 +17,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class WsonrpcEndpoint implements WsonrpcRemote {
     
-    protected final WsonrpcKernel wsonrpcKernal;
+    protected final WsonrpcControl wsonrpcControl;
     private WsonrpcSession session;
 
     protected WsonrpcEndpoint(WsonrpcConfig config) {
-        wsonrpcKernal = new WsonrpcKernel(config);
+        wsonrpcControl = new WsonrpcControl(config);
     }
 
     protected final void online(WsonrpcSession session) {
@@ -73,7 +73,7 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
     public void invoke(String handleName, String methodName, Object[] args) 
             throws IOException, WsonrpcException {
         verifyOnline();
-        wsonrpcKernal.invoke(getSession(), handleName, methodName, args);
+        wsonrpcControl.invoke(getSession(), handleName, methodName, args);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
     public <T> Future<T> asyncInvoke(String handleName, String methodName, Object[] args, Class<T> returnType)
             throws IOException, WsonrpcException {
         verifyOnline();
-        return (Future<T>) wsonrpcKernal.invoke(getSession(), handleName, methodName, args, returnType);
+        return (Future<T>) wsonrpcControl.invoke(getSession(), handleName, methodName, args, returnType);
     }
     
 }

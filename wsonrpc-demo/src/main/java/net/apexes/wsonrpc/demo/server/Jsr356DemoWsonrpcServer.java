@@ -11,6 +11,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.glassfish.tyrus.core.MaxSessions;
 
+import net.apexes.wsonrpc.core.GZIPBinaryWrapper;
 import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.websocket.WebSockets;
@@ -28,11 +29,12 @@ import net.apexes.wsonrpc.server.WsonrpcServerBase;
  */
 @MaxSessions(10000)
 @ServerEndpoint("/wsonrpc")
-public class Jsr356WsonrpcServerEndpoint extends WsonrpcServerBase implements WsonrpcErrorProcessor {
+public class Jsr356DemoWsonrpcServer extends WsonrpcServerBase implements WsonrpcErrorProcessor {
 
-    public Jsr356WsonrpcServerEndpoint() {
+    public Jsr356DemoWsonrpcServer() {
         super(WsonrpcConfigBuilder.create()
                 .json(new JacksonImplementor())
+                .binaryWrapper(new GZIPBinaryWrapper())
                 .build());
         setErrorProcessor(this);
         getRegistry()

@@ -28,21 +28,27 @@ import net.apexes.wsonrpc.json.JsonImplementor.Node;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class JsonRpcKernel implements ServiceRegistry {
-    private static final Logger LOG = LoggerFactory.getLogger(JsonRpcKernel.class);
+public class JsonRpcControl implements ServiceRegistry {
+    private static final Logger LOG = LoggerFactory.getLogger(JsonRpcControl.class);
 
     private final JsonImplementor jsonImpl;
+    private final BinaryWrapper binaryWrapper;
     private final Map<String, ServiceEntry<?>> services;
     
     /**
      * 
      * @param jsonContext
      */
-    public JsonRpcKernel(JsonImplementor jsonImpl) {
+    public JsonRpcControl(JsonImplementor jsonImpl) {
+        this(jsonImpl, null);
+    }
+    
+    protected JsonRpcControl(JsonImplementor jsonImpl, BinaryWrapper binaryWrapper) {
         if (jsonImpl == null) {
             throw new NullPointerException("jsonImpl");
         }
         this.jsonImpl = jsonImpl;
+        this.binaryWrapper = binaryWrapper;
         services = new HashMap<>();
     }
 
@@ -297,9 +303,14 @@ public class JsonRpcKernel implements ServiceRegistry {
             throw new WsonrpcException("Serialize failed", e);
         }
 
-        LOG.debug("WSONRPC >>  {}", json);
+        LOG.debug(" >>  {}", json);
         
         byte[] bytes = json.getBytes("UTF-8");
+        if (binaryWrapper != null) {
+            LOG.debug(" - {}", bytes.length);
+            bytes = binaryWrapper.write(bytes);
+            LOG.debug(" = {}", bytes.length);
+        }
         transport.sendBinary(bytes);
     }
 
@@ -311,9 +322,15 @@ public class JsonRpcKernel implements ServiceRegistry {
      * @throws WsonrpcException
      */
     protected JsonRpcMessage receive(byte[] bytes) throws IOException, WsonrpcException {
+        if (binaryWrapper != null) {
+            LOG.debug(" - {}", bytes.length);
+            bytes = binaryWrapper.read(bytes);
+            LOG.debug(" = {}", bytes.length);
+        }
+        
         String json = new String(bytes, "UTF-8");
 
-        LOG.debug("WSONRPC <<  {}", json);
+        LOG.debug(" <<  {}", json);
 
         try {
             return JsonRpcMessage.of(jsonImpl, json);

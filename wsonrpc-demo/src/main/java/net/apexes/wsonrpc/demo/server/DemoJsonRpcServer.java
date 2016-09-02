@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.util.ServerRunner;
-import net.apexes.wsonrpc.core.JsonRpcKernel;
+import net.apexes.wsonrpc.core.JsonRpcControl;
 import net.apexes.wsonrpc.core.Transport;
 import net.apexes.wsonrpc.demo.api.DemoService;
 import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
@@ -34,13 +34,13 @@ public class DemoJsonRpcServer extends NanoHTTPD {
         ServerRunner.run(DemoJsonRpcServer.class);
     }
 
-    private final JsonRpcKernel jsonRpcKernel;
+    private final JsonRpcControl jsonRpcControl;
 
     public DemoJsonRpcServer() {
         super(8080);
-//        jsonRpcKernel = new JsonRpcKernel(new net.apexes.wsonrpc.json.support.JacksonImplementor());
-        jsonRpcKernel = new JsonRpcKernel(new net.apexes.wsonrpc.json.support.GsonImplementor());
-        jsonRpcKernel.register("demo", new DemoServiceImpl(), DemoService.class);
+//        jsonRpcControl = new JsonRpcControl(new net.apexes.wsonrpc.json.support.JacksonImplementor());
+        jsonRpcControl = new JsonRpcControl(new net.apexes.wsonrpc.json.support.GsonImplementor());
+        jsonRpcControl.register("demo", new DemoServiceImpl(), DemoService.class);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class DemoJsonRpcServer extends NanoHTTPD {
             String json = session.getParms().keySet().iterator().next();
             try {
                 TransportImpl transport = new TransportImpl();
-                jsonRpcKernel.receiveRequest(json.getBytes("UTF-8"), transport);
+                jsonRpcControl.receiveRequest(json.getBytes("UTF-8"), transport);
                 return newFixedLengthResponse(transport.json);
             } catch (Exception e) {
                 e.printStackTrace();

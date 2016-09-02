@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.apexes.wsonrpc.core.GZIPBinaryWrapper;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.json.support.JacksonImplementor;
@@ -29,6 +30,7 @@ public class JwsDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
         execService = Executors.newCachedThreadPool();
         WsonrpcConfig config = WsonrpcConfigBuilder.create()
                 .json(new JacksonImplementor())
+                .binaryWrapper(new GZIPBinaryWrapper())
                 .executor(execService)
                 .build();
         server = new JavaWebsocketWsonrpcServer(8080, JavaWebsocketWsonrpcServer.startWithPath("/wsonrpc/"), config);
