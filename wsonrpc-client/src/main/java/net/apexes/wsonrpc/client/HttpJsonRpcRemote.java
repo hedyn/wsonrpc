@@ -30,7 +30,7 @@ import net.apexes.wsonrpc.json.JsonImplementor;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class JsonRpcHttpRemote implements Remote {
+public class HttpJsonRpcRemote implements Remote {
 
     protected final URL url;
     protected final Map<String, String> headers;
@@ -45,7 +45,7 @@ public class JsonRpcHttpRemote implements Remote {
      * @param url
      * @param jsonImpl
      */
-    public JsonRpcHttpRemote(URL url, JsonImplementor jsonImpl) {
+    public HttpJsonRpcRemote(URL url, JsonImplementor jsonImpl) {
         this.url = url;
         this.headers = new HashMap<String, String>();
         this.jsonRpcControl = new JsonRpcControl(jsonImpl);

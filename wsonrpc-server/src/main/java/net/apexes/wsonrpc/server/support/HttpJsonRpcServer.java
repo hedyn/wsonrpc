@@ -23,15 +23,15 @@ import net.apexes.wsonrpc.server.support.http.NanoHTTPD;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class SimpleJsonRpcServer extends NanoHTTPD {
+public class HttpJsonRpcServer extends NanoHTTPD {
     
     private final JsonRpcControl jsonRpcControl;
     
-    public SimpleJsonRpcServer(int port) {
+    public HttpJsonRpcServer(int port) {
         this(port, new GsonImplementor());
     }
 
-    public SimpleJsonRpcServer(int port, JsonImplementor jsonImpl) {
+    public HttpJsonRpcServer(int port, JsonImplementor jsonImpl) {
         super(port);
         jsonRpcControl = new JsonRpcControl(jsonImpl);
     }

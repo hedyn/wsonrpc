@@ -63,7 +63,7 @@ public final class JsonRpc {
      * @throws MalformedURLException
      */
     public RemoteInvoker invoker() throws MalformedURLException {
-        JsonRpcHttpRemote remote = new JsonRpcHttpRemote(new URL(url), jsonImpl);
+        HttpJsonRpcRemote remote = new HttpJsonRpcRemote(new URL(url), jsonImpl);
         remote.setConnectTimeout(connectTimeout);
         remote.setAcceptCompress(acceptCompress);
         return RemoteInvoker.create(remote);

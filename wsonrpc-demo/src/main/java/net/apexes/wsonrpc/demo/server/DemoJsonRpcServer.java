@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import net.apexes.wsonrpc.demo.api.DemoService;
 import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
-import net.apexes.wsonrpc.server.support.SimpleJsonRpcServer;
+import net.apexes.wsonrpc.server.support.HttpJsonRpcServer;
 
 /**
  * 
@@ -24,10 +24,10 @@ public class DemoJsonRpcServer {
 
     public static void main(String[] args) throws Exception {
         LOG.debug("...");
-        SimpleJsonRpcServer server = new SimpleJsonRpcServer(8080);
-//        SimpleJsonRpcServer server = new SimpleJsonRpcServer(8080, new JacksonImplementor());
+        HttpJsonRpcServer server = new HttpJsonRpcServer(8080);
+//        HttpJsonRpcServer server = new HttpJsonRpcServer(8080, new JacksonImplementor());
         server.getServiceRegistry().register("demo", new DemoServiceImpl(), DemoService.class);
-        server.start(SimpleJsonRpcServer.SOCKET_READ_TIMEOUT, false);
+        server.start(HttpJsonRpcServer.SOCKET_READ_TIMEOUT, false);
     }
 
 }
