@@ -19,8 +19,9 @@ import net.apexes.wsonrpc.demo.api.DemoService;
 public class DemoJsonRcpClient {
     
     public static void main(String[] args) throws Exception {
-        RemoteInvoker invoker = Jsonrpc.url("http://127.0.0.1:8080")
+        RemoteInvoker invoker = Jsonrpc.url("http://localhost:8080")
                 .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
+                .acceptCompress(true)
                 .invoker();
         DemoService demoHandler = invoker.handleName("demo").get(DemoService.class);
         System.out.println(demoHandler.echo("Hello wsonrpc!"));

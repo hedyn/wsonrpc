@@ -29,7 +29,7 @@ public class DemoWsonrpcClient {
     private String clientId;
     
     DemoWsonrpcClient() throws Exception {
-        String url = "ws://127.0.0.1:8080/wsonrpc";
+        String url = "ws://localhost:8080/wsonrpc";
         client = Wsonrpc.config()
 //                .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
                 .binaryWrapper(new GZIPBinaryWrapper())

@@ -40,13 +40,6 @@
 			<version>${version.org.slf4j}</version>
 			<scope>runtime</scope>
 		</dependency>
-
-		<!-- nanohttpd -->
-		<dependency>
-			<groupId>org.nanohttpd</groupId>
-			<artifactId>nanohttpd</artifactId>
-			<version>2.3.0</version>
-		</dependency>
 		
 		<!-- tyrus-server -->
 		<dependency>

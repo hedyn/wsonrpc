@@ -38,6 +38,7 @@ public class JsonRpcHttpRemote implements Remote {
     protected final Random rand;
 
     private int connectTimeout;
+    private boolean acceptCompress;
 
     /**
      * 
@@ -56,18 +57,30 @@ public class JsonRpcHttpRemote implements Remote {
      * @param key
      * @param value
      */
-    public final void setHeader(String key, String value) {
+    protected final void setHeader(String key, String value) {
         this.headers.put(key, value);
     }
 
     public final void setConnectTimeout(int timeout) {
         this.connectTimeout = timeout;
     }
+    
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public boolean isAcceptCompress() {
+        return acceptCompress;
+    }
+
+    public void setAcceptCompress(boolean value) {
+        acceptCompress = value;
+    }
 
     @Override
     public void invoke(String handlerName, String methodName, Object[] args)
             throws IOException, WsonrpcException {
-        TransportImpl transport = new TransportImpl(url, headers, connectTimeout, 1);
+        TransportImpl transport = new TransportImpl(url, headers, connectTimeout, 0, acceptCompress);
         try {
             jsonRpcControl.invoke(handlerName, methodName, args, null, transport);
         } finally {
@@ -78,7 +91,7 @@ public class JsonRpcHttpRemote implements Remote {
     @Override
     public <T> T invoke(String handlerName, String methodName, Object[] args, Class<T> returnType,
             int timeout) throws IOException, WsonrpcException {
-        TransportImpl transport = new TransportImpl(url, headers, connectTimeout, timeout);
+        TransportImpl transport = new TransportImpl(url, headers, connectTimeout, timeout, acceptCompress);
         try {
             int id = rand.nextInt(Integer.MAX_VALUE);
             jsonRpcControl.invoke(handlerName, methodName, args, String.valueOf(id), transport);
@@ -103,20 +116,24 @@ public class JsonRpcHttpRemote implements Remote {
 
         private final HttpURLConnection conn;
 
-        TransportImpl(URL url, Map<String, String> headers, int connectTimeout, int readTimeout)
+        TransportImpl(URL url, Map<String, String> headers, int connectTimeout, int readTimeout, boolean acceptCompress)
                 throws IOException {
             this.conn = (HttpURLConnection) url.openConnection();
-            ;
+            conn.setRequestProperty("Connection", "close");
+            conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
             if (headers != null) {
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    conn.addRequestProperty(entry.getKey(), entry.getValue());
+                    conn.setRequestProperty(entry.getKey(), entry.getValue());
                 }
             }
-            conn.addRequestProperty("Accept-Encoding", "gzip");
+            if (acceptCompress) {
+                conn.setRequestProperty("Accept-Encoding", "gzip");
+            }
             conn.setRequestMethod("POST");
             conn.setConnectTimeout(connectTimeout);
             conn.setReadTimeout(readTimeout);
             conn.setDoOutput(true);
+            conn.setDoInput(true);
             conn.connect();
         }
 
@@ -130,7 +147,8 @@ public class JsonRpcHttpRemote implements Remote {
         public byte[] readBinary() throws IOException {
             int statusCode = conn.getResponseCode();
             if (statusCode != HttpURLConnection.HTTP_OK) {
-                throw new IOException("unexpected status code returned : " + statusCode);
+                throw new IOException("unexpected status code returned : " + statusCode 
+                        + ", message : " + conn.getResponseMessage());
             }
             String responseEncoding = conn.getHeaderField("Content-Encoding");
             responseEncoding = (responseEncoding == null ? "" : responseEncoding.trim());

@@ -26,6 +26,7 @@ public final class Jsonrpc {
     private final String url;
     private JsonImplementor jsonImpl;
     private int connectTimeout;
+    private boolean acceptCompress;
     
     private Jsonrpc(String url) {
         this.url = url;
@@ -45,6 +46,16 @@ public final class Jsonrpc {
         this.connectTimeout = connectTimeout;
         return this;
     }
+    
+    /**
+     * 
+     * @param acceptCompress
+     * @return
+     */
+    public Jsonrpc acceptCompress(boolean acceptCompress) {
+        this.acceptCompress = acceptCompress;
+        return this;
+    }
 
     /**
      * 
@@ -54,6 +65,7 @@ public final class Jsonrpc {
     public RemoteInvoker invoker() throws MalformedURLException {
         JsonRpcHttpRemote remote = new JsonRpcHttpRemote(new URL(url), jsonImpl);
         remote.setConnectTimeout(connectTimeout);
+        remote.setAcceptCompress(acceptCompress);
         return RemoteInvoker.create(remote);
     }
 
