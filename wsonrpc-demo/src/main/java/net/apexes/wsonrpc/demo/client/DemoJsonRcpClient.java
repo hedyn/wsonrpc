@@ -8,7 +8,7 @@ package net.apexes.wsonrpc.demo.client;
 
 import java.util.Arrays;
 
-import net.apexes.wsonrpc.client.Jsonrpc;
+import net.apexes.wsonrpc.client.JsonRpc;
 import net.apexes.wsonrpc.core.RemoteInvoker;
 import net.apexes.wsonrpc.demo.api.DemoService;
 
@@ -19,7 +19,7 @@ import net.apexes.wsonrpc.demo.api.DemoService;
 public class DemoJsonRcpClient {
     
     public static void main(String[] args) throws Exception {
-        RemoteInvoker invoker = Jsonrpc.url("http://localhost:8080")
+        RemoteInvoker invoker = JsonRpc.url("http://localhost:8080")
                 .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
                 .acceptCompress(true)
                 .invoker();

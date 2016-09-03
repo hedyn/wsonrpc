@@ -17,10 +17,10 @@ import net.apexes.wsonrpc.json.JsonImplementor;
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-public final class Jsonrpc {
+public final class JsonRpc {
     
-    public static Jsonrpc url(String url) {
-        return new Jsonrpc(url);
+    public static JsonRpc url(String url) {
+        return new JsonRpc(url);
     }
     
     private final String url;
@@ -28,11 +28,11 @@ public final class Jsonrpc {
     private int connectTimeout;
     private boolean acceptCompress;
     
-    private Jsonrpc(String url) {
+    private JsonRpc(String url) {
         this.url = url;
     }
     
-    public Jsonrpc json(JsonImplementor jsonImpl) {
+    public JsonRpc json(JsonImplementor jsonImpl) {
         this.jsonImpl = jsonImpl;
         return this;
     }
@@ -42,7 +42,7 @@ public final class Jsonrpc {
      * @param connectTimeout
      * @return
      */
-    public Jsonrpc connectTimeout(int connectTimeout) {
+    public JsonRpc connectTimeout(int connectTimeout) {
         this.connectTimeout = connectTimeout;
         return this;
     }
@@ -52,7 +52,7 @@ public final class Jsonrpc {
      * @param acceptCompress
      * @return
      */
-    public Jsonrpc acceptCompress(boolean acceptCompress) {
+    public JsonRpc acceptCompress(boolean acceptCompress) {
         this.acceptCompress = acceptCompress;
         return this;
     }
