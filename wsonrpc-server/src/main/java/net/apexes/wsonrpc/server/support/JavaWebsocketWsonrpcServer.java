@@ -32,6 +32,7 @@ import org.java_websocket.server.WebSocketServer.WebSocketServerFactory;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
 
 /**
@@ -40,9 +41,10 @@ import net.apexes.wsonrpc.server.WsonrpcServerBase;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
+public class JavaWebsocketWsonrpcServer {
 
     protected final WebSocketServer websocketServer;
+    protected final WsonrpcServerBase serverBase;
 
     private final WebSocketServerFactory wsf = new DefaultWebSocketServerFactory() {
 
@@ -64,9 +66,13 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
     }
 
     public JavaWebsocketWsonrpcServer(int port, PathStrategy pathStrategy, WsonrpcConfig config) {
-        super(config);
         websocketServer = new WebSocketServerAdapter(new InetSocketAddress(port), pathStrategy, this);
         websocketServer.setWebSocketFactory(wsf);
+        serverBase = new WsonrpcServerBase(config);
+    }
+    
+    public WsonrpcServer getWsonrpcServer() {
+        return serverBase;
     }
 
     public void start() {
@@ -87,7 +93,7 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
         return !isclose.get();
     }
 
-    private static String toSessionId(WebSocket websocket) {
+    private static String sessionId(WebSocket websocket) {
         if (websocket == null) {
             return null;
         }
@@ -178,28 +184,28 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
 
         @Override
         public void onOpen(WebSocket websockt, ClientHandshake handshake) {
-            server.onOpen(new JavaWebSocketSessionAdapter(websockt));
+            server.serverBase.onOpen(new JavaWebSocketSessionAdapter(websockt));
         }
 
         @Override
         public void onClose(WebSocket websockt, int code, String reason, boolean remote) {
-            server.onClose(toSessionId(websockt));
+            server.serverBase.onClose(sessionId(websockt));
         }
 
         @Override
         public void onMessage(WebSocket websockt, String message) {
-            server.onMessage(toSessionId(websockt), ByteBuffer.wrap(message.getBytes()));
+            server.serverBase.onMessage(sessionId(websockt), ByteBuffer.wrap(message.getBytes()));
         }
 
         @Override
         public void onMessage(WebSocket websockt, ByteBuffer message) {
-            server.onMessage(toSessionId(websockt), message);
+            server.serverBase.onMessage(sessionId(websockt), message);
         }
 
         @Override
         public void onError(WebSocket websockt, Exception ex) {
             if (server.isRunning()) {
-                server.onError(toSessionId(websockt), ex);
+                server.serverBase.onError(sessionId(websockt), ex);
             }
         }
 
@@ -225,7 +231,7 @@ public class JavaWebsocketWsonrpcServer extends WsonrpcServerBase {
 
         @Override
         public String getId() {
-            return toSessionId(websocket);
+            return sessionId(websocket);
         }
 
         @Override

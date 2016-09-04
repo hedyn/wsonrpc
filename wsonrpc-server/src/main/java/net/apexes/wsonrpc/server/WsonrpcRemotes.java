@@ -25,10 +25,10 @@ public final class WsonrpcRemotes {
     
     private WsonrpcRemotes() {}
 
-    private static final Map<String, WsonrpcServerEndpointProxy> remotes = new ConcurrentHashMap<>();
+    private static final Map<String, InnerWsonrpcEndpoint> remotes = new ConcurrentHashMap<>();
 
     static void addRemote(WsonrpcSession session, WsonrpcConfig config) {
-        remotes.put(session.getId(), new WsonrpcServerEndpointProxy(session, config));
+        remotes.put(session.getId(), new InnerWsonrpcEndpoint(session, config));
     }
     
     static void removeRemote(String sessionId) {
@@ -36,7 +36,7 @@ public final class WsonrpcRemotes {
     }
 
     static WsonrpcSession getSession(String sessionId) {
-        WsonrpcServerEndpointProxy endpoint = remotes.get(sessionId);
+        InnerWsonrpcEndpoint endpoint = remotes.get(sessionId);
         if (endpoint == null) {
             return null;
         }
@@ -80,9 +80,9 @@ public final class WsonrpcRemotes {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class WsonrpcServerEndpointProxy extends WsonrpcEndpoint {
+    private static class InnerWsonrpcEndpoint extends WsonrpcEndpoint {
         
-        WsonrpcServerEndpointProxy(WsonrpcSession session, WsonrpcConfig config) {
+        InnerWsonrpcEndpoint(WsonrpcSession session, WsonrpcConfig config) {
             super(config);
             online(session);
         }

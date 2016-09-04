@@ -27,19 +27,21 @@ import net.apexes.wsonrpc.server.WsonrpcServerBase;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class SpringWsonrpcServerHandler extends WsonrpcServerBase implements WebSocketHandler {
+public class SpringWsonrpcServerHandler implements WebSocketHandler {
+    
+    protected final WsonrpcServerBase serverBase;
     
     public SpringWsonrpcServerHandler() {
         this(WsonrpcConfigBuilder.defaultConfig());
     }
     
     public SpringWsonrpcServerHandler(WsonrpcConfig config) {
-        super(config);
+        serverBase = new WsonrpcServerBase(config);
     }
     
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        super.onOpen(new SpringWebSocketSessionAdapter(session));
+        serverBase.onOpen(new SpringWebSocketSessionAdapter(session));
     }
     
     @Override
@@ -53,20 +55,20 @@ public class SpringWsonrpcServerHandler extends WsonrpcServerBase implements Web
     }
 
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
-        super.onMessage(session.getId(), message.getPayload());
+        serverBase.onMessage(session.getId(), message.getPayload());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        super.onClose(session.getId());
+        serverBase.onClose(session.getId());
     }
     
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         if (session == null) {
-            onError(null, exception);
+            serverBase.onError(null, exception);
         } else{
-            onError(session.getId(), exception);
+            serverBase.onError(session.getId(), exception);
         }
     }
     

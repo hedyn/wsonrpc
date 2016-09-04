@@ -18,7 +18,7 @@ import net.apexes.wsonrpc.demo.api.DemoService;
 import net.apexes.wsonrpc.demo.api.RegisterService;
 import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
 import net.apexes.wsonrpc.demo.server.service.RegisterServiceImpl;
-import net.apexes.wsonrpc.server.WsonrpcServerBase;
+import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerListener;
 
 /**
@@ -33,11 +33,12 @@ public class DemoWsonrpcServer {
         DemoServer demoServer = null;
 //        demoServer = new JwsDemoWsonrpcServer();
         demoServer = new TyrusDemoWsonrpcServer();
+//        demoServer = new NettyDemoWsonrpcServer();
         runServer(demoServer);
     }
     
     protected static void runServer(DemoServer demoServer) throws Exception {
-        WsonrpcServerBase serverBase = demoServer.create();
+        WsonrpcServer serverBase = demoServer.create();
         if (serverBase != null) {
             setupServer(serverBase);
         }
@@ -75,7 +76,7 @@ public class DemoWsonrpcServer {
         }
     }
     
-    protected static void setupServer(WsonrpcServerBase serverBase) {
+    protected static void setupServer(WsonrpcServer serverBase) {
         serverBase.setErrorProcessor(new WsonrpcErrorProcessor() {
 
             @Override

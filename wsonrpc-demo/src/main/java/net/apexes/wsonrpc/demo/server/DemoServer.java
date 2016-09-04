@@ -6,7 +6,7 @@
  */
 package net.apexes.wsonrpc.demo.server;
 
-import net.apexes.wsonrpc.server.WsonrpcServerBase;
+import net.apexes.wsonrpc.server.WsonrpcServer;
 
 /**
  * 
@@ -15,7 +15,7 @@ import net.apexes.wsonrpc.server.WsonrpcServerBase;
  */
 public interface DemoServer {
     
-    WsonrpcServerBase create();
+    WsonrpcServer create();
     
     void startup() throws Exception;
     

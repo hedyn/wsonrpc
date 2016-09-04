@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
 
 import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
-import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcControl;
+import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcSession;
 import net.apexes.wsonrpc.core.message.JsonRpcRequest;
 
@@ -20,43 +20,23 @@ import net.apexes.wsonrpc.core.message.JsonRpcRequest;
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WsonrpcServerBase {
+public class WsonrpcServerBase implements WsonrpcServer {
     
     protected final WsonrpcConfig config;
     private final WsonrpcControl wsonrpcControl;
     private WsonrpcServerListener serverListener;
     private WsonrpcErrorProcessor errorProcessor;
     
-    protected WsonrpcServerBase(WsonrpcConfig config) {
+    public WsonrpcServerBase(WsonrpcConfig config) {
         this.config = config;
         wsonrpcControl = new InnerWsonrpcControl(config);
-    }
-    
-    public ServiceRegistry getRegistry() {
-        return wsonrpcControl;
-    }
-    
-    public WsonrpcServerListener getServerListener() {
-        return serverListener;
-    }
-
-    public void setServerListener(WsonrpcServerListener listener) {
-        this.serverListener = listener;
-    }
-    
-    public WsonrpcErrorProcessor getErrorProcessor() {
-        return errorProcessor;
-    }
-
-    public void setErrorProcessor(WsonrpcErrorProcessor errorProcessor) {
-        this.errorProcessor = errorProcessor;
     }
 
     /**
      * Client端已经连接上
      * @param session
      */
-    protected void onOpen(WsonrpcSession session) {
+    public void onOpen(WsonrpcSession session) {
         WsonrpcRemotes.addRemote(session, wsonrpcControl.getConfig());
         fireOpen(session);
     }
@@ -65,7 +45,7 @@ public class WsonrpcServerBase {
      * Client端被关闭了
      * @param sessionId
      */
-    protected void onClose(String sessionId) {
+    public void onClose(String sessionId) {
         WsonrpcRemotes.removeRemote(sessionId);
         fireClose(sessionId);
     }
@@ -75,7 +55,7 @@ public class WsonrpcServerBase {
      * @param sessionId
      * @param buffer
      */
-    protected void onMessage(String sessionId, ByteBuffer buffer) {
+    public void onMessage(String sessionId, ByteBuffer buffer) {
         WsonrpcSession session = WsonrpcRemotes.getSession(sessionId);
         byte[] bytes = buffer.array();
         try {
@@ -87,7 +67,7 @@ public class WsonrpcServerBase {
         }
     }
     
-    protected void onError(String sessionId, Throwable error) {
+    public void onError(String sessionId, Throwable error) {
         if (errorProcessor != null) {
             errorProcessor.onError(sessionId, error);
         }
@@ -109,6 +89,31 @@ public class WsonrpcServerBase {
         if (serverListener != null) {
             serverListener.onMessage(sessionId, bytes);
         }
+    }
+    
+    @Override
+    public ServiceRegistry getRegistry() {
+        return wsonrpcControl;
+    }
+    
+    @Override
+    public WsonrpcServerListener getServerListener() {
+        return serverListener;
+    }
+
+    @Override
+    public void setServerListener(WsonrpcServerListener listener) {
+        this.serverListener = listener;
+    }
+    
+    @Override
+    public WsonrpcErrorProcessor getErrorProcessor() {
+        return errorProcessor;
+    }
+
+    @Override
+    public void setErrorProcessor(WsonrpcErrorProcessor errorProcessor) {
+        this.errorProcessor = errorProcessor;
     }
     
     /**
@@ -135,4 +140,5 @@ public class WsonrpcServerBase {
         }
         
     }
+
 }

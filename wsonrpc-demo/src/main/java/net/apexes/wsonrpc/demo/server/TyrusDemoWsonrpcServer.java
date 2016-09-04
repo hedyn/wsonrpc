@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.glassfish.tyrus.server.Server;
 
-import net.apexes.wsonrpc.server.WsonrpcServerBase;
+import net.apexes.wsonrpc.server.WsonrpcServer;
 
 /**
  * 
@@ -17,7 +17,7 @@ public class TyrusDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
     private Server server;
     
     @Override
-    public WsonrpcServerBase create() {
+    public WsonrpcServer create() {
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put("org.glassfish.tyrus.maxSessionsPerRemoteAddr", 10000);
         server = new Server("localhost", 8080, null, properties, Jsr356DemoWsonrpcServer.class);

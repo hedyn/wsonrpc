@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2016, apexes.net. All rights reserved.
+ * 
+ *        http://www.apexes.net
+ * 
+ */
 package net.apexes.wsonrpc.demo.server;
 
 import java.util.concurrent.ExecutorService;
@@ -6,34 +12,33 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.apexes.wsonrpc.core.GZIPBinaryWrapper;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.json.support.JacksonImplementor;
 import net.apexes.wsonrpc.server.WsonrpcServer;
-import net.apexes.wsonrpc.server.support.JavaWebsocketWsonrpcServer;
+import net.apexes.wsonrpc.server.support.NettyWsonrpcServer;
 
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class JwsDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
+public class NettyDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
     
-    private static final Logger LOG = LoggerFactory.getLogger(JwsDemoWsonrpcServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NettyDemoWsonrpcServer.class);
     
     private ExecutorService execService;
-    private JavaWebsocketWsonrpcServer server;
+    private NettyWsonrpcServer server;
     
     @Override
     public WsonrpcServer create() {
         execService = Executors.newCachedThreadPool();
         WsonrpcConfig config = WsonrpcConfigBuilder.create()
                 .json(new JacksonImplementor())
-                .binaryWrapper(new GZIPBinaryWrapper())
+                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
                 .executor(execService)
                 .build();
-        server = new JavaWebsocketWsonrpcServer(8080, JavaWebsocketWsonrpcServer.startWithPath("/wsonrpc/"), config);
+        server = new NettyWsonrpcServer(8080, "/wsonrpc", config);
         return server.getWsonrpcServer();
     }
     
