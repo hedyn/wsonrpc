@@ -163,7 +163,7 @@ public class WsonrpcControl implements ServiceRegistry {
     }
 
     @Override
-    public <T> ServiceRegistry unregister(String name) {
+    public ServiceRegistry unregister(String name) {
         return jsonRpcControl.unregister(name);
     }
 

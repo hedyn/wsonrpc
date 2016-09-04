@@ -22,6 +22,7 @@ public class PushServiceImpl implements PushService {
 
     @Override
     public String setupStatus(String value) {
+        LOG.info("setupStatus: {}", value);
         return "clientStatus : {" + value + "}";
     }
 

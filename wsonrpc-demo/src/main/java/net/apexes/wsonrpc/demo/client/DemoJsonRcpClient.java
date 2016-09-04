@@ -23,7 +23,7 @@ public class DemoJsonRcpClient {
                 .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
                 .acceptCompress(true)
                 .invoker();
-        DemoService demoHandler = invoker.handleName("demo").get(DemoService.class);
+        DemoService demoHandler = invoker.serviceName("demo").get(DemoService.class);
         System.out.println(demoHandler.echo("Hello wsonrpc!"));
         System.out.println(demoHandler.login("admin", "admin"));
         System.out.println(demoHandler.getRoleList());

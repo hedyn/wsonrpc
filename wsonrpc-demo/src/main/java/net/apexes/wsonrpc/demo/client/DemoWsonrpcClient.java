@@ -46,8 +46,10 @@ public class DemoWsonrpcClient {
             @Override
             public void onOpen(WsonrpcClient client) {
                 LOG.info("...");
-                RegisterService handler = Wsonrpc.invoker(client).handleName("register").get(RegisterService.class);
-                handler.register(clientId);
+                Wsonrpc.invoker(client)
+                        .serviceName("register")
+                        .get(RegisterService.class)
+                        .register(clientId);
             }
 
             @Override
@@ -96,8 +98,8 @@ public class DemoWsonrpcClient {
     
     public void login(String username, String password) {
         if (client.isConnected()) {
-            RegisterService handler = Wsonrpc.invoker(client).handleName("register").get(RegisterService.class);
-            User user = handler.login(username, password);
+            RegisterService service = Wsonrpc.invoker(client).serviceName("register").get(RegisterService.class);
+            User user = service.login(username, password);
             LOG.info("{}", user);
         }
     }
@@ -109,13 +111,13 @@ public class DemoWsonrpcClient {
     }
     
     public void demo() {
-        DemoService demoHandler = Wsonrpc.invoker(client).handleName("demo").get(DemoService.class);
-        LOG.info("{}", demoHandler.echo("Hello wsonrpc!"));
-        LOG.info("{}", demoHandler.login("admin", "admin"));
-        LOG.info("{}", demoHandler.getRoleList());
-        LOG.info("{}", demoHandler.getDept("1"));
-        LOG.info("{}", demoHandler.getDeptList());
-        LOG.info("{}", demoHandler.listUser(Arrays.asList("admin", "1001")));
+        DemoService service = Wsonrpc.invoker(client).serviceName("demo").get(DemoService.class);
+        LOG.info("{}", service.echo("Hello wsonrpc!"));
+        LOG.info("{}", service.login("admin", "admin"));
+        LOG.info("{}", service.getRoleList());
+        LOG.info("{}", service.getDept("1"));
+        LOG.info("{}", service.getDeptList());
+        LOG.info("{}", service.listUser(Arrays.asList("admin", "1001")));
     }
     
     public static void main(String[] args) throws Exception {

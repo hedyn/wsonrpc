@@ -13,8 +13,20 @@ package net.apexes.wsonrpc.core;
  */
 public interface ServiceRegistry {
     
+    /**
+     * 
+     * @param name
+     * @param service
+     * @param classes
+     * @return
+     */
     <T> ServiceRegistry register(String name, T service, Class<?>... classes);
-    
-    <T> ServiceRegistry unregister(String name);
+
+    /**
+     * 
+     * @param name
+     * @return
+     */
+    ServiceRegistry unregister(String name);
 
 }

@@ -73,7 +73,7 @@ public class JsonRpcControl implements ServiceRegistry {
     }
 
     @Override
-    public <T> ServiceRegistry unregister(String name) {
+    public ServiceRegistry unregister(String name) {
         synchronized (services) {
             services.remove(name);
         }
@@ -164,7 +164,7 @@ public class JsonRpcControl implements ServiceRegistry {
             return new JsonRpcResponse(null, JsonRpcError.parseError(null));
         }
 
-        String serviceName = "";
+        String serviceName = null;
         String methodName = request.getMethod();
         int lastIndex = methodName.lastIndexOf('.');
         if (lastIndex >= 0) {
@@ -307,9 +307,9 @@ public class JsonRpcControl implements ServiceRegistry {
         
         byte[] bytes = json.getBytes("UTF-8");
         if (binaryWrapper != null) {
-            LOG.debug(" - {}", bytes.length);
-            bytes = binaryWrapper.write(bytes);
             LOG.debug(" = {}", bytes.length);
+            bytes = binaryWrapper.write(bytes);
+            LOG.debug(" - {}", bytes.length);
         }
         transport.sendBinary(bytes);
     }

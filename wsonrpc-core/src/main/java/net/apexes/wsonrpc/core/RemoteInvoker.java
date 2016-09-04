@@ -21,7 +21,7 @@ public final class RemoteInvoker {
     }
     
     private final Remote remote;
-    private String handleName;
+    private String serviceName;
     private ClassLoader classLoader;
     private int timeout;
     
@@ -31,11 +31,11 @@ public final class RemoteInvoker {
     
     /**
      * 
-     * @param handleName
+     * @param serviceName
      * @return
      */
-    public RemoteInvoker handleName(String handleName) {
-        this.handleName = handleName;
+    public RemoteInvoker serviceName(String serviceName) {
+        this.serviceName = serviceName;
         return this;
     }
 
@@ -62,16 +62,13 @@ public final class RemoteInvoker {
 
     /**
      * 
-     * @param handlerClass
+     * @param serviceClass
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(final Class<T> handlerClass) {
-        if (handleName == null) {
-            handleName = handlerClass.getName();
-        }
+    public <T> T get(final Class<T> serviceClass) {
         if (classLoader == null) {
-            classLoader = handlerClass.getClassLoader();
+            classLoader = serviceClass.getClassLoader();
         }
         InvocationHandler handler = new InvocationHandler() {
             @Override
@@ -81,13 +78,13 @@ public final class RemoteInvoker {
                 }
                 Class<?> returnType = method.getReturnType();
                 if (returnType == void.class) {
-                    remote.invoke(handleName, method.getName(), args);
+                    remote.invoke(serviceName, method.getName(), args);
                     return null;
                 }
-                return remote.invoke(handleName, method.getName(), args, returnType, timeout);
+                return remote.invoke(serviceName, method.getName(), args, returnType, timeout);
             }
         };
-        return (T) Proxy.newProxyInstance(classLoader, new Class<?>[] { handlerClass }, handler);
+        return (T) Proxy.newProxyInstance(classLoader, new Class<?>[] { serviceClass }, handler);
     }
 
     private static Object proxyObjectMethods(Method method, Object proxyObject, Object[] args) {

@@ -58,10 +58,10 @@ public abstract class AbstractDemoWsonrpcServer implements DemoServer {
     
     private void call(WsonrpcRemote remote) {
         if (remote != null) {
-            PushService pushHandler = RemoteInvoker.create(remote).handleName("push").get(PushService.class);
+            PushService service = RemoteInvoker.create(remote).serviceName("push").get(PushService.class);
             String callParam = UUID.randomUUID().toString();
             LOG.info("callParam={}", callParam);
-            String callValue = pushHandler.setupStatus(callParam);
+            String callValue = service.setupStatus(callParam);
             LOG.info("callValue={}", callValue);
         }
     }
@@ -80,8 +80,8 @@ public abstract class AbstractDemoWsonrpcServer implements DemoServer {
     
     private void notice(WsonrpcRemote remote, String message) {
         if (remote != null) {
-            PushService pushHandler = RemoteInvoker.create(remote).handleName("push").get(PushService.class);
-            pushHandler.notice(message);
+            PushService service = RemoteInvoker.create(remote).serviceName("push").get(PushService.class);
+            service.notice(message);
         }
     }
     
