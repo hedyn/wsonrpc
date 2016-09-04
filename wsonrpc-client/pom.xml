@@ -21,6 +21,7 @@
 			<groupId>org.glassfish.tyrus.bundles</groupId>
 			<artifactId>tyrus-standalone-client-jdk</artifactId>
 			<version>${version.org.glassfish.tyrus}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- Java-WebSocket -->
@@ -28,6 +29,7 @@
 			<groupId>org.java-websocket</groupId>
 			<artifactId>Java-WebSocket</artifactId>
 			<version>${version.org.java-websocket}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

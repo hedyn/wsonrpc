@@ -33,6 +33,13 @@
 		<url>git@git.oschina.net:apexes/wsonrpc.git</url>
 	</scm>
 
+	<modules>
+		<module>wsonrpc-core</module>
+		<module>wsonrpc-client</module>
+		<module>wsonrpc-server</module>
+		<module>wsonrpc-demo</module>
+	</modules>
+	
 	<properties>
 		<!-- slf4j -->
 		<version.org.slf4j>1.6.1</version.org.slf4j>
@@ -59,11 +66,4 @@
 		<!-- springframework -->
 		<version.org.springframework>4.3.1.RELEASE</version.org.springframework>
 	</properties>
-
-	<modules>
-		<module>wsonrpc-core</module>
-		<module>wsonrpc-client</module>
-		<module>wsonrpc-server</module>
-		<module>wsonrpc-demo</module>
-	</modules>
 </project>

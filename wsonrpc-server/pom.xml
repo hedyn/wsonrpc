@@ -7,7 +7,7 @@
 		<version>1.0.0</version>
 	</parent>
 	<artifactId>wsonrpc-server</artifactId>
-
+	
 	<dependencies>
 		<!-- wsonrpc -->
 		<dependency>
@@ -21,6 +21,7 @@
 			<groupId>org.java-websocket</groupId>
 			<artifactId>Java-WebSocket</artifactId>
 			<version>${version.org.java-websocket}</version>
+			<scope>provided</scope>
 		</dependency>
 		
 		<!-- netty -->
@@ -28,6 +29,7 @@
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
 			<version>${version.io.netty}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- springframework -->

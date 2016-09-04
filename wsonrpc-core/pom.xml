@@ -16,11 +16,19 @@
 			<version>${version.org.slf4j}</version>
 		</dependency>
 
+		<!-- javax.websocket -->
+		<dependency>
+			<groupId>javax.websocket</groupId>
+			<artifactId>javax.websocket-api</artifactId>
+			<version>${version.javax.websocket}</version>
+		</dependency>
+
 		<!-- jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>${version.com.fasterxml.jackson.core}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<!-- gson -->
@@ -28,13 +36,7 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${version.com.google.code.gson}</version>
-		</dependency>
-
-		<!-- javax.websocket -->
-		<dependency>
-			<groupId>javax.websocket</groupId>
-			<artifactId>javax.websocket-api</artifactId>
-			<version>${version.javax.websocket}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
