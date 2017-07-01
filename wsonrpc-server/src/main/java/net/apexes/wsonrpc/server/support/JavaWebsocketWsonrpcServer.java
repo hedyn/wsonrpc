@@ -127,7 +127,7 @@ public class JavaWebsocketWsonrpcServer {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    public static interface PathStrategy {
+    public interface PathStrategy {
 
         boolean accept(String path);
         

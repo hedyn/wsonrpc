@@ -75,6 +75,6 @@ public class HttpJsonRpcServer extends NanoHTTPD {
             this.json = new String(bytes, "UTF-8");
         }
 
-    };
-
+    }
+    
 }
