@@ -20,6 +20,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WebSocketClient {
+    
     private static final String THREAD_BASE_NAME = "WebSocket";
     private static final AtomicInteger clientCount = new AtomicInteger(0);
     
