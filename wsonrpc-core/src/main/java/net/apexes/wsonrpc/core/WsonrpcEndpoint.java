@@ -7,6 +7,7 @@
 package net.apexes.wsonrpc.core;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -70,34 +71,47 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
     }
 
     @Override
-    public void invoke(String handleName, String methodName, Object[] args) 
+    public void invoke(String serviceName, String methodName, Object[] args)
             throws IOException, WsonrpcException {
         verifyOnline();
-        wsonrpcControl.invoke(getSession(), handleName, methodName, args);
+        wsonrpcControl.invoke(getSession(), serviceName, methodName, args);
     }
 
     @Override
-    public <T> T invoke(String handleName, String methodName, Object[] args, Class<T> returnType, int timeout)
-            throws IOException, WsonrpcException {
-        Future<T> future = asyncInvoke(handleName, methodName, args, returnType);
+    public <T> T invoke(String serviceName, String methodName, Object[] args, Class<T> returnType, int timeout)
+            throws IOException, WsonrpcException, RemoteException {
+        WsonrpcFuture<T> future = invoke(getSession(), serviceName, methodName, args, returnType);
         try {
             if (timeout <= 0) {
                 return future.get();
             } else {
                 return future.get(timeout, TimeUnit.MILLISECONDS);
             }
-        } catch (Exception e) {
-            Futures.out(future);
+        } catch (Throwable e) {
+            Futures.out(future.idKey);
+            if (e instanceof ExecutionException) {
+                e = e.getCause();
+            }
+            if (e instanceof RemoteException) {
+                throw (RemoteException) e;
+            }
+            if (e instanceof WsonrpcException) {
+                throw (WsonrpcException) e;
+            }
             throw new WsonrpcException(e);
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> Future<T> asyncInvoke(String handleName, String methodName, Object[] args, Class<T> returnType)
+    public <T> Future<T> asyncInvoke(String serviceName, String methodName, Object[] args, Class<T> returnType)
             throws IOException, WsonrpcException {
         verifyOnline();
-        return (Future<T>) wsonrpcControl.invoke(getSession(), handleName, methodName, args, returnType);
+        return invoke(getSession(), serviceName, methodName, args, returnType);
+    }
+
+    private <T> WsonrpcFuture<T> invoke(WsonrpcSession session, String serviceName, String methodName, Object[] args,
+                                 Class<T> returnType) throws IOException, WsonrpcException {
+        return (WsonrpcFuture<T>) wsonrpcControl.invoke(session, serviceName, methodName, args, returnType);
     }
     
 }

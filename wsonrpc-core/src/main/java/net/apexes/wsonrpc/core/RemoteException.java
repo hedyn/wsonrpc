@@ -8,38 +8,45 @@ package net.apexes.wsonrpc.core;
 
 import net.apexes.wsonrpc.core.message.JsonRpcError;
 
+import java.io.PrintStream;
+
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class RemoteException extends WsonrpcException {
+public class RemoteException extends Exception {
     private static final long serialVersionUID = 1L;
     
     private final JsonRpcError error;
 
     public RemoteException(JsonRpcError error) {
-        super(format(error));
+        super(formatMessage(error));
         this.error = error;
+        this.printStackTrace();
     }
 
     public JsonRpcError getJsonRpcError() {
         return error;
     }
 
-    private static String format(JsonRpcError error) {
+    @Override
+    public void printStackTrace(PrintStream s) {
+        if (error.getData() != null) {
+            String data = error.getData();
+            data = data.replace("\\r", "\r").replace("\\n", "\n").replace("\\t", "\t");
+            s.print(data);
+        }
+    }
+
+    private static String formatMessage(JsonRpcError error) {
         StringBuilder str = new StringBuilder();
-        str.append("jsonrpc error");
         if (error.getCode() != null) {
             str.append("[").append(error.getCode()).append("]");
         }
-        str.append(" : ");
         if (error.getMessage() != null) {
+            str.append(" ");
             str.append(error.getMessage());
-        }
-        if (error.getData() != null) {
-            str.append("\n");
-            str.append("Caused by " + error.getData());
         }
         return str.toString();
     }

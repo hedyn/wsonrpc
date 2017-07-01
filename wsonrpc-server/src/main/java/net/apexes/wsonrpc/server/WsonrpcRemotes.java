@@ -36,6 +36,9 @@ public final class WsonrpcRemotes {
     }
 
     static WsonrpcSession getSession(String sessionId) {
+        if (sessionId == null) {
+            return null;
+        }
         InnerWsonrpcEndpoint endpoint = remotes.get(sessionId);
         if (endpoint == null) {
             return null;
@@ -50,6 +53,9 @@ public final class WsonrpcRemotes {
      * @return
      */
     public static WsonrpcRemote getRemote(String sessionId) {
+        if (sessionId == null) {
+            return null;
+        }
         return remotes.get(sessionId);
     }
 

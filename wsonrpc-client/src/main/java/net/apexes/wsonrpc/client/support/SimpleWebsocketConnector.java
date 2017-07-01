@@ -6,18 +6,21 @@
  */
 package net.apexes.wsonrpc.client.support;
 
+import net.apexes.wsonrpc.client.WebsocketConnector;
+import net.apexes.wsonrpc.client.WsonrpcClientEndpoint;
+import net.apexes.wsonrpc.client.support.websocket.WebSocketClient;
+import net.apexes.wsonrpc.client.support.websocket.WebSocketEventHandler;
+import net.apexes.wsonrpc.client.support.websocket.WebSocketException;
+import net.apexes.wsonrpc.client.support.websocket.WebSocketMessage;
+import net.apexes.wsonrpc.core.WsonrpcSession;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
 
-import net.apexes.wsonrpc.client.WebsocketConnector;
-import net.apexes.wsonrpc.client.WsonrpcClientEndpoint;
-import net.apexes.wsonrpc.client.support.websocket.WebSocketClient;
-import net.apexes.wsonrpc.core.WsonrpcSession;
-
 /**
- * 基于 {@link net.apexes.wsonrpc.client.support.websocket.WebSocketClient}的连接
- * 
+ * 基于 {@link WebSocketClient}的连接
+ *
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
@@ -26,7 +29,8 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
     @Override
     public void connectToServer(WsonrpcClientEndpoint endpoint, URI uri) throws Exception {
         WebSocketClient wsClient = new WebSocketClient(uri);
-        wsClient.connect(new WebSocketClientProxy(endpoint, wsClient));
+        wsClient.setEventHandler(new WebSocketClientProxy(endpoint, wsClient));
+        wsClient.connect();
     }
     
     /**
@@ -34,7 +38,7 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class WebSocketClientProxy implements WsonrpcSession, WebSocketClient.Listener  {
+    private static class WebSocketClientProxy implements WsonrpcSession, WebSocketEventHandler {
         
         private final WsonrpcClientEndpoint endpoint;
         private final WebSocketClient wsClient;
@@ -46,35 +50,34 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
             this.wsClient = wsClient;
             opened = false;
         }
-
+    
         @Override
-        public void onConnect() {
+        public void onOpen() {
             id = UUID.randomUUID().toString();
             opened = true;
             endpoint.onOpen(this);
         }
-
+    
         @Override
-        public void onMessage(String message) {
-            onMessage(message.getBytes());
-        }
-
-        @Override
-        public void onMessage(byte[] data) {
-            endpoint.onMessage(data);
-        }
-
-        @Override
-        public void onDisconnect(int code, String reason) {
+        public void onClose() {
             opened = false;
-            endpoint.onClose(code, reason);
+            endpoint.onClose(0, "");
         }
-
+    
         @Override
-        public void onError(Exception error) {
+        public void onMessage(WebSocketMessage message) {
+            endpoint.onMessage(message.getBytes());
+        }
+    
+        @Override
+        public void onError(WebSocketException error) {
             endpoint.onError(error);
         }
-
+    
+        @Override
+        public void onLogMessage(String msg) {
+        }
+        
         @Override
         public String getId() {
             return id;
@@ -92,14 +95,12 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
 
         @Override
         public void ping() throws IOException {
-            wsClient.sendPing("");
+            wsClient.ping();
         }
 
         @Override
         public void close() throws IOException {
-            wsClient.disconnect();
+            wsClient.close();
         }
-        
     }
-
 }

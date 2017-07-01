@@ -6,127 +6,112 @@
  */
 package net.apexes.wsonrpc.core;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.apexes.wsonrpc.core.message.JsonRpcError;
 import net.apexes.wsonrpc.core.message.JsonRpcMessage;
 import net.apexes.wsonrpc.core.message.JsonRpcRequest;
 import net.apexes.wsonrpc.core.message.JsonRpcResponse;
 import net.apexes.wsonrpc.json.JsonImplementor;
 import net.apexes.wsonrpc.json.JsonImplementor.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Set;
 
 /**
- * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
- *
  */
-public class JsonRpcControl implements ServiceRegistry {
+public class JsonRpcControl {
     private static final Logger LOG = LoggerFactory.getLogger(JsonRpcControl.class);
 
     private final JsonImplementor jsonImpl;
     private final BinaryWrapper binaryWrapper;
-    private final Map<String, ServiceEntry<?>> services;
-    
-    /**
-     * 
-     * @param jsonContext
-     */
+    private final ServiceRegistry serviceRegistry;
+
     public JsonRpcControl(JsonImplementor jsonImpl) {
         this(jsonImpl, null);
     }
-    
+
     protected JsonRpcControl(JsonImplementor jsonImpl, BinaryWrapper binaryWrapper) {
         if (jsonImpl == null) {
             throw new NullPointerException("jsonImpl");
         }
         this.jsonImpl = jsonImpl;
         this.binaryWrapper = binaryWrapper;
-        services = new HashMap<>();
+        this.serviceRegistry = new ServiceRegistry();
     }
 
     /**
-     * 
-     * @return
+     * @return 返回 {@link JsonImplementor} 对象
      */
-    public JsonImplementor getJsonImplementor() {
+    protected JsonImplementor getJsonImplementor() {
         return jsonImpl;
     }
 
-    @Override
-    public <T> ServiceRegistry register(String name, T service, Class<?>... classes) {
-        ServiceEntry<T> serviceEntry = new ServiceEntry<>(service, classes);
-        synchronized (services) {
-            if (services.containsKey(name)) {
-                throw new IllegalArgumentException("service already exists");
-            }
-            services.put(name, serviceEntry);
-        }
-        return this;
-    }
-
-    @Override
-    public ServiceRegistry unregister(String name) {
-        synchronized (services) {
-            services.remove(name);
-        }
-        return this;
+    public ServiceRegistry getServiceRegistry() {
+        return serviceRegistry;
     }
 
     /**
      * 接收远端的调用请求，并将回复执行结果。
-     * 
-     * @param bytes
-     * @param transport
+     *
+     * @param bytes     接收到的数据
+     * @param transport {@link Transport} 实例
      * @throws IOException
      * @throws WsonrpcException
      */
     public void receiveRequest(byte[] bytes, Transport transport) throws IOException, WsonrpcException {
-        JsonRpcMessage msg = receive(bytes);
-        if (msg instanceof JsonRpcRequest) {
-            JsonRpcRequest req = (JsonRpcRequest) msg;
-            JsonRpcResponse resp = execute(req);
-            transmit(transport, resp);
-        } else {
-            throw new WsonrpcException("Invalid Request");
+        JsonRpcResponse resp;
+        try {
+            JsonRpcMessage msg = receive(bytes);
+            if (msg instanceof JsonRpcRequest) {
+                JsonRpcRequest req = (JsonRpcRequest) msg;
+                resp = execute(req);
+            } else {
+                resp = new JsonRpcResponse(null, JsonRpcError.invalidRequestError(null));
+            }
+        } catch (JsonException e) {
+            resp = new JsonRpcResponse(null, JsonRpcError.parseError(e));
+        } catch (IOException e) {
+            resp = new JsonRpcResponse(null, JsonRpcError.internalError(e));
         }
+        transmit(transport, resp);
     }
 
     /**
      * 接收远程调用得到的回复，从回复中返回指定类型的对象。
-     * 
-     * @param bytes
-     * @param returnType
-     * @return
-     * @throws IOException
+     *
+     * @param bytes      接收到的字节数组
+     * @param returnType 返回的对象类型
+     * @return 返回指定类型的对象
+     * @throws IOException      IO错误
      * @throws WsonrpcException
-     * @throws RemoteException
+     * @throws RemoteException  远程方法抛出异常
      */
-    public <T> T receiveResponse(byte[] bytes, Class<T> returnType)
-            throws IOException, WsonrpcException, RemoteException {
-        JsonRpcMessage msg = receive(bytes);
+    public <T> T receiveResponse(byte[] bytes, Class<T> returnType) throws IOException, WsonrpcException, RemoteException {
+        JsonRpcMessage msg;
+        try {
+            msg = receive(bytes);
+        } catch (JsonException e) {
+            throw new WsonrpcException("parse response error", e);
+        }
         if (msg instanceof JsonRpcResponse) {
             return convertResponse((JsonRpcResponse) msg, returnType);
         } else {
-            throw new WsonrpcException("Invalid Response");
+            throw new WsonrpcException("invalid response");
         }
     }
 
     /**
      * 远程调用方法。
-     * 
-     * @param serviceName
-     * @param methodName
-     * @param args
-     * @param id
-     * @param transport
+     *
+     * @param serviceName 服务名
+     * @param methodName  方法名
+     * @param args        参数
+     * @param id          请求ID
+     * @param transport   {@link Transport}实例
      * @throws IOException
      * @throws WsonrpcException
      */
@@ -155,11 +140,11 @@ public class JsonRpcControl implements ServiceRegistry {
 
     /**
      * 处理远端的调用请求，执行相应的方法并返回执行结果。
-     * 
+     *
      * @param request
-     * @return request 如果request为通知将返回 null
+     * @return 如果request为通知将返回 null
      */
-    public JsonRpcResponse execute(JsonRpcRequest request) {
+    protected JsonRpcResponse execute(JsonRpcRequest request) {
         if (request == null) {
             return new JsonRpcResponse(null, JsonRpcError.parseError(null));
         }
@@ -172,10 +157,7 @@ public class JsonRpcControl implements ServiceRegistry {
             methodName = methodName.substring(lastIndex + 1);
         }
 
-        ServiceEntry<?> serviceEntry;
-        synchronized (services) {
-            serviceEntry = services.get(serviceName);
-        }
+        ServiceEntry<?> serviceEntry = serviceRegistry.getService(serviceName);
         if (serviceEntry == null) {
             return new JsonRpcResponse(null, JsonRpcError.methodNotFoundError(null));
         }
@@ -184,37 +166,33 @@ public class JsonRpcControl implements ServiceRegistry {
             return new JsonRpcResponse(null, JsonRpcError.methodNotFoundError(null));
         }
 
+        String id = request.getId();
         Node[] params = request.getParams();
         Method method = findExecutableMethod(methods, params);
         if (method == null) {
             return new JsonRpcResponse(null, JsonRpcError.invalidParamsError(null));
         }
 
+        Object service = serviceEntry.getService();
+        Object[] args = getParameters(method, params);
         try {
-            Object[] args = getParameters(method, params);
-            Object invokeValue = method.invoke(serviceEntry.getService(), args);
+            Object invokeValue = method.invoke(service, args);
 
-            if (request.isNotice()) {
+            if (id == null) {
                 return null;
             }
 
             Node result = jsonImpl.convert(invokeValue);
-            return new JsonRpcResponse(request.getId(), result);
+            return new JsonRpcResponse(id, result);
         } catch (Throwable t) {
-            LOG.warn("executing error : " + methodName, t);
             if (t instanceof InvocationTargetException) {
                 t = ((InvocationTargetException) t).getTargetException();
             }
-            return new JsonRpcResponse(null, JsonRpcError.serverError(1, t));
+            LOG.debug("executing error : " + method, t);
+            return new JsonRpcResponse(id, JsonRpcError.serverError(2, "Server error", t));
         }
     }
 
-    /**
-     * 
-     * @param methods
-     * @param params
-     * @return
-     */
     protected Method findExecutableMethod(Set<Method> methods, Node[] params) {
         if (params == null) {
             for (Method method : methods) {
@@ -246,12 +224,6 @@ public class JsonRpcControl implements ServiceRegistry {
         return null;
     }
 
-    /**
-     * 
-     * @param method
-     * @param params
-     * @return
-     */
     protected Object[] getParameters(Method method, Node[] params) {
         Object[] args = new Object[params.length];
         Class<?>[] types = method.getParameterTypes();
@@ -262,16 +234,7 @@ public class JsonRpcControl implements ServiceRegistry {
         return args;
     }
 
-    /**
-     * 
-     * @param resp
-     * @param returnType
-     * @return
-     * @throws RemoteException
-     * @throws WsonrpcException
-     */
-    protected <T> T convertResponse(JsonRpcResponse resp, Class<T> returnType)
-            throws RemoteException, WsonrpcException {
+    protected <T> T convertResponse(JsonRpcResponse resp, Class<T> returnType) throws WsonrpcException, RemoteException {
         if (resp.getError() != null) {
             throw new RemoteException(resp.getError());
         }
@@ -283,28 +246,20 @@ public class JsonRpcControl implements ServiceRegistry {
         try {
             return jsonImpl.convert(resp.getResult(), returnType);
         } catch (Throwable t) {
-            throw new WsonrpcException(t);
+            throw new WsonrpcException(t.getMessage(), t);
         }
     }
 
-    /**
-     * 
-     * @param transport
-     * @param message
-     * @throws IOException
-     * @throws WsonrpcException
-     */
-    protected void transmit(Transport transport, JsonRpcMessage message)
-            throws IOException, WsonrpcException {
+    protected void transmit(Transport transport, JsonRpcMessage message) throws IOException, WsonrpcException {
         String json;
         try {
             json = message.toJson(jsonImpl);
         } catch (Exception e) {
-            throw new WsonrpcException("Serialize failed", e);
+            throw new WsonrpcException("serialize error", e);
         }
 
         LOG.debug(" >>  {}", json);
-        
+
         byte[] bytes = json.getBytes("UTF-8");
         if (binaryWrapper != null) {
             LOG.debug(" = {}", bytes.length);
@@ -314,29 +269,18 @@ public class JsonRpcControl implements ServiceRegistry {
         transport.sendBinary(bytes);
     }
 
-    /**
-     * 
-     * @param bytes
-     * @return
-     * @throws IOException
-     * @throws WsonrpcException
-     */
-    protected JsonRpcMessage receive(byte[] bytes) throws IOException, WsonrpcException {
+    protected JsonRpcMessage receive(byte[] bytes) throws IOException, JsonException {
         if (binaryWrapper != null) {
             LOG.debug(" - {}", bytes.length);
             bytes = binaryWrapper.read(bytes);
             LOG.debug(" = {}", bytes.length);
         }
-        
+
         String json = new String(bytes, "UTF-8");
 
         LOG.debug(" <<  {}", json);
 
-        try {
-            return JsonRpcMessage.of(jsonImpl, json);
-        } catch (Exception e) {
-            throw new WsonrpcException("Parse error", e);
-        }
+        return JsonRpcMessage.of(jsonImpl, json);
     }
 
 }

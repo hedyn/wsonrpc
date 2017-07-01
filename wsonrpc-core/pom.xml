@@ -4,7 +4,8 @@
 	<parent>
 		<groupId>net.apexes.wsonrpc</groupId>
 		<artifactId>wsonrpc</artifactId>
-		<version>1.0.0</version>
+		<version>1.1.0</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>wsonrpc-core</artifactId>
 

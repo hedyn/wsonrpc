@@ -8,6 +8,7 @@ package net.apexes.wsonrpc.server.support;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.apexes.wsonrpc.core.WsonrpcConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.server.WsonrpcServer;
 
 /**

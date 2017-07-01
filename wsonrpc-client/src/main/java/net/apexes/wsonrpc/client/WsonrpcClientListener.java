@@ -21,6 +21,4 @@ public interface WsonrpcClientListener {
     
     void onSentPing();
     
-    void onError(Throwable error);
-    
 }

@@ -39,63 +39,43 @@ public class JsonRpcError {
     }
     
     public static JsonRpcError parseError(Throwable t) {
-        String data = null;
-        if (t != null) {
-            data = getStackTrace(t);
-        }
-        return new JsonRpcError(-32700, "Parse error", data);
+        return new JsonRpcError(-32700, "Parse error", getStackTrace(t));
     }
     
     public static JsonRpcError invalidRequestError(Throwable t) {
-        String data = null;
-        if (t != null) {
-            data = getStackTrace(t);
-        }
-        return new JsonRpcError(-32600, "Invalid Request", data);
+        return new JsonRpcError(-32600, "Invalid Request", getStackTrace(t));
     }
     
     public static JsonRpcError methodNotFoundError(Throwable t) {
-        String data = null;
-        if (t != null) {
-            data = getStackTrace(t);
-        }
-        return new JsonRpcError(-32601, "Method not found", data);
+        return new JsonRpcError(-32601, "Method not found", getStackTrace(t));
     }
     
     public static JsonRpcError invalidParamsError(Throwable t) {
-        String data = null;
-        if (t != null) {
-            data = getStackTrace(t);
-        }
-        return new JsonRpcError(-32602, "Invalid params", data);
+        return new JsonRpcError(-32602, "Invalid params", getStackTrace(t));
     }
     
     public static JsonRpcError internalError(Throwable t) {
-        String data = null;
-        if (t != null) {
-            data = getStackTrace(t);
-        }
-        return new JsonRpcError(-32603, "Internal error", data);
+        return new JsonRpcError(-32603, "Internal error", getStackTrace(t));
     }
     
-    public static JsonRpcError serverError(int index, Throwable t) {
-        String data = null;
-        if (t != null) {
-            data = getStackTrace(t);
-        }
-        return new JsonRpcError(-32000 - index, "Server error", data);
+    public static JsonRpcError serverError(int index, String msg, Throwable t) {
+        return new JsonRpcError(-32000 - index, msg, getStackTrace(t));
     }
-    
+
     /**
-     * 
+     *
      * @param t
      * @return
      */
     static String getStackTrace(Throwable t) {
+        if (t == null) {
+            return null;
+        }
         StringWriter strWriter = new StringWriter();
         PrintWriter writer = new PrintWriter(strWriter);
         t.printStackTrace(writer);
         writer.close();
         return strWriter.toString();
     }
+
 }

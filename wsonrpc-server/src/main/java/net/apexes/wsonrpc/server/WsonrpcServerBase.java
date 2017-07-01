@@ -6,14 +6,12 @@
  */
 package net.apexes.wsonrpc.server;
 
-import java.nio.ByteBuffer;
-
 import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcControl;
-import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
 import net.apexes.wsonrpc.core.WsonrpcSession;
-import net.apexes.wsonrpc.core.message.JsonRpcRequest;
+
+import java.nio.ByteBuffer;
 
 /**
  * 
@@ -25,11 +23,10 @@ public class WsonrpcServerBase implements WsonrpcServer {
     protected final WsonrpcConfig config;
     private final WsonrpcControl wsonrpcControl;
     private WsonrpcServerListener serverListener;
-    private WsonrpcErrorProcessor errorProcessor;
-    
+
     public WsonrpcServerBase(WsonrpcConfig config) {
         this.config = config;
-        wsonrpcControl = new InnerWsonrpcControl(config);
+        wsonrpcControl = new WsonrpcControl(config);
     }
 
     /**
@@ -58,18 +55,20 @@ public class WsonrpcServerBase implements WsonrpcServer {
     public void onMessage(String sessionId, ByteBuffer buffer) {
         WsonrpcSession session = WsonrpcRemotes.getSession(sessionId);
         byte[] bytes = buffer.array();
+        WsonrpcSessions.begin(session);
         try {
-            wsonrpcControl.handle(session, bytes, errorProcessor);
+            fireMessage(sessionId, bytes);
+            wsonrpcControl.handle(session, bytes);
         } catch (Exception ex) {
             onError(session.getId(), ex);
         } finally {
-            fireMessage(session.getId(), bytes);
+            WsonrpcSessions.end();
         }
     }
     
     public void onError(String sessionId, Throwable error) {
-        if (errorProcessor != null) {
-            errorProcessor.onError(sessionId, error);
+        if (config.getErrorProcessor() != null) {
+            config.getErrorProcessor().onError(sessionId, error);
         }
     }
     
@@ -92,8 +91,8 @@ public class WsonrpcServerBase implements WsonrpcServer {
     }
     
     @Override
-    public ServiceRegistry getRegistry() {
-        return wsonrpcControl;
+    public ServiceRegistry getServiceRegistry() {
+        return wsonrpcControl.getServiceRegistry();
     }
     
     @Override
@@ -104,41 +103,6 @@ public class WsonrpcServerBase implements WsonrpcServer {
     @Override
     public void setServerListener(WsonrpcServerListener listener) {
         this.serverListener = listener;
-    }
-    
-    @Override
-    public WsonrpcErrorProcessor getErrorProcessor() {
-        return errorProcessor;
-    }
-
-    @Override
-    public void setErrorProcessor(WsonrpcErrorProcessor errorProcessor) {
-        this.errorProcessor = errorProcessor;
-    }
-    
-    /**
-     * 
-     * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
-     *
-     */
-    private class InnerWsonrpcControl extends WsonrpcControl {
-        
-        public InnerWsonrpcControl(WsonrpcConfig config) {
-            super(config);
-        }
-        
-        @Override
-        protected void handleRequest(WsonrpcSession session, JsonRpcRequest request) {
-            WsonrpcSessions.begin(session);
-            try {
-                super.handleRequest(session, request);
-            } catch (Exception ex) {
-                onError(session.getId(), ex);
-            } finally {
-                WsonrpcSessions.end();
-            }
-        }
-        
     }
 
 }

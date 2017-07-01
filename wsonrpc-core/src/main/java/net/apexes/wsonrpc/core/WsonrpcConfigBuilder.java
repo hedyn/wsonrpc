@@ -6,68 +6,38 @@
  */
 package net.apexes.wsonrpc.core;
 
-import java.util.concurrent.Executor;
-
 import net.apexes.wsonrpc.json.JsonImplementor;
 import net.apexes.wsonrpc.json.support.GsonImplementor;
 
 /**
- * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
- *
  */
 public final class WsonrpcConfigBuilder {
-    
+
     public static WsonrpcConfig defaultConfig() {
         return create().build();
     }
-    
+
     public static WsonrpcConfigBuilder create() {
         return new WsonrpcConfigBuilder();
     }
-    
+
     private JsonImplementor jsonImpl;
     private BinaryWrapper binaryWrapper;
-    private Executor executor;
-    
-    private WsonrpcConfigBuilder() {}
-    
+    private WsonrpcExecutor executor;
+    private WsonrpcErrorProcessor errorProcessor;
+
+    private WsonrpcConfigBuilder() {
+    }
+
     public WsonrpcConfig build() {
         if (jsonImpl == null) {
             jsonImpl = new GsonImplementor();
         }
-        if (executor == null) {
-            executor = new Executor() {
-
-                @Override
-                public void execute(Runnable runnable) {
-                    runnable.run();
-                }
-                
-            };
-        }
-        return new WsonrpcConfig() {
-
-            @Override
-            public JsonImplementor getJsonImplementor() {
-                return jsonImpl;
-            }
-
-            @Override
-            public BinaryWrapper getBinaryWrapper() {
-                return binaryWrapper;
-            }
-
-            @Override
-            public Executor getExecutor() {
-                return executor;
-            }
-            
-        };
+        return new WsonrpcConfigImpl(jsonImpl, binaryWrapper, executor, errorProcessor);
     }
 
     /**
-     * 
      * @param jsonImpl
      * @return
      */
@@ -75,9 +45,8 @@ public final class WsonrpcConfigBuilder {
         this.jsonImpl = jsonImpl;
         return this;
     }
-    
+
     /**
-     * 
      * @param binaryWrapper
      * @return
      */
@@ -87,13 +56,62 @@ public final class WsonrpcConfigBuilder {
     }
 
     /**
-     * 
      * @param executor
      * @return
      */
-    public WsonrpcConfigBuilder executor(Executor executor) {
+    public WsonrpcConfigBuilder executor(WsonrpcExecutor executor) {
         this.executor = executor;
         return this;
+    }
+
+    /**
+     * @param errorProcessor
+     * @return
+     */
+    public WsonrpcConfigBuilder errorProcessor(WsonrpcErrorProcessor errorProcessor) {
+        this.errorProcessor = errorProcessor;
+        return this;
+    }
+
+    /**
+     *
+     */
+    static class WsonrpcConfigImpl implements WsonrpcConfig {
+
+        private final JsonImplementor jsonImpl;
+        private final BinaryWrapper binaryWrapper;
+        private final WsonrpcExecutor executor;
+        private final WsonrpcErrorProcessor errorProcessor;
+
+        private WsonrpcConfigImpl(JsonImplementor jsonImpl,
+                                  BinaryWrapper binaryWrapper,
+                                  WsonrpcExecutor executor,
+                                  WsonrpcErrorProcessor errorProcessor) {
+            this.jsonImpl = jsonImpl;
+            this.binaryWrapper = binaryWrapper;
+            this.executor = executor;
+            this.errorProcessor = errorProcessor;
+        }
+
+        @Override
+        public JsonImplementor getJsonImplementor() {
+            return jsonImpl;
+        }
+
+        @Override
+        public BinaryWrapper getBinaryWrapper() {
+            return binaryWrapper;
+        }
+
+        @Override
+        public WsonrpcExecutor getWsonrpcExecutor() {
+            return executor;
+        }
+
+        @Override
+        public WsonrpcErrorProcessor getErrorProcessor() {
+            return errorProcessor;
+        }
     }
 
 }

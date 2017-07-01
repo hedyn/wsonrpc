@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.apexes.wsonrpc.core.JsonRpcControl;
-import net.apexes.wsonrpc.core.ServiceRegistry;
-import net.apexes.wsonrpc.core.Transport;
-import net.apexes.wsonrpc.core.WsonrpcException;
+import net.apexes.wsonrpc.core.*;
 import net.apexes.wsonrpc.json.JsonImplementor;
 import net.apexes.wsonrpc.json.support.GsonImplementor;
 import net.apexes.wsonrpc.server.support.http.NanoHTTPD;
@@ -37,7 +34,7 @@ public class HttpJsonRpcServer extends NanoHTTPD {
     }
     
     public ServiceRegistry getServiceRegistry() {
-        return jsonRpcControl;
+        return jsonRpcControl.getServiceRegistry();
     }
 
     @Override

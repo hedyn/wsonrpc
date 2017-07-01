@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.apexes.wsonrpc.core.WsonrpcConfig;
+import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocketAdapter;
 import org.java_websocket.WebSocketImpl;
@@ -29,8 +31,6 @@ import org.java_websocket.server.DefaultWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 import org.java_websocket.server.WebSocketServer.WebSocketServerFactory;
 
-import net.apexes.wsonrpc.core.WsonrpcConfig;
-import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.core.WsonrpcSession;
 import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;

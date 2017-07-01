@@ -6,13 +6,7 @@
  */
 package net.apexes.wsonrpc.demo.server;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
+import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcSession;
 import net.apexes.wsonrpc.demo.api.DemoService;
 import net.apexes.wsonrpc.demo.api.RegisterService;
@@ -20,6 +14,11 @@ import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
 import net.apexes.wsonrpc.demo.server.service.RegisterServiceImpl;
 import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /**
  * 
@@ -77,13 +76,6 @@ public class DemoWsonrpcServer {
     }
     
     protected static void setupServer(WsonrpcServer serverBase) {
-        serverBase.setErrorProcessor(new WsonrpcErrorProcessor() {
-
-            @Override
-            public void onError(String sessionId, Throwable error) {
-                error.printStackTrace();
-            }
-        });
         serverBase.setServerListener(new WsonrpcServerListener() {
 
             @Override
@@ -105,8 +97,8 @@ public class DemoWsonrpcServer {
         });
         
         // 注册服务供Client调用
-        serverBase.getRegistry().register("demo", new DemoServiceImpl(), DemoService.class);
-        serverBase.getRegistry().register("register", new RegisterServiceImpl(), RegisterService.class);
+        serverBase.getServiceRegistry().register("demo", new DemoServiceImpl(), DemoService.class);
+        serverBase.getServiceRegistry().register("register", new RegisterServiceImpl(), RegisterService.class);
     }
 
 }

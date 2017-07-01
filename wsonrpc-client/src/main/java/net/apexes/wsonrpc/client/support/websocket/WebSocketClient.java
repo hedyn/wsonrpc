@@ -1,273 +1,389 @@
 package net.apexes.wsonrpc.client.support.websocket;
 
-import java.io.EOFException;
+import javax.net.SocketFactory;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.ConnectException;
-import java.net.HttpRetryException;
-import java.net.ProtocolException;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-
-import net.apexes.wsonrpc.utis.Base64;
+import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WebSocketClient {
+    private static final String THREAD_BASE_NAME = "WebSocket";
+    private static final AtomicInteger clientCount = new AtomicInteger(0);
     
-    private final Object mSendLock = new Object();
-
-    private static TrustManager[] sTrustManagers;
-
-    private final URI mURI;
-    private final HybiParser mParser;
-    private Listener mListener;
-    private Thread mThread;
-    private Socket mSocket;
-    private boolean disconnect;
-
-    public static void setTrustManagers(TrustManager[] tm) {
-        sTrustManagers = tm;
+    private enum State {NONE, CONNECTING, CONNECTED, DISCONNECTING, DISCONNECTED}
+    
+    private static final Charset UTF8 = Charset.forName("UTF-8");
+    
+    static final byte OPCODE_NONE = 0x0;
+    static final byte OPCODE_TEXT = 0x1;
+    static final byte OPCODE_BINARY = 0x2;
+    static final byte OPCODE_CLOSE = 0x8;
+    static final byte OPCODE_PING = 0x9;
+    static final byte OPCODE_PONG = 0xA;
+    
+    private volatile State state = State.NONE;
+    private volatile Socket socket = null;
+    
+    private WebSocketEventHandler eventHandler = null;
+    
+    private final URI url;
+    
+    private final WebSocketReceiver receiver;
+    private final WebSocketWriter writer;
+    private final WebSocketHandshake handshake;
+    private final int clientId = clientCount.incrementAndGet();
+    
+    private final Thread innerThread;
+    private static ThreadFactory threadFactory = Executors.defaultThreadFactory();
+    private static ThreadInitializer intializer = new ThreadInitializer() {
+        @Override
+        public void setName(Thread t, String name) {
+            t.setName(name);
+        }
+    };
+    
+    private static HostnameVerifier hostNameVerifier;
+    
+    static ThreadFactory getThreadFactory() {
+        return threadFactory;
     }
-
-    public WebSocketClient(URI uri) {
-        mURI = uri;
-        mParser = new HybiParser(this);
+    
+    static ThreadInitializer getIntializer() {
+        return intializer;
     }
-
-    public Listener getListener() {
-        return mListener;
+    
+    public static void setThreadFactory(ThreadFactory threadFactory, ThreadInitializer intializer) {
+        WebSocketClient.threadFactory = threadFactory;
+        WebSocketClient.intializer = intializer;
     }
-
-    public synchronized void connect(Listener listener) throws Exception {
-        if (mThread != null && mThread.isAlive()) {
+    
+    public static void setHostnameVerifier(HostnameVerifier hostNameVerifier) {
+        WebSocketClient.hostNameVerifier = hostNameVerifier;
+    }
+    
+    /**
+     * Create a websocket to connect to a given server
+     *
+     * @param url The URL of a websocket server
+     */
+    public WebSocketClient(URI url) {
+        this(url, null);
+    }
+    
+    /**
+     * Create a websocket to connect to a given server. Include protocol in websocket handshake
+     *
+     * @param url The URL of a websocket server
+     * @param protocol The protocol to include in the handshake. If null, it will be omitted
+     */
+    public WebSocketClient(URI url, String protocol) {
+        this(url, protocol, null);
+    }
+    
+    /**
+     * Create a websocket to connect to a given server. Include the given protocol in the handshake, as well as any
+     * extra HTTP headers specified. Useful if you would like to include a User-Agent or other header
+     *
+     * @param url The URL of a websocket server
+     * @param protocol The protocol to include in the handshake. If null, it will be omitted
+     * @param extraHeaders Any extra HTTP headers to be included with the initial request. Pass null if not extra headers
+     * are requested
+     */
+    public WebSocketClient(URI url, String protocol, Map<String, String> extraHeaders) {
+        innerThread = getThreadFactory().newThread(new Runnable() {
+            @Override
+            public void run() {
+                runReader();
+            }
+        });
+        this.url = url;
+        handshake = new WebSocketHandshake(url, protocol, extraHeaders);
+        receiver = new WebSocketReceiver(this);
+        writer = new WebSocketWriter(this, THREAD_BASE_NAME, clientId);
+    }
+    
+    /**
+     * Must be called before connect(). Set the handler for all websocket-related events.
+     *
+     * @param eventHandler The handler to be triggered with relevant events
+     */
+    public void setEventHandler(WebSocketEventHandler eventHandler) {
+        this.eventHandler = eventHandler;
+    }
+    
+    WebSocketEventHandler getEventHandler() {
+        return this.eventHandler;
+    }
+    
+    /**
+     * Start up the socket. This is non-blocking, it will fire up the threads used by the library and then trigger the
+     * onOpen handler once the connection is established.
+     */
+    public synchronized void connect() {
+        if (state != State.NONE) {
+            eventHandler.onError(new WebSocketException("connect() already called"));
+            close();
             return;
         }
-
-        mListener = listener;
-        disconnect = false;
-        
-        try {
-            String secret = createSecret();
-
-            String scheme = mURI.getScheme();
-            String host = mURI.getHost();
-            
-            int port = (mURI.getPort() != -1) ? mURI.getPort()
-                    : (mURI.getScheme().equals("wss") ? 443 : 80);
-
-            String path = isEmpty(mURI.getPath()) ? "/" : mURI.getPath();
-            if (!isEmpty(mURI.getQuery())) {
-                path += "?" + mURI.getQuery();
-            }
-
-            String originScheme = scheme.equals("wss") ? "https" : "http";
-            URI origin = new URI(originScheme, "//" + host, null);
-
-            SocketFactory factory = scheme.equals("wss") ? getSSLSocketFactory()
-                    : SocketFactory.getDefault();
-            mSocket = factory.createSocket(host, port);
-
-            PrintWriter out = new PrintWriter(mSocket.getOutputStream());
-            out.print("GET " + path + " HTTP/1.1\r\n");
-            out.print("Upgrade: websocket\r\n");
-            out.print("Connection: Upgrade\r\n");
-            out.print("Host: " + host + "\r\n");
-            out.print("Origin: " + origin.toString() + "\r\n");
-            out.print("Sec-WebSocket-Key: " + secret + "\r\n");
-            out.print("Sec-WebSocket-Version: 13\r\n");
-            out.print("\r\n");
-            out.flush();
-
-            final HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(
-                    mSocket.getInputStream());
-
-            // Check HTTP response status line.
-            checkStatusLine(readLine(stream));
-
-            // Read HTTP response headers.
-            String line;
-            boolean validated = false;
-
-            while (!isEmpty(line = readLine(stream))) {
-                if (line.startsWith("Sec-WebSocket-Accept:")) {
-                    String expected = createSecretValidation(secret);
-                    String actual = line.replace("Sec-WebSocket-Accept:", "").trim();
-
-                    if (!expected.equals(actual)) {
-                        throw new ProtocolException("Bad Sec-WebSocket-Accept header value.");
-                    }
-
-                    validated = true;
-                }
-            }
-
-            if (!validated) {
-                throw new ProtocolException("No Sec-WebSocket-Accept header.");
-            }
-
-
-            mThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    // Now decode websocket frames.
-                    try {
-                        mParser.start(stream);
-                    } catch (EOFException ex) {
-                        mListener.onDisconnect(0, "EOF");
-                    } catch (SocketException ex) {
-                        mListener.onDisconnect(1006, ex.getMessage());
-                    } catch (IOException ex) {
-                        if (disconnect) {
-                            mListener.onDisconnect(0, "EOF");
-                        } else {
-                            mListener.onError(ex);
-                        }
-                    }
-                }
-            });
-            mThread.start();
-            mListener.onConnect();
-        } catch (EOFException ex) {
-            mListener.onDisconnect(0, "EOF");
-        } catch (SSLException ex) {
-            // Connection reset by peer
-            mListener.onDisconnect(0, "SSL");
-        } catch (Exception ex) {
-            if (disconnect) {
-                mListener.onDisconnect(0, "EOF");
-            } else {
-                throw ex;
-            }
-        }
+        getIntializer().setName(getInnerThread(), THREAD_BASE_NAME + "Reader-" + clientId);
+        state = State.CONNECTING;
+        getInnerThread().start();
     }
-
-    public void disconnect() {
-        disconnect = true;
-        try {
-            mSocket.close();
-            mSocket = null;
-        } catch (IOException ex) {
-            disconnect = false;
-            mListener.onError(ex);
-        }
-    }
-
+    
+    /**
+     * Send a TEXT message over the socket
+     *
+     * @param data The text payload to be sent
+     */
     public void send(String data) {
-        sendFrame(mParser.frame(data));
+        send(OPCODE_TEXT, data.getBytes(UTF8));
     }
-
+    
+    /**
+     * Send a BINARY message over the socket
+     *
+     * @param data The binary payload to be sent
+     */
     public void send(byte[] data) {
-        sendFrame(mParser.frame(data));
+        send(OPCODE_BINARY, data);
     }
     
-    public void sendPing(String message) {
-        sendFrame(mParser.pingFrame(message));
+    public void ping() {
+        send(OPCODE_PING, new byte[] {});
     }
+    
+    void pong(byte[] data) {
+        send(OPCODE_PONG, data);
+    }
+    
+    private synchronized void send(byte opcode, byte[] data) {
+        if (state != State.CONNECTED) {
+            // We might have been disconnected on another thread, just report an error
+            eventHandler.onError(new WebSocketException("error while sending data: not connected"));
+        } else {
+            try {
+                writer.send(opcode, true, data);
+            } catch (IOException e) {
+                eventHandler.onError(new WebSocketException("Failed to send frame", e));
+                close();
+            }
+        }
+    }
+    
+    void handleReceiverError(WebSocketException e) {
+        eventHandler.onError(e);
+        if (state == State.CONNECTED) {
+            close();
+        }
+        closeSocket();
+    }
+    
+    /**
+     * Close down the socket. Will trigger the onClose handler if the socket has not been previously closed.
+     */
+    public synchronized void close() {
+        switch (state) {
+            case NONE:
+                state = State.DISCONNECTED;
+                return;
+            case CONNECTING:
+                // don't wait for an established connection, just close the tcp socket
+                closeSocket();
+                return;
+            case CONNECTED:
+                // This method also shuts down the writer
+                // the socket will be closed once the ack for the close was received
+                sendCloseHandshake();
+                return;
+            case DISCONNECTING:
+                return; // no-op;
+            case DISCONNECTED:
+                return;  // No-op
+        }
+    }
+    
+    void onCloseOpReceived() {
+        closeSocket();
+    }
+    
+    private synchronized void closeSocket() {
+        if (state == State.DISCONNECTED) {
+            return;
+        }
+        receiver.stopit();
+        writer.stopIt();
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        state = State.DISCONNECTED;
         
-    private void checkStatusLine(String line) throws Exception {
-        if (isEmpty(line)) {
-            throw new ConnectException("Received no reply from server.");
-        }
+        eventHandler.onClose();
+    }
+    
+    private void sendCloseHandshake() {
         try {
-            int beginIndex = line.indexOf(' ');
-            int endIndex = line.indexOf(' ', beginIndex + 1);
-            String code = line.substring(beginIndex, endIndex).trim();
-            if (!"101".equals(code)) {
-                String reasonPhrase = line.substring(endIndex).trim();
-                throw new HttpRetryException(reasonPhrase, Integer.valueOf(code));
-            }            
-        } catch (Exception ex) {
-            throw new ConnectException("Bad reply from server: " + line);
-        }
-    }
-
-    // Can't use BufferedReader because it buffers past the HTTP data.
-    private String readLine(HybiParser.HappyDataInputStream reader) throws IOException {
-        int readChar = reader.read();
-        if (readChar == -1) {
-            return null;
-        }
-        StringBuilder buf = new StringBuilder("");
-        while (readChar != '\n') {
-            if (readChar != '\r') {
-                buf.append((char) readChar);
-            }
-
-            readChar = reader.read();
-            if (readChar == -1) {
-                return null;
-            }
-        }
-        return buf.toString();
-    }
-
-    private String createSecret() {
-        byte[] nonce = new byte[16];
-        for (int i = 0; i < 16; i++) {
-            nonce[i] = (byte) (Math.random() * 256);
-        }
-        return new String(Base64.encodeBase64(nonce)).trim();
-    }
-
-    private String createSecretValidation(String secret) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            md.update((secret + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").getBytes());
-            return new String(Base64.encodeBase64(md.digest())).trim();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    void sendFrame(final byte[] frame) {
-        try {
-            synchronized (mSendLock) {
-                if (mSocket == null) {
-                    throw new IllegalStateException("Socket not connected");
-                }
-                OutputStream outputStream = mSocket.getOutputStream();
-                outputStream.write(frame);
-                outputStream.flush();
-            }
+            state = State.DISCONNECTING;
+            // Set the stop flag then queue up a message. This ensures that the writer thread
+            // will wake up, and since we set the stop flag, it will exit its run loop.
+            writer.stopIt();
+            writer.send(OPCODE_CLOSE, true, new byte[0]);
         } catch (IOException e) {
-            mListener.onError(e);
+            eventHandler.onError(new WebSocketException("Failed to send close frame", e));
         }
     }
     
-    private static SSLSocketFactory getSSLSocketFactory() 
-            throws NoSuchAlgorithmException, KeyManagementException {
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(null, sTrustManagers, null);
-        return context.getSocketFactory();
+    private Socket createSocket() {
+        String scheme = url.getScheme();
+        String host = url.getHost();
+        int port = url.getPort();
+        
+        Socket socket;
+        
+        if (scheme != null && scheme.equals("ws")) {
+            if (port == -1) {
+                port = 80;
+            }
+            try {
+                socket = new Socket(host, port);
+            } catch (UnknownHostException uhe) {
+                throw new WebSocketException("unknown host: " + host, uhe);
+            } catch (IOException ioe) {
+                throw new WebSocketException("error while creating socket to " + url, ioe);
+            }
+        } else if (scheme != null && scheme.equals("wss")) {
+            if (port == -1) {
+                port = 443;
+            }
+            try {
+                SocketFactory factory = SSLSocketFactory.getDefault();
+                socket = factory.createSocket(host, port);
+                if (hostNameVerifier != null) {
+                    hostNameVerifier.verify(host, ((SSLSocket) socket).getSession());
+                }
+            } catch (UnknownHostException uhe) {
+                throw new WebSocketException("unknown host: " + host, uhe);
+            } catch (IOException ioe) {
+                throw new WebSocketException("error while creating secure socket to " + url, ioe);
+            }
+        } else {
+            throw new WebSocketException("unsupported protocol: " + scheme);
+        }
+        
+        return socket;
     }
     
-    private static boolean isEmpty(final CharSequence s) {
-        if (s == null) {
-            return true;
+    /**
+     * Blocks until both threads exit. The actual close must be triggered separately. This is just a convenience
+     * method to make sure everything shuts down, if desired.
+     *
+     * @throws InterruptedException
+     */
+    public void blockClose() throws InterruptedException {
+        // If the thread is new, it will never run, since we closed the connection before we actually connected
+        if (writer.getInnerThread().getState() != Thread.State.NEW) {
+            writer.getInnerThread().join();
         }
-        return s.length() == 0;
+        getInnerThread().join();
     }
-
-    public interface Listener {
-        public void onConnect();
-
-        public void onMessage(String message);
-
-        public void onMessage(byte[] data);
-
-        public void onDisconnect(int code, String reason);
-
-        public void onError(Exception error);
+    
+    private void runReader() {
+        try {
+            Socket socket = createSocket();
+            synchronized (this) {
+                WebSocketClient.this.socket = socket;
+                if (WebSocketClient.this.state == State.DISCONNECTED) {
+                    // The connection has been closed while creating the socket, close it immediately and return
+                    try {
+                        WebSocketClient.this.socket.close();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    WebSocketClient.this.socket = null;
+                    return;
+                }
+            }
+            
+            DataInputStream input = new DataInputStream(socket.getInputStream());
+            OutputStream output = socket.getOutputStream();
+            
+            output.write(handshake.getHandshake());
+            
+            boolean handshakeComplete = false;
+            int len = 1000;
+            byte[] buffer = new byte[len];
+            int pos = 0;
+            ArrayList<String> handshakeLines = new ArrayList<String>();
+            
+            while (!handshakeComplete) {
+                int b = input.read();
+                if (b == -1) {
+                    throw new WebSocketException("Connection closed before handshake was complete");
+                }
+                buffer[pos] = (byte) b;
+                pos += 1;
+                
+                if (buffer[pos - 1] == 0x0A && buffer[pos - 2] == 0x0D) {
+                    String line = new String(buffer, UTF8);
+                    if (line.trim().equals("")) {
+                        handshakeComplete = true;
+                    } else {
+                        handshakeLines.add(line.trim());
+                    }
+                    
+                    buffer = new byte[len];
+                    pos = 0;
+                } else if (pos == 1000) {
+                    // This really shouldn't happen, handshake lines are short, but just to be safe...
+                    String line = new String(buffer, UTF8);
+                    throw new WebSocketException("Unexpected long line in handshake: " + line);
+                }
+            }
+            
+            handshake.verifyServerStatusLine(handshakeLines.get(0));
+            handshakeLines.remove(0);
+            
+            HashMap<String, String> headers = new HashMap<String, String>();
+            for (String line : handshakeLines) {
+                String[] keyValue = line.split(": ", 2);
+                headers.put(keyValue[0].toLowerCase(Locale.US), keyValue[1]);
+            }
+            handshake.verifyServerHandshakeHeaders(headers);
+            
+            writer.setOutput(output);
+            receiver.setInput(input);
+            state = State.CONNECTED;
+            writer.getInnerThread().start();
+            eventHandler.onOpen();
+            receiver.run();
+        } catch (WebSocketException wse) {
+            eventHandler.onError(wse);
+        } catch (IOException ioe) {
+            eventHandler
+                    .onError(new WebSocketException("error while connecting: " + ioe.getMessage(), ioe));
+        } finally {
+            close();
+        }
+        
     }
-
+    
+    Thread getInnerThread() {
+        return innerThread;
+    }
 }

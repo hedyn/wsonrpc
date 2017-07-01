@@ -6,6 +6,7 @@
  */
 package net.apexes.wsonrpc.core.message;
 
+import net.apexes.wsonrpc.core.JsonException;
 import net.apexes.wsonrpc.json.JsonImplementor;
 import net.apexes.wsonrpc.json.JsonImplementor.Node;
 
@@ -28,19 +29,19 @@ public abstract class JsonRpcMessage {
     
     /**
      * 
-     * @param jsonContext
+     * @param jsonImpl
      * @return
      * @throws Exception
      */
-    public abstract String toJson(JsonImplementor jsonContext) throws Exception;
+    public abstract String toJson(JsonImplementor jsonImpl) throws JsonException;
             
     /**
      * 
-     * @param jsonContext
+     * @param jsonImpl
      * @param json
      * @return
      */
-    public static JsonRpcMessage of(JsonImplementor jsonImpl, String json) throws Exception {
+    public static JsonRpcMessage of(JsonImplementor jsonImpl, String json) throws JsonException {
         Node node = jsonImpl.fromJson(json);
         
         String id = null;
@@ -65,7 +66,7 @@ public abstract class JsonRpcMessage {
             String message = error.getString("message");
             String data = null;
             if (error.has("data")) {
-                data = jsonImpl.toJson(error.get("data"));
+                data = error.getString("data");
             }
             return new JsonRpcResponse(id, new JsonRpcError(code, message, data));
         }

@@ -7,6 +7,7 @@
 package net.apexes.wsonrpc.client.support;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -81,7 +82,10 @@ public class JavaWebsocketConnector implements WebsocketConnector {
 
         @Override
         public void onMessage(String message) {
-            endpoint.onMessage(message.getBytes());
+            try {
+                endpoint.onMessage(message.getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+            }
         }
         
         @Override

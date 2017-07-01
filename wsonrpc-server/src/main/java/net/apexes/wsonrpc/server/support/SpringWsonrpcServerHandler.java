@@ -8,6 +8,8 @@ package net.apexes.wsonrpc.server.support;
 
 import java.io.IOException;
 
+import net.apexes.wsonrpc.core.WsonrpcConfig;
+import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.PingMessage;
@@ -16,8 +18,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import net.apexes.wsonrpc.core.WsonrpcConfig;
-import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.core.WsonrpcSession;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
 
