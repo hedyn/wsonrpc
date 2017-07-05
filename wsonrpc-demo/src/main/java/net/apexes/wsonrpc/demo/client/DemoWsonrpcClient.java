@@ -51,7 +51,6 @@ public class DemoWsonrpcClient {
 
             @Override
             public void onClose(WsonrpcClient client, int code, String reason) {
-                // 1006: Closed abnormally.
                 LOG.warn("code={}, reason={}", code, reason);
             }
 
