@@ -35,7 +35,7 @@ final class Futures {
         return out(new StringIdKey(id));
     }
 
-    static WsonrpcFuture<Object> out(Object key) {
+    static WsonrpcFuture<Object> out(WsonrpcIdKey key) {
         processQueue();
         WeakElement ref = MAP.remove(key);
         if (ref != null) {

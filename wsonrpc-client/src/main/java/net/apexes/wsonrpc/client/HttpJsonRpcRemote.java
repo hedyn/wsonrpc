@@ -6,11 +6,10 @@
  */
 package net.apexes.wsonrpc.client;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import net.apexes.wsonrpc.core.*;
+import net.apexes.wsonrpc.json.JsonImplementor;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -18,12 +17,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.zip.GZIPInputStream;
-
-import net.apexes.wsonrpc.core.JsonRpcControl;
-import net.apexes.wsonrpc.core.Remote;
-import net.apexes.wsonrpc.core.Transport;
-import net.apexes.wsonrpc.core.WsonrpcException;
-import net.apexes.wsonrpc.json.JsonImplementor;
 
 /**
  * 
@@ -47,7 +40,7 @@ public class HttpJsonRpcRemote implements Remote {
      */
     public HttpJsonRpcRemote(URL url, JsonImplementor jsonImpl) {
         this.url = url;
-        this.headers = new HashMap<String, String>();
+        this.headers = new HashMap<>();
         this.jsonRpcControl = new JsonRpcControl(jsonImpl);
         rand = new Random();
     }
@@ -90,7 +83,7 @@ public class HttpJsonRpcRemote implements Remote {
 
     @Override
     public <T> T invoke(String handlerName, String methodName, Object[] args, Class<T> returnType,
-            int timeout) throws IOException, WsonrpcException {
+            int timeout) throws IOException, WsonrpcException, RemoteException {
         TransportImpl transport = new TransportImpl(url, headers, connectTimeout, timeout, acceptCompress);
         try {
             int id = rand.nextInt(Integer.MAX_VALUE);

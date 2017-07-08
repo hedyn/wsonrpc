@@ -19,18 +19,18 @@ public interface Remote {
     /**
      * 同步调用远程的方法。
      * 
-     * @param handleName
+     * @param serviceName
      * @param methodName
      * @param args
      * @throws IOException
      * @throws WsonrpcException
      */
-    void invoke(String handleName, String methodName, Object[] args) throws IOException, WsonrpcException;
+    void invoke(String serviceName, String methodName, Object[] args) throws IOException, WsonrpcException;
 
     /**
      * 同步调用远端方法，并返回指定类型的调用结果。
      * 
-     * @param handleName
+     * @param serviceName
      * @param methodName
      * @param args
      * @param returnType
@@ -40,13 +40,13 @@ public interface Remote {
      * @throws IOException
      * @throws WsonrpcException
      */
-    <T> T invoke(String handleName, String methodName, Object[] args, Class<T> returnType, int timeout)
-            throws IOException, WsonrpcException;
+    <T> T invoke(String serviceName, String methodName, Object[] args, Class<T> returnType, int timeout)
+            throws IOException, WsonrpcException, RemoteException;
 
     /**
      * 异步调用远程的方法。
      * 
-     * @param handleName
+     * @param serviceName
      * @param methodName
      * @param args
      * @param returnType
@@ -54,7 +54,7 @@ public interface Remote {
      * @throws IOException
      * @throws WsonrpcException
      */
-    <T> Future<T> asyncInvoke(String handleName, String methodName, Object[] args, Class<T> returnType)
+    <T> Future<T> asyncInvoke(String serviceName, String methodName, Object[] args, Class<T> returnType)
             throws IOException, WsonrpcException;
 
 }

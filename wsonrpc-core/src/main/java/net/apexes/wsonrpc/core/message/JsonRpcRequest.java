@@ -6,6 +6,7 @@
  */
 package net.apexes.wsonrpc.core.message;
 
+import net.apexes.wsonrpc.core.JsonException;
 import net.apexes.wsonrpc.json.JsonImplementor;
 import net.apexes.wsonrpc.json.JsonImplementor.Node;
 
@@ -41,7 +42,7 @@ public class JsonRpcRequest extends JsonRpcMessage {
     }
 
     @Override
-    public String toJson(JsonImplementor jsonImpl) throws Exception {
+    public String toJson(JsonImplementor jsonImpl) throws JsonException {
         Node req = jsonImpl.createNode();
         req.put("jsonrpc", "2.0");
         req.put("method", method);

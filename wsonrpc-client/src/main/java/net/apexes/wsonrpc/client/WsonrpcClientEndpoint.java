@@ -6,7 +6,7 @@
  */
 package net.apexes.wsonrpc.client;
 
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 /**
  * 
@@ -17,7 +17,7 @@ public interface WsonrpcClientEndpoint {
     
     int getConnectTimeout();
 
-    void onOpen(WsonrpcSession session);
+    void onOpen(WebSocketSession session);
 
     void onMessage(byte[] bytes);
 

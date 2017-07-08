@@ -6,7 +6,7 @@
  */
 package net.apexes.wsonrpc.server;
 
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 /**
  * 
@@ -17,9 +17,9 @@ public final class WsonrpcSessions {
 
     private WsonrpcSessions() {}
 
-    private static final ThreadLocal<WsonrpcSession> sessions = new ThreadLocal<>();
+    private static final ThreadLocal<WebSocketSession> sessions = new ThreadLocal<>();
 
-    static void begin(WsonrpcSession session) {
+    static void begin(WebSocketSession session) {
         sessions.set(session);
     }
 
@@ -27,7 +27,7 @@ public final class WsonrpcSessions {
         sessions.remove();
     }
 
-    public static WsonrpcSession get() {
+    public static WebSocketSession get() {
         return sessions.get();
     }
 }

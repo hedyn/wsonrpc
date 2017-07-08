@@ -7,6 +7,7 @@
 package net.apexes.wsonrpc.client.support;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -21,7 +22,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import net.apexes.wsonrpc.client.WebsocketConnector;
 import net.apexes.wsonrpc.client.WsonrpcClientEndpoint;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 /**
  * 基于 {@link org.java_websocket.client.WebSocketClient}的连接
@@ -53,7 +54,7 @@ public class JavaWebsocketConnector implements WebsocketConnector {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class WebSocketClientAdapter extends WebSocketClient implements WsonrpcSession {
+    private static class WebSocketClientAdapter extends WebSocketClient implements WebSocketSession {
         
         private static FramedataImpl1 PING_FRAME = new FramedataImpl1(Opcode.PING);
         static {
@@ -81,7 +82,10 @@ public class JavaWebsocketConnector implements WebsocketConnector {
 
         @Override
         public void onMessage(String message) {
-            endpoint.onMessage(message.getBytes());
+            try {
+                endpoint.onMessage(message.getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+            }
         }
         
         @Override

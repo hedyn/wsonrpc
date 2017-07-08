@@ -1,12 +1,5 @@
 package net.apexes.wsonrpc.demo.client;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.apexes.wsonrpc.client.Wsonrpc;
 import net.apexes.wsonrpc.client.WsonrpcClient;
 import net.apexes.wsonrpc.client.WsonrpcClientListener;
@@ -15,6 +8,13 @@ import net.apexes.wsonrpc.demo.api.PushService;
 import net.apexes.wsonrpc.demo.api.RegisterService;
 import net.apexes.wsonrpc.demo.api.model.User;
 import net.apexes.wsonrpc.demo.client.service.PushServiceImpl;
+import net.apexes.wsonrpc.demo.util.SimpleWsonrpcErrorProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 
 /**
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
@@ -31,17 +31,14 @@ public class DemoWsonrpcClient {
         String url = "ws://localhost:8080/wsonrpc";
         client = Wsonrpc.config()
 //                .json(new net.apexes.wsonrpc.json.support.JacksonImplementor())
-                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
+//                .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
 //                .connector(new net.apexes.wsonrpc.client.support.JavaWebsocketConnector())
 //                .connector(new net.apexes.wsonrpc.client.support.TyrusWebsocketConnector())
+                .errorProcessor(new SimpleWsonrpcErrorProcessor())
                 .client(url);
+        client.getServiceRegistry().register("push", new PushServiceImpl(), PushService.class);
         
         client.setClientListener(new WsonrpcClientListener() {
-            
-            @Override
-            public void onError(Throwable error) {
-                error.printStackTrace();
-            }
 
             @Override
             public void onOpen(WsonrpcClient client) {
@@ -54,7 +51,6 @@ public class DemoWsonrpcClient {
 
             @Override
             public void onClose(WsonrpcClient client, int code, String reason) {
-                // 1006: Closed abnormally.
                 LOG.warn("code={}, reason={}", code, reason);
             }
 
@@ -69,8 +65,6 @@ public class DemoWsonrpcClient {
             }
             
         });
-    
-        client.getRegistry().register("push", new PushServiceImpl(), PushService.class);
     }
     
     public boolean isConnected() {
@@ -91,9 +85,10 @@ public class DemoWsonrpcClient {
     }
     
     public void close() throws Exception {
-        if (client.isConnected()) {
-            client.disconnect();
-        }
+        client.disconnect();
+//        if (client.isConnected()) {
+//
+//        }
     }
     
     public void login(String username, String password) {

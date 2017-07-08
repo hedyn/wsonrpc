@@ -6,7 +6,7 @@
  */
 package net.apexes.wsonrpc.server;
 
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 /**
  * 
@@ -15,7 +15,7 @@ import net.apexes.wsonrpc.core.WsonrpcSession;
  */
 public interface WsonrpcServerListener {
     
-    void onOpen(WsonrpcSession session);
+    void onOpen(WebSocketSession session);
     
     void onClose(String sessionId);
     

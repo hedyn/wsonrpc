@@ -6,12 +6,11 @@
  */
 package net.apexes.wsonrpc.client;
 
-import java.io.IOException;
-
 import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcEndpoint;
-import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
+
+import java.io.IOException;
 
 /**
  * 
@@ -22,8 +21,7 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     
     private final WsonrpcClientConfig config;
     private WsonrpcClientListener clientListener;
-    private WsonrpcErrorProcessor errorProcessor;
-    
+
     protected WsonrpcClientImpl(WsonrpcClientConfig config) {
         super(config);
         this.config = config;
@@ -61,24 +59,20 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     }
 
     @Override
-    public void onOpen(WsonrpcSession session) {
+    public void onOpen(WebSocketSession session) {
         online(new WsonrpcSessionProxy(session));
         fireOpen();
     }
 
     @Override
     public void onMessage(byte[] bytes) {
-        try {
-            wsonrpcControl.handle(getSession(), bytes, errorProcessor);
-        } catch (Throwable throwable) {
-            onError(throwable);
-        }
+        wsonrpcControl.handle(getSession(), bytes);
     }
 
     @Override
     public void onError(Throwable error) {
-        if (errorProcessor != null) {
-            errorProcessor.onError(getSessionId(), error);
+        if (config.getErrorProcessor() != null) {
+            config.getErrorProcessor().onError(getSessionId(), error);
         }
     }
 
@@ -89,8 +83,8 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     }
 
     @Override
-    public ServiceRegistry getRegistry() {
-        return wsonrpcControl;
+    public ServiceRegistry getServiceRegistry() {
+        return wsonrpcControl.getServiceRegistry();
     }
     
     @Override
@@ -103,21 +97,16 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
         this.clientListener = listener;
     }
 
-    @Override
-    public void setErrorProcessor(WsonrpcErrorProcessor errorProcessor) {
-        this.errorProcessor = errorProcessor;
-    }
-
     /**
      * 
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private class WsonrpcSessionProxy implements WsonrpcSession {
+    private class WsonrpcSessionProxy implements WebSocketSession {
         
-        private final WsonrpcSession session;
+        private final WebSocketSession session;
         
-        private WsonrpcSessionProxy(WsonrpcSession session) {
+        private WsonrpcSessionProxy(WebSocketSession session) {
             this.session = session;
         }
         

@@ -14,12 +14,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.apexes.wsonrpc.core.JsonException;
 import net.apexes.wsonrpc.json.JsonImplementor;
 
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
- *
  */
 public class GsonImplementor implements JsonImplementor {
     
@@ -34,14 +34,14 @@ public class GsonImplementor implements JsonImplementor {
     }
     
     @Override
-    public Node fromJson(String json) throws Exception {
+    public Node fromJson(String json) throws JsonException {
         JsonParser parser = new JsonParser();
         JsonElement jsonElement = parser.parse(new StringReader(json));
         return new GsonNode(jsonElement);
     }
 
     @Override
-    public String toJson(Node node) throws Exception {
+    public String toJson(Node node) throws JsonException {
         GsonNode gsonNode = (GsonNode) node;
         return gsonNode.toString();
     }
@@ -108,7 +108,11 @@ public class GsonImplementor implements JsonImplementor {
             if (jsonObject == null) {
                 return null;
             }
-            return jsonObject.get(name).getAsInt();
+            JsonElement je = jsonObject.get(name);
+            if (je.isJsonNull()) {
+                return null;
+            }
+            return je.getAsInt();
         }
 
         @Override
@@ -116,7 +120,11 @@ public class GsonImplementor implements JsonImplementor {
             if (jsonObject == null) {
                 return null;
             }
-            return jsonObject.get(name).getAsString();
+            JsonElement je = jsonObject.get(name);
+            if (je.isJsonNull()) {
+                return null;
+            }
+            return je.getAsString();
         }
 
         @Override
@@ -124,7 +132,11 @@ public class GsonImplementor implements JsonImplementor {
             if (jsonObject == null) {
                 return null;
             }
-            JsonArray jsonArray = jsonObject.get(name).getAsJsonArray();
+            JsonElement je = jsonObject.get(name);
+            if (je.isJsonNull()) {
+                return new Node[0];
+            }
+            JsonArray jsonArray = je.getAsJsonArray();
             int size = jsonArray.size();
             Node[] results = new Node[size];
             for (int i = 0; i < size; i++) {

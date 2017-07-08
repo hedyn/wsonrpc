@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import net.apexes.wsonrpc.core.WsonrpcIdKey.StringIdKey;
-import net.apexes.wsonrpc.utis.AbstractFuture;
+import net.apexes.wsonrpc.util.AbstractFuture;
 
 /**
  * 
@@ -41,7 +41,7 @@ class WsonrpcFuture<V> extends AbstractFuture<V> {
         try {
             return super.get(timeout, unit);
         } finally {
-            Futures.out(this); 
+            Futures.out(idKey);
         }
     }
 
@@ -50,7 +50,7 @@ class WsonrpcFuture<V> extends AbstractFuture<V> {
         try {
             return super.get();
         } finally {
-            Futures.out(this); 
+            Futures.out(idKey);
         }
     }
 
@@ -59,7 +59,7 @@ class WsonrpcFuture<V> extends AbstractFuture<V> {
         try {
             return super.cancel(mayInterruptIfRunning);
         } finally {
-            Futures.out(this); 
+            Futures.out(idKey);
         }
     }
 
@@ -71,38 +71,6 @@ class WsonrpcFuture<V> extends AbstractFuture<V> {
     @Override
     public boolean setException(Throwable throwable) {
         return super.setException(throwable);
-    }
-
-    @Override
-    public int hashCode() {
-        return idKey.id().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (obj instanceof WsonrpcIdKey) {
-            WsonrpcIdKey ik = (WsonrpcIdKey) obj;
-            return ik.id().equals(idKey.id());
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        WsonrpcFuture<?> other = (WsonrpcFuture<?>) obj;
-        if (other.idKey.id() == null) {
-            return false;
-        }
-        return idKey.id().equals(other.idKey.id());
-    }
-
-    @Override
-    public String toString() {
-        return "JsonRpcFuture [id=" + idKey.id() + "]";
     }
 
 }

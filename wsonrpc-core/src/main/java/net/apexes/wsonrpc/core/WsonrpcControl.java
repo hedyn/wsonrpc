@@ -6,38 +6,34 @@
  */
 package net.apexes.wsonrpc.core;
 
-import java.io.IOException;
-import java.util.UUID;
-import java.util.concurrent.Future;
-
 import net.apexes.wsonrpc.core.message.JsonRpcMessage;
 import net.apexes.wsonrpc.core.message.JsonRpcRequest;
 import net.apexes.wsonrpc.core.message.JsonRpcResponse;
+
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
  *
  */
-public class WsonrpcControl implements ServiceRegistry {
+public class WsonrpcControl {
 
-    protected final WsonrpcConfig config;
-    protected final JsonRpcControl jsonRpcControl;
+    private final WsonrpcConfig config;
+    private final JsonRpcControl jsonRpcControl;
 
-    /**
-     * 
-     * @param config
-     */
     public WsonrpcControl(WsonrpcConfig config) {
-        if (config == null) {
-            throw new NullPointerException("config");
-        }
         this.config = config;
-        jsonRpcControl = new JsonRpcControl(config.getJsonImplementor(), config.getBinaryWrapper());
+        jsonRpcControl = new JsonRpcControl(config.getJsonImplementor());
     }
 
     public final WsonrpcConfig getConfig() {
         return config;
+    }
+
+    public ServiceRegistry getServiceRegistry() {
+        return jsonRpcControl.getServiceRegistry();
     }
 
     /**
@@ -51,8 +47,8 @@ public class WsonrpcControl implements ServiceRegistry {
      * @throws IOException
      * @throws WsonrpcException
      */
-    public Future<Object> invoke(WsonrpcSession session, String serviceName, String methodName, Object[] args,
-            Class<?> returnType) throws IOException, WsonrpcException {
+    public WsonrpcFuture<Object> invoke(WebSocketSession session, String serviceName, String methodName, Object[] args,
+                                        Class<?> returnType) throws IOException, WsonrpcException {
         if (session == null) {
             throw new NullPointerException("session");
         }
@@ -84,7 +80,7 @@ public class WsonrpcControl implements ServiceRegistry {
      * @throws IOException
      * @throws WsonrpcException
      */
-    public void invoke(WsonrpcSession session, String serviceName, String methodName, Object[] args)
+    public void invoke(WebSocketSession session, String serviceName, String methodName, Object[] args)
             throws IOException, WsonrpcException {
         if (session == null) {
             throw new NullPointerException("session");
@@ -98,47 +94,20 @@ public class WsonrpcControl implements ServiceRegistry {
      * 
      * @param session
      * @param bytes
-     * @param errorProcessor
-     * @throws IOException
-     * @throws WsonrpcException
      */
-    public void handle(final WsonrpcSession session, byte[] bytes, final WsonrpcErrorProcessor errorProcessor) 
-            throws IOException, WsonrpcException {
+    public void handle(final WebSocketSession session, byte[] bytes) {
         if (session == null) {
             throw new NullPointerException("session");
         }
-
-        final JsonRpcMessage msg = jsonRpcControl.receive(bytes);
-
-        if (msg instanceof JsonRpcRequest) {
-            config.getExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        handleRequest(session, (JsonRpcRequest) msg);
-                    } catch (Exception e) {
-                        if (errorProcessor != null) {
-                            errorProcessor.onError(session.getId(), e);
-                        }
-                    }
-                }
-            });
-
-        } else if (msg instanceof JsonRpcResponse) {
-            JsonRpcResponse resp = (JsonRpcResponse) msg;
-
-            String id = resp.getId();
-            if (id == null) {
-                return;
+        try {
+            JsonRpcMessage msg = jsonRpcControl.receive(bytes);
+            if (msg instanceof JsonRpcRequest) {
+                handleRequest(session, (JsonRpcRequest) msg);
+            } else if (msg instanceof JsonRpcResponse) {
+                handleResponse(session, (JsonRpcResponse) msg);
             }
-
-            WsonrpcFuture<Object> future = Futures.out(id);
-            try {
-                Object value = jsonRpcControl.convertResponse(resp, future.returnType);
-                future.set(value);
-            } catch (Throwable t) {
-                future.setException(t);
-            }
+        } catch (Exception e) {
+            config.getErrorProcessor().onError(session.getId(), e);
         }
     }
 
@@ -146,25 +115,65 @@ public class WsonrpcControl implements ServiceRegistry {
      * 
      * @param session
      * @param request
-     * @throws WsonrpcException
-     * @throws IOException
      */
-    protected void handleRequest(WsonrpcSession session, JsonRpcRequest request)
-            throws IOException, WsonrpcException {
-        JsonRpcResponse resp = jsonRpcControl.execute(request);
-        if (resp != null) {
-            jsonRpcControl.transmit(session, resp);
+    protected void handleRequest(WebSocketSession session, JsonRpcRequest request) {
+        if (config.getWsonrpcExecutor() == null || request == null) {
+            execute(session, request);
+        } else {
+            String method = request.getMethod();
+            config.getWsonrpcExecutor().execute(new ContextImpl(session, request), method);
         }
     }
 
-    @Override
-    public <T> ServiceRegistry register(String name, T service, Class<?>... classes) {
-        return jsonRpcControl.register(name, service, classes);
+    /**
+     *
+     * @param session
+     * @param response
+     */
+    protected void handleResponse(WebSocketSession session, JsonRpcResponse response) {
+        String id = response.getId();
+        if (id == null) {
+            return;
+        }
+        WsonrpcFuture<Object> future = Futures.out(id);
+        try {
+            Object value = jsonRpcControl.convertResponse(response, future.returnType);
+            future.set(value);
+        } catch (Throwable t) {
+            future.setException(t);
+        }
     }
 
-    @Override
-    public ServiceRegistry unregister(String name) {
-        return jsonRpcControl.unregister(name);
+    private void execute(WebSocketSession session, JsonRpcRequest request) {
+        try {
+            JsonRpcResponse resp = jsonRpcControl.execute(request);
+            if (resp != null) {
+                jsonRpcControl.transmit(session, resp);
+            }
+        } catch (Exception e) {
+            if (config.getErrorProcessor() != null) {
+                config.getErrorProcessor().onError(session.getId(), e);
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    private class ContextImpl implements WsonrpcExecutor.Context {
+
+        private final WebSocketSession session;
+        private final JsonRpcRequest request;
+
+        private ContextImpl(WebSocketSession session, JsonRpcRequest request) {
+            this.session = session;
+            this.request = request;
+        }
+
+        @Override
+        public void accept() {
+            execute(session, request);
+        }
     }
 
 }

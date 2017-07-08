@@ -6,17 +6,17 @@
  */
 package net.apexes.wsonrpc.demo.server;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
+import net.apexes.wsonrpc.demo.util.SimpleWsonrpcErrorProcessor;
 import net.apexes.wsonrpc.json.support.JacksonImplementor;
 import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.support.NettyWsonrpcServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 
@@ -36,7 +36,7 @@ public class NettyDemoWsonrpcServer extends AbstractDemoWsonrpcServer {
         WsonrpcConfig config = WsonrpcConfigBuilder.create()
                 .json(new JacksonImplementor())
                 .binaryWrapper(new net.apexes.wsonrpc.core.GZIPBinaryWrapper())
-                .executor(execService)
+                .errorProcessor(new SimpleWsonrpcErrorProcessor())
                 .build();
         server = new NettyWsonrpcServer(8080, "/wsonrpc", config);
         return server.getWsonrpcServer();

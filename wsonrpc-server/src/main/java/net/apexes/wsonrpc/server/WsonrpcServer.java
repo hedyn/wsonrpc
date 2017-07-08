@@ -16,14 +16,10 @@ import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
  */
 public interface WsonrpcServer {
     
-    ServiceRegistry getRegistry();
+    ServiceRegistry getServiceRegistry();
     
     WsonrpcServerListener getServerListener();
 
     void setServerListener(WsonrpcServerListener listener);
     
-    WsonrpcErrorProcessor getErrorProcessor();
-
-    void setErrorProcessor(WsonrpcErrorProcessor errorProcessor);
-
 }

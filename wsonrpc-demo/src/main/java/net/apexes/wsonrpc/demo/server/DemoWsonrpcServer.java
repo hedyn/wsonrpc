@@ -6,20 +6,20 @@
  */
 package net.apexes.wsonrpc.demo.server;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.apexes.wsonrpc.core.WsonrpcErrorProcessor;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import io.vertx.core.logging.SLF4JLogDelegateFactory;
+import net.apexes.wsonrpc.core.WebSocketSession;
 import net.apexes.wsonrpc.demo.api.DemoService;
 import net.apexes.wsonrpc.demo.api.RegisterService;
 import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
 import net.apexes.wsonrpc.demo.server.service.RegisterServiceImpl;
 import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /**
  * 
@@ -30,10 +30,14 @@ public class DemoWsonrpcServer {
     private static final Logger LOG = LoggerFactory.getLogger(DemoWsonrpcServer.class);
     
     public static void main(String[] args) throws Exception {
+        SLF4JBridgeHandler.install();
+        System.setProperty(io.vertx.core.logging.LoggerFactory.LOGGER_DELEGATE_FACTORY_CLASS_NAME, SLF4JLogDelegateFactory.class.getName());
+        
         DemoServer demoServer = null;
 //        demoServer = new JwsDemoWsonrpcServer();
-        demoServer = new TyrusDemoWsonrpcServer();
+//        demoServer = new TyrusDemoWsonrpcServer();
 //        demoServer = new NettyDemoWsonrpcServer();
+        demoServer = new VertxDemoServer();
         runServer(demoServer);
     }
     
@@ -77,17 +81,10 @@ public class DemoWsonrpcServer {
     }
     
     protected static void setupServer(WsonrpcServer serverBase) {
-        serverBase.setErrorProcessor(new WsonrpcErrorProcessor() {
-
-            @Override
-            public void onError(String sessionId, Throwable error) {
-                error.printStackTrace();
-            }
-        });
         serverBase.setServerListener(new WsonrpcServerListener() {
 
             @Override
-            public void onOpen(WsonrpcSession session) {
+            public void onOpen(WebSocketSession session) {
                 LOG.info("sessionId={}", session.getId());
             }
 
@@ -105,8 +102,8 @@ public class DemoWsonrpcServer {
         });
         
         // 注册服务供Client调用
-        serverBase.getRegistry().register("demo", new DemoServiceImpl(), DemoService.class);
-        serverBase.getRegistry().register("register", new RegisterServiceImpl(), RegisterService.class);
+        serverBase.getServiceRegistry().register("demo", new DemoServiceImpl(), DemoService.class);
+        serverBase.getServiceRegistry().register("register", new RegisterServiceImpl(), RegisterService.class);
     }
 
 }

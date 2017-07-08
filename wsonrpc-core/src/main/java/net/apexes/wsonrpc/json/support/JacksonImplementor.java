@@ -6,18 +6,20 @@
  */
 package net.apexes.wsonrpc.json.support;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
+import net.apexes.wsonrpc.core.JsonException;
 import net.apexes.wsonrpc.json.JsonImplementor;
+
+import java.io.IOException;
 
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
- *
  */
 public class JacksonImplementor implements JsonImplementor {
     
@@ -32,14 +34,22 @@ public class JacksonImplementor implements JsonImplementor {
     }
 
     @Override
-    public Node fromJson(String json) throws Exception {
-        return new JacksonNode(objectMapper.readTree(json));
+    public Node fromJson(String json) throws JsonException {
+        try {
+            return new JacksonNode(objectMapper.readTree(json));
+        } catch (IOException e) {
+            throw new JsonException(e.getMessage(), e.getCause());
+        }
     }
 
     @Override
-    public String toJson(Node node) throws Exception {
+    public String toJson(Node node) throws JsonException {
         JacksonNode jacksonNode = (JacksonNode) node;
-        return objectMapper.writeValueAsString(jacksonNode.jsonNode);
+        try {
+            return objectMapper.writeValueAsString(jacksonNode.jsonNode);
+        } catch (JsonProcessingException e) {
+            throw new JsonException(e.getMessage(), e.getCause());
+        }
     }
 
     @Override
@@ -89,12 +99,20 @@ public class JacksonImplementor implements JsonImplementor {
 
         @Override
         public Integer getInteger(String name) {
-            return jsonNode.get(name).asInt();
+            JsonNode jn = jsonNode.get(name);
+            if (jn.isNull()) {
+                return null;
+            }
+            return jn.asInt();
         }
 
         @Override
         public String getString(String name) {
-            return jsonNode.get(name).asText();
+            JsonNode jn = jsonNode.get(name);
+            if (jn.isNull()) {
+                return null;
+            }
+            return jn.asText();
         }
 
         @Override

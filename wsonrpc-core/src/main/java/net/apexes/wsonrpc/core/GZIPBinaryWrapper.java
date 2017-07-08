@@ -23,7 +23,6 @@ public class GZIPBinaryWrapper implements BinaryWrapper {
     @Override
     public byte[] read(byte[] bytes) throws IOException {
         InputStream in = new GZIPInputStream(new ByteArrayInputStream(bytes));
-        
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
         int len;

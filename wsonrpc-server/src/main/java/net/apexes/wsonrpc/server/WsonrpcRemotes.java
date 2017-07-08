@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcEndpoint;
 import net.apexes.wsonrpc.core.WsonrpcRemote;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 
 /**
@@ -27,7 +27,7 @@ public final class WsonrpcRemotes {
 
     private static final Map<String, InnerWsonrpcEndpoint> remotes = new ConcurrentHashMap<>();
 
-    static void addRemote(WsonrpcSession session, WsonrpcConfig config) {
+    static void addRemote(WebSocketSession session, WsonrpcConfig config) {
         remotes.put(session.getId(), new InnerWsonrpcEndpoint(session, config));
     }
     
@@ -35,7 +35,10 @@ public final class WsonrpcRemotes {
         remotes.remove(sessionId);
     }
 
-    static WsonrpcSession getSession(String sessionId) {
+    static WebSocketSession getSession(String sessionId) {
+        if (sessionId == null) {
+            return null;
+        }
         InnerWsonrpcEndpoint endpoint = remotes.get(sessionId);
         if (endpoint == null) {
             return null;
@@ -50,6 +53,9 @@ public final class WsonrpcRemotes {
      * @return
      */
     public static WsonrpcRemote getRemote(String sessionId) {
+        if (sessionId == null) {
+            return null;
+        }
         return remotes.get(sessionId);
     }
 
@@ -68,7 +74,7 @@ public final class WsonrpcRemotes {
      * @return
      */
     public static WsonrpcRemote getRemote() {
-        WsonrpcSession session = WsonrpcSessions.get();
+        WebSocketSession session = WsonrpcSessions.get();
         if (session != null) {
             return getRemote(session.getId());
         }
@@ -82,13 +88,13 @@ public final class WsonrpcRemotes {
      */
     private static class InnerWsonrpcEndpoint extends WsonrpcEndpoint {
         
-        InnerWsonrpcEndpoint(WsonrpcSession session, WsonrpcConfig config) {
+        InnerWsonrpcEndpoint(WebSocketSession session, WsonrpcConfig config) {
             super(config);
             online(session);
         }
         
         @Override
-        public WsonrpcSession getSession() {
+        public WebSocketSession getSession() {
             return super.getSession();
         }
 
