@@ -249,6 +249,10 @@ public class WebSocketClient {
             if (clientClosed) {
                 eventHandler.onError(new WebSocketException("Failed to send close frame", e));
             }
+        } catch (WebSocketException e) {
+            if (clientClosed) {
+                throw e;
+            }
         }
     }
     

@@ -16,30 +16,6 @@
 			<artifactId>wsonrpc-core</artifactId>
 		</dependency>
 
-		<!-- Java-WebSocket -->
-		<dependency>
-			<groupId>org.java-websocket</groupId>
-			<artifactId>Java-WebSocket</artifactId>
-			<version>${version.org.java-websocket}</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<!-- netty -->
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-all</artifactId>
-			<version>${version.io.netty}</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- springframework -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-websocket</artifactId>
-			<version>${version.org.springframework}</version>
-			<scope>provided</scope>
-		</dependency>
-
 		<!-- javax.servlet -->
 		<dependency>
 			<groupId>javax.servlet</groupId>

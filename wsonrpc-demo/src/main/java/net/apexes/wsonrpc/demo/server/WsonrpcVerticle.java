@@ -2,7 +2,6 @@ package net.apexes.wsonrpc.demo.server;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
-import net.apexes.wsonrpc.core.GZIPBinaryWrapper;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcConfigBuilder;
 import net.apexes.wsonrpc.demo.api.DemoService;
@@ -11,6 +10,7 @@ import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
 import net.apexes.wsonrpc.demo.server.service.RegisterServiceImpl;
 import net.apexes.wsonrpc.demo.util.SimpleWsonrpcErrorProcessor;
 import net.apexes.wsonrpc.json.support.JacksonImplementor;
+import net.apexes.wsonrpc.server.support.VertxWsonrpcHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ public class WsonrpcVerticle extends AbstractVerticle {
                 .errorProcessor(new SimpleWsonrpcErrorProcessor())
                 .build();
         VertxWsonrpcHandler wsonrpcHandler = new VertxWsonrpcHandler(config);
-        wsonrpcHandler.getServiceRegistry()
+        wsonrpcHandler.getWsonrpcServer().getServiceRegistry()
                 .register("demo", new DemoServiceImpl() , DemoService.class)
                 .register("register", new RegisterServiceImpl() , RegisterService.class);
         server.websocketHandler(wsonrpcHandler);

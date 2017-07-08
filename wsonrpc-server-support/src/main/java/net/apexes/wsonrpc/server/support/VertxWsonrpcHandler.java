@@ -1,15 +1,14 @@
-package net.apexes.wsonrpc.demo.server;
+package net.apexes.wsonrpc.server.support;
 
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.http.impl.FrameType;
 import io.vertx.core.http.impl.ws.WebSocketFrameImpl;
-import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WebSocketSession;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
+import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
-import net.apexes.wsonrpc.server.WsonrpcServerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,16 +37,8 @@ public class VertxWsonrpcHandler implements Handler<ServerWebSocket> {
                 ByteBuffer.wrap(frame.binaryData().getBytes())));
     }
     
-    public ServiceRegistry getServiceRegistry() {
-        return serverBase.getServiceRegistry();
-    }
-    
-    public WsonrpcServerListener getServerListener() {
-        return serverBase.getServerListener();
-    }
-    
-    public void setServerListener(WsonrpcServerListener listener) {
-        serverBase.setServerListener(listener);
+    public WsonrpcServer getWsonrpcServer() {
+        return serverBase;
     }
     
     private static String sessionId(ServerWebSocket webSocket) {

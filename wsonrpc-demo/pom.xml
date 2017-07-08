@@ -22,7 +22,7 @@
 		<!-- wsonrpc -->
 		<dependency>
 			<groupId>net.apexes.wsonrpc</groupId>
-			<artifactId>wsonrpc-server</artifactId>
+			<artifactId>wsonrpc-server-support</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.apexes.wsonrpc</groupId>
@@ -76,18 +76,18 @@
 			<version>${version.io.netty}</version>
 		</dependency>
 
-		<!-- springframework -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-websocket</artifactId>
-			<version>${version.org.springframework}</version>
-		</dependency>
-
 		<!-- vert.x -->
 		<dependency>
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-core</artifactId>
 			<version>${version.io.vertx}</version>
+		</dependency>
+
+		<!-- springframework -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-websocket</artifactId>
+			<version>${version.org.springframework}</version>
 		</dependency>
 
 		<!-- logback -->

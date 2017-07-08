@@ -40,13 +40,14 @@
 			<url>http://maven.aliyun.com/nexus/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
+
 <!--
 	<scm>
 		<connection>scm:git:git@github.com:hedyn/wsonrpc.git</connection>
 		<developerConnection>scm:git:git@github.com:hedyn/wsonrpc.git</developerConnection>
 		<url>https://github.com/hedyn/wsonrpc</url>
 	</scm>
-	-->
+-->
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -196,6 +197,11 @@
 				<artifactId>wsonrpc-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>net.apexes.wsonrpc</groupId>
+				<artifactId>wsonrpc-server-support</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	
@@ -204,5 +210,6 @@
 		<module>wsonrpc-client</module>
 		<module>wsonrpc-server</module>
 		<module>wsonrpc-demo</module>
+		<module>wsonrpc-server-support</module>
 	</modules>
 </project>
