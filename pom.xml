@@ -5,6 +5,7 @@
 	<artifactId>wsonrpc</artifactId>
 	<version>1.1.0</version>
 	<packaging>pom</packaging>
+	<name>wsonrpc</name>
 	<description>JSON-RPC over websocket</description>
 	<url>https://github.com/hedyn/wsonrpc</url>
 
@@ -23,9 +24,9 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:git@github.com:hedyn/apexes-root.git</connection>
-		<developerConnection>scm:git:git@github.com:hedyn/apexes-root.git</developerConnection>
-		<url>https://github.com/hedyn/apexes-root</url>
+		<connection>scm:git:git@github.com:hedyn/wsonrpc.git</connection>
+		<developerConnection>scm:git:git@github.com:hedyn/wsonrpc.git</developerConnection>
+		<url>https://github.com/hedyn/wsonrpc</url>
 	</scm>
 
 	<repositories>
