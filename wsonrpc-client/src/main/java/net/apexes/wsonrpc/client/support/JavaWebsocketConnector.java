@@ -22,7 +22,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 import net.apexes.wsonrpc.client.WebsocketConnector;
 import net.apexes.wsonrpc.client.WsonrpcClientEndpoint;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 /**
  * 基于 {@link org.java_websocket.client.WebSocketClient}的连接
@@ -54,7 +54,7 @@ public class JavaWebsocketConnector implements WebsocketConnector {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class WebSocketClientAdapter extends WebSocketClient implements WsonrpcSession {
+    private static class WebSocketClientAdapter extends WebSocketClient implements WebSocketSession {
         
         private static FramedataImpl1 PING_FRAME = new FramedataImpl1(Opcode.PING);
         static {

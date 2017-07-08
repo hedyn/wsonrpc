@@ -11,14 +11,14 @@ import java.nio.ByteBuffer;
 
 import javax.websocket.Session;
 
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 /**
  * 
  * @author <a href=mailto:hedyn@foxmail.com>HeDYn</a>
  *
  */
-class WebSocketSessionAdapter implements WsonrpcSession {
+class WebSocketSessionAdapter implements WebSocketSession {
     
     private static final byte[] EMPTY_ARRAY = {};
     

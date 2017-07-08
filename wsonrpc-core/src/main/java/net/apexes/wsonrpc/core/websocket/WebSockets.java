@@ -8,7 +8,7 @@ package net.apexes.wsonrpc.core.websocket;
 
 import javax.websocket.Session;
 
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 /**
  * 
@@ -23,7 +23,7 @@ public final class WebSockets {
      * @param session
      * @return
      */
-    public static WsonrpcSession createSession(Session session) {
+    public static WebSocketSession createSession(Session session) {
         return new WebSocketSessionAdapter(session);
     }
 }

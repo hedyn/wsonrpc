@@ -12,7 +12,7 @@ import net.apexes.wsonrpc.client.support.websocket.WebSocketClient;
 import net.apexes.wsonrpc.client.support.websocket.WebSocketEventHandler;
 import net.apexes.wsonrpc.client.support.websocket.WebSocketException;
 import net.apexes.wsonrpc.client.support.websocket.WebSocketMessage;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 import java.io.IOException;
 import java.net.URI;
@@ -38,7 +38,7 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class WebSocketClientProxy implements WsonrpcSession, WebSocketEventHandler {
+    private static class WebSocketClientProxy implements WebSocketSession, WebSocketEventHandler {
         
         private final WsonrpcClientEndpoint endpoint;
         private final WebSocketClient wsClient;
@@ -60,8 +60,11 @@ public class SimpleWebsocketConnector implements WebsocketConnector {
     
         @Override
         public void onClose() {
-            opened = false;
-            endpoint.onClose(0, "");
+            if (opened) {
+                opened = false;
+                wsClient.close();
+                endpoint.onClose(0, "");
+            }
         }
     
         @Override

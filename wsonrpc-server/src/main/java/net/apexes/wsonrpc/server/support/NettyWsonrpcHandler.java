@@ -20,7 +20,7 @@ import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
 
@@ -68,7 +68,7 @@ public class NettyWsonrpcHandler extends SimpleChannelInboundHandler<WebSocketFr
         
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ChannelWsonrpcSessionAdapter session = new ChannelWsonrpcSessionAdapter(ctx);
+        ChannelWebSocketSessionAdapter session = new ChannelWebSocketSessionAdapter(ctx);
 //        channels.add(session.channel);
         serverBase.onOpen(session);
     }
@@ -97,13 +97,13 @@ public class NettyWsonrpcHandler extends SimpleChannelInboundHandler<WebSocketFr
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class ChannelWsonrpcSessionAdapter implements WsonrpcSession {
+    private static class ChannelWebSocketSessionAdapter implements WebSocketSession {
         
         private final ChannelHandlerContext ctx;
         private final Channel channel;
         private final String id;
         
-        private ChannelWsonrpcSessionAdapter(ChannelHandlerContext ctx) {
+        private ChannelWebSocketSessionAdapter(ChannelHandlerContext ctx) {
             this.ctx = ctx;
             this.channel = ctx.channel();
             this.id = sessionId(channel);

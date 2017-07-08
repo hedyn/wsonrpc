@@ -19,21 +19,24 @@ import java.util.concurrent.TimeUnit;
 public class WsonrpcEndpoint implements WsonrpcRemote {
     
     protected final WsonrpcControl wsonrpcControl;
-    private WsonrpcSession session;
+    private WebSocketSession session;
 
     protected WsonrpcEndpoint(WsonrpcConfig config) {
         wsonrpcControl = new WsonrpcControl(config);
     }
 
-    protected final void online(WsonrpcSession session) {
+    protected final void online(WebSocketSession session) {
         this.session = session;
     }
     
     protected final void offline() {
-        this.session = null;
+        try {
+            disconnect();
+        } catch (Exception e) {
+        }
     }
     
-    protected WsonrpcSession getSession() {
+    protected WebSocketSession getSession() {
         return session;
     }
     
@@ -109,8 +112,8 @@ public class WsonrpcEndpoint implements WsonrpcRemote {
         return invoke(getSession(), serviceName, methodName, args, returnType);
     }
 
-    private <T> WsonrpcFuture<T> invoke(WsonrpcSession session, String serviceName, String methodName, Object[] args,
-                                 Class<T> returnType) throws IOException, WsonrpcException {
+    private <T> WsonrpcFuture<T> invoke(WebSocketSession session, String serviceName, String methodName, Object[] args,
+                                        Class<T> returnType) throws IOException, WsonrpcException {
         return (WsonrpcFuture<T>) wsonrpcControl.invoke(session, serviceName, methodName, args, returnType);
     }
     

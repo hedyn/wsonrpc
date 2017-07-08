@@ -8,7 +8,7 @@ package net.apexes.wsonrpc.client;
 
 import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcEndpoint;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 import java.io.IOException;
 
@@ -59,7 +59,7 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
     }
 
     @Override
-    public void onOpen(WsonrpcSession session) {
+    public void onOpen(WebSocketSession session) {
         online(new WsonrpcSessionProxy(session));
         fireOpen();
     }
@@ -102,11 +102,11 @@ public class WsonrpcClientImpl extends WsonrpcEndpoint implements WsonrpcClient,
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private class WsonrpcSessionProxy implements WsonrpcSession {
+    private class WsonrpcSessionProxy implements WebSocketSession {
         
-        private final WsonrpcSession session;
+        private final WebSocketSession session;
         
-        private WsonrpcSessionProxy(WsonrpcSession session) {
+        private WsonrpcSessionProxy(WebSocketSession session) {
             this.session = session;
         }
         

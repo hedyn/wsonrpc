@@ -1,11 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>net.apexes</groupId>
-		<artifactId>apexes-root</artifactId>
-		<version>0.0.3</version>
-	</parent>
 	<groupId>net.apexes.wsonrpc</groupId>
 	<artifactId>wsonrpc</artifactId>
 	<version>1.1.0</version>
@@ -28,24 +23,47 @@
 	</developers>
 
 	<scm>
+		<connection>scm:git:git@github.com:hedyn/apexes-root.git</connection>
+		<developerConnection>scm:git:git@github.com:hedyn/apexes-root.git</developerConnection>
+		<url>https://github.com/hedyn/apexes-root</url>
+	</scm>
+
+	<repositories>
+		<repository>
+			<id>alimaven</id>
+			<url>http://maven.aliyun.com/nexus/content/groups/public</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>alimaven</id>
+			<url>http://maven.aliyun.com/nexus/content/groups/public</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<scm>
 		<connection>scm:git:git@github.com:hedyn/wsonrpc.git</connection>
 		<developerConnection>scm:git:git@github.com:hedyn/wsonrpc.git</developerConnection>
 		<url>https://github.com/hedyn/wsonrpc</url>
 	</scm>
 
-	<modules>
-		<module>wsonrpc-core</module>
-		<module>wsonrpc-client</module>
-		<module>wsonrpc-server</module>
-		<module>wsonrpc-demo</module>
-	</modules>
-
 	<properties>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+
+		<!-- plugin -->
+		<version.maven-compiler-plugin>3.6.1</version.maven-compiler-plugin>
+		<version.maven-jar-plugin>3.0.2</version.maven-jar-plugin>
+		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
+		<version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
+		<version.maven-surefire-plugin>2.19.1</version.maven-surefire-plugin>
+		<version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
+		
 		<!-- slf4j -->
-		<version.org.slf4j>1.6.1</version.org.slf4j>
+		<version.org.slf4j>1.7.6</version.org.slf4j>
 
 		<!-- jackson -->
-		<version.com.fasterxml.jackson.core>2.8.0</version.com.fasterxml.jackson.core>
+		<version.com.fasterxml.jackson.core>2.7.4</version.com.fasterxml.jackson.core>
 
 		<!-- gson -->
 		<version.com.google.code.gson>2.7</version.com.google.code.gson>
@@ -60,11 +78,105 @@
 		<version.org.java-websocket>1.3.0</version.org.java-websocket>
 
 		<!-- netty -->
-		<version.io.netty>4.0.32.Final</version.io.netty>
+		<version.io.netty>4.1.8.Final</version.io.netty>
+
+		<!-- vert.x -->
+		<version.io.vertx>3.4.2</version.io.vertx>
 
 		<!-- springframework -->
 		<version.org.springframework>4.3.1.RELEASE</version.org.springframework>
 	</properties>
+	
+	<build>
+		<plugins>
+			<!-- Compile -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${version.maven-compiler-plugin}</version>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<!-- Test -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${version.maven-surefire-plugin}</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<!-- Source -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>${version.maven-source-plugin}</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- Javadoc -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>${version.maven-javadoc-plugin}</version>
+						<configuration>
+							<charset>UTF-8</charset>
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- GPG -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>${version.maven-gpg-plugin}</version>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>oss</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+				</snapshotRepository>
+				<repository>
+					<id>oss</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
 
 	<dependencyManagement>
 		<dependencies>
@@ -85,4 +197,11 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	
+	<modules>
+		<module>wsonrpc-core</module>
+		<module>wsonrpc-client</module>
+		<module>wsonrpc-server</module>
+		<module>wsonrpc-demo</module>
+	</modules>
 </project>

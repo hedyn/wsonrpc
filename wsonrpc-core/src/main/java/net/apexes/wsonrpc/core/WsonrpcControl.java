@@ -12,7 +12,6 @@ import net.apexes.wsonrpc.core.message.JsonRpcResponse;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.Future;
 
 /**
  * 
@@ -48,8 +47,8 @@ public class WsonrpcControl {
      * @throws IOException
      * @throws WsonrpcException
      */
-    public WsonrpcFuture<Object> invoke(WsonrpcSession session, String serviceName, String methodName, Object[] args,
-            Class<?> returnType) throws IOException, WsonrpcException {
+    public WsonrpcFuture<Object> invoke(WebSocketSession session, String serviceName, String methodName, Object[] args,
+                                        Class<?> returnType) throws IOException, WsonrpcException {
         if (session == null) {
             throw new NullPointerException("session");
         }
@@ -81,7 +80,7 @@ public class WsonrpcControl {
      * @throws IOException
      * @throws WsonrpcException
      */
-    public void invoke(WsonrpcSession session, String serviceName, String methodName, Object[] args)
+    public void invoke(WebSocketSession session, String serviceName, String methodName, Object[] args)
             throws IOException, WsonrpcException {
         if (session == null) {
             throw new NullPointerException("session");
@@ -96,7 +95,7 @@ public class WsonrpcControl {
      * @param session
      * @param bytes
      */
-    public void handle(final WsonrpcSession session, byte[] bytes) {
+    public void handle(final WebSocketSession session, byte[] bytes) {
         if (session == null) {
             throw new NullPointerException("session");
         }
@@ -117,7 +116,7 @@ public class WsonrpcControl {
      * @param session
      * @param request
      */
-    protected void handleRequest(WsonrpcSession session, JsonRpcRequest request) {
+    protected void handleRequest(WebSocketSession session, JsonRpcRequest request) {
         if (config.getWsonrpcExecutor() == null || request == null) {
             execute(session, request);
         } else {
@@ -131,7 +130,7 @@ public class WsonrpcControl {
      * @param session
      * @param response
      */
-    protected void handleResponse(WsonrpcSession session, JsonRpcResponse response) {
+    protected void handleResponse(WebSocketSession session, JsonRpcResponse response) {
         String id = response.getId();
         if (id == null) {
             return;
@@ -145,7 +144,7 @@ public class WsonrpcControl {
         }
     }
 
-    private void execute(WsonrpcSession session, JsonRpcRequest request) {
+    private void execute(WebSocketSession session, JsonRpcRequest request) {
         try {
             JsonRpcResponse resp = jsonRpcControl.execute(request);
             if (resp != null) {
@@ -163,10 +162,10 @@ public class WsonrpcControl {
      */
     private class ContextImpl implements WsonrpcExecutor.Context {
 
-        private final WsonrpcSession session;
+        private final WebSocketSession session;
         private final JsonRpcRequest request;
 
-        private ContextImpl(WsonrpcSession session, JsonRpcRequest request) {
+        private ContextImpl(WebSocketSession session, JsonRpcRequest request) {
             this.session = session;
             this.request = request;
         }

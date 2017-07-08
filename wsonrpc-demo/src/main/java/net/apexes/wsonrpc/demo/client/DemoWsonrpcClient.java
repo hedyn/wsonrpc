@@ -85,9 +85,10 @@ public class DemoWsonrpcClient {
     }
     
     public void close() throws Exception {
-        if (client.isConnected()) {
-            client.disconnect();
-        }
+        client.disconnect();
+//        if (client.isConnected()) {
+//
+//        }
     }
     
     public void login(String username, String password) {

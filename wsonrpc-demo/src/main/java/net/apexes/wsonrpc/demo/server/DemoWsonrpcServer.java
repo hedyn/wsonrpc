@@ -6,8 +6,8 @@
  */
 package net.apexes.wsonrpc.demo.server;
 
-import net.apexes.wsonrpc.core.ServiceRegistry;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import io.vertx.core.logging.SLF4JLogDelegateFactory;
+import net.apexes.wsonrpc.core.WebSocketSession;
 import net.apexes.wsonrpc.demo.api.DemoService;
 import net.apexes.wsonrpc.demo.api.RegisterService;
 import net.apexes.wsonrpc.demo.server.service.DemoServiceImpl;
@@ -16,6 +16,7 @@ import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,10 +30,14 @@ public class DemoWsonrpcServer {
     private static final Logger LOG = LoggerFactory.getLogger(DemoWsonrpcServer.class);
     
     public static void main(String[] args) throws Exception {
+        SLF4JBridgeHandler.install();
+        System.setProperty(io.vertx.core.logging.LoggerFactory.LOGGER_DELEGATE_FACTORY_CLASS_NAME, SLF4JLogDelegateFactory.class.getName());
+        
         DemoServer demoServer = null;
 //        demoServer = new JwsDemoWsonrpcServer();
-        demoServer = new TyrusDemoWsonrpcServer();
+//        demoServer = new TyrusDemoWsonrpcServer();
 //        demoServer = new NettyDemoWsonrpcServer();
+        demoServer = new VertxDemoServer();
         runServer(demoServer);
     }
     
@@ -79,7 +84,7 @@ public class DemoWsonrpcServer {
         serverBase.setServerListener(new WsonrpcServerListener() {
 
             @Override
-            public void onOpen(WsonrpcSession session) {
+            public void onOpen(WebSocketSession session) {
                 LOG.info("sessionId={}", session.getId());
             }
 

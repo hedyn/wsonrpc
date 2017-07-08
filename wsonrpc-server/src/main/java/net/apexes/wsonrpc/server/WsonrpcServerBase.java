@@ -9,7 +9,7 @@ package net.apexes.wsonrpc.server;
 import net.apexes.wsonrpc.core.ServiceRegistry;
 import net.apexes.wsonrpc.core.WsonrpcConfig;
 import net.apexes.wsonrpc.core.WsonrpcControl;
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 
 import java.nio.ByteBuffer;
 
@@ -33,7 +33,7 @@ public class WsonrpcServerBase implements WsonrpcServer {
      * Client端已经连接上
      * @param session
      */
-    public void onOpen(WsonrpcSession session) {
+    public void onOpen(WebSocketSession session) {
         WsonrpcRemotes.addRemote(session, wsonrpcControl.getConfig());
         fireOpen(session);
     }
@@ -53,7 +53,7 @@ public class WsonrpcServerBase implements WsonrpcServer {
      * @param buffer
      */
     public void onMessage(String sessionId, ByteBuffer buffer) {
-        WsonrpcSession session = WsonrpcRemotes.getSession(sessionId);
+        WebSocketSession session = WsonrpcRemotes.getSession(sessionId);
         byte[] bytes = buffer.array();
         WsonrpcSessions.begin(session);
         try {
@@ -72,7 +72,7 @@ public class WsonrpcServerBase implements WsonrpcServer {
         }
     }
     
-    private void fireOpen(WsonrpcSession session) {
+    private void fireOpen(WebSocketSession session) {
         if (serverListener != null) {
             serverListener.onOpen(session);
         }

@@ -135,7 +135,9 @@ class WebSocketWriter  {
                 writeMessage();
             }
         } catch (IOException e) {
-            handleError(new WebSocketException("IO Exception", e));
+            if (!stop) {
+                handleError(new WebSocketException("IO Exception", e));
+            }
         } catch (InterruptedException e) {
             // this thread is regularly terminated via an interrupt
             //e.printStackTrace();

@@ -207,7 +207,7 @@ public class WebSocketClient {
             case CONNECTED:
                 // This method also shuts down the writer
                 // the socket will be closed once the ack for the close was received
-                sendCloseHandshake();
+                sendCloseHandshake(true);
                 return;
             case DISCONNECTING:
                 return; // no-op;
@@ -225,7 +225,7 @@ public class WebSocketClient {
             return;
         }
         receiver.stopit();
-        writer.stopIt();
+        sendCloseHandshake(false);
         if (socket != null) {
             try {
                 socket.close();
@@ -238,7 +238,7 @@ public class WebSocketClient {
         eventHandler.onClose();
     }
     
-    private void sendCloseHandshake() {
+    private void sendCloseHandshake(boolean clientClosed) {
         try {
             state = State.DISCONNECTING;
             // Set the stop flag then queue up a message. This ensures that the writer thread
@@ -246,7 +246,9 @@ public class WebSocketClient {
             writer.stopIt();
             writer.send(OPCODE_CLOSE, true, new byte[0]);
         } catch (IOException e) {
-            eventHandler.onError(new WebSocketException("Failed to send close frame", e));
+            if (clientClosed) {
+                eventHandler.onError(new WebSocketException("Failed to send close frame", e));
+            }
         }
     }
     

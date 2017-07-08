@@ -31,7 +31,7 @@ import org.java_websocket.server.DefaultWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 import org.java_websocket.server.WebSocketServer.WebSocketServerFactory;
 
-import net.apexes.wsonrpc.core.WsonrpcSession;
+import net.apexes.wsonrpc.core.WebSocketSession;
 import net.apexes.wsonrpc.server.WsonrpcServer;
 import net.apexes.wsonrpc.server.WsonrpcServerBase;
 
@@ -50,12 +50,12 @@ public class JavaWebsocketWsonrpcServer {
 
         @Override
         public WebSocketImpl createWebSocket(WebSocketAdapter a, Draft d, Socket s) {
-            return new SessionWebSocket(a, d);
+            return new SessionWebSocketImpl(a, d);
         }
 
         @Override
         public WebSocketImpl createWebSocket(WebSocketAdapter a, List<Draft> d, Socket s) {
-            return new SessionWebSocket(a, d);
+            return new SessionWebSocketImpl(a, d);
         }
     };
 
@@ -98,8 +98,8 @@ public class JavaWebsocketWsonrpcServer {
             return null;
         }
         String id;
-        if (websocket instanceof SessionWebSocket) {
-            id = ((SessionWebSocket) websocket).getId();
+        if (websocket instanceof SessionWebSocketImpl) {
+            id = ((SessionWebSocketImpl) websocket).getId();
         } else {
             id = websocket.getRemoteSocketAddress().toString();
         }
@@ -138,15 +138,15 @@ public class JavaWebsocketWsonrpcServer {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class SessionWebSocket extends WebSocketImpl {
+    private static class SessionWebSocketImpl extends WebSocketImpl {
 
         private final String id = UUID.randomUUID().toString();
 
-        public SessionWebSocket(WebSocketListener listener, Draft draft) {
+        public SessionWebSocketImpl(WebSocketListener listener, Draft draft) {
             super(listener, draft);
         }
 
-        public SessionWebSocket(WebSocketListener listener, List<Draft> drafts) {
+        public SessionWebSocketImpl(WebSocketListener listener, List<Draft> drafts) {
             super(listener, drafts);
         }
 
@@ -216,7 +216,7 @@ public class JavaWebsocketWsonrpcServer {
      * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
      *
      */
-    private static class JavaWebSocketSessionAdapter implements WsonrpcSession {
+    private static class JavaWebSocketSessionAdapter implements WebSocketSession {
 
         private static final FramedataImpl1 PING_FRAME = new FramedataImpl1(Opcode.PING);
         static {

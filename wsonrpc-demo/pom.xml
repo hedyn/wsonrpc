@@ -10,6 +10,14 @@
 	<artifactId>wsonrpc-demo</artifactId>
 	<version>1.1.0</version>
 
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+
+		<version.io.vertx>3.4.2</version.io.vertx>
+	</properties>
+
 	<dependencies>
 		<!-- wsonrpc -->
 		<dependency>
@@ -75,6 +83,13 @@
 			<version>${version.org.springframework}</version>
 		</dependency>
 
+		<!-- vert.x -->
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-core</artifactId>
+			<version>${version.io.vertx}</version>
+		</dependency>
+
 		<!-- logback -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -83,13 +98,18 @@
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-access</artifactId>
-			<version>1.1.7</version>
+			<version>1.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.1.7</version>
+			<version>1.2.2</version>
 		</dependency>
 	</dependencies>
 
