@@ -20,7 +20,6 @@ import net.apexes.wsonrpc.json.JsonImplementor;
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
- *
  */
 public class GsonImplementor implements JsonImplementor {
     

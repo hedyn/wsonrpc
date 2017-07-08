@@ -20,7 +20,6 @@ import java.io.IOException;
 /**
  * 
  * @author <a href="mailto:hedyn@foxmail.com">HeDYn</a>
- *
  */
 public class JacksonImplementor implements JsonImplementor {
     
