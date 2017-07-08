@@ -40,12 +40,13 @@
 			<url>http://maven.aliyun.com/nexus/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
-
+<!--
 	<scm>
 		<connection>scm:git:git@github.com:hedyn/wsonrpc.git</connection>
 		<developerConnection>scm:git:git@github.com:hedyn/wsonrpc.git</developerConnection>
 		<url>https://github.com/hedyn/wsonrpc</url>
 	</scm>
+	-->
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
